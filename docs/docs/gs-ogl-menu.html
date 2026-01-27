@@ -1,0 +1,1296 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GS_OGLMenu Class</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+
+<body class="endpoint-page">
+    <!-- GS_OGLMenu Methods Index -->
+    <section class="api-section">
+        <h2>GS_OGLMenu Class Reference</h2>
+        <p><strong>Files:</strong> <code>gs_ogl_menu.h</code>, <code>gs_ogl_menu.cpp</code></p>
+        <p><strong>Inherits from:</strong> <code>GS_Object</code></p>
+        
+        <div class="endpoint-index">
+            <h3>Constructor & Destructor</h3>
+            <ul>
+                <li><a href="#constructor">GS_OGLMenu() <span class="endpoint-desc">- Constructor</span></a></li>
+                <li><a href="#destructor">~GS_OGLMenu() <span class="endpoint-desc">- Destructor</span></a></li>
+            </ul>
+
+            <h3>Initialization Methods</h3>
+            <ul>
+                <li><a href="#create-file">Create(pathname, font) <span class="endpoint-desc">- Create menu from file with font</span></a></li>
+                <li><a href="#create-texture">Create(pathname, texture) <span class="endpoint-desc">- Create menu with existing font texture</span></a></li>
+                <li><a href="#destroy">Destroy() <span class="endpoint-desc">- Destroy menu and free resources</span></a></li>
+            </ul>
+
+            <h3>Rendering Methods</h3>
+            <ul>
+                <li><a href="#render-basic">Render() <span class="endpoint-desc">- Render menu with default colors</span></a></li>
+                <li><a href="#render-color">Render(colors) <span class="endpoint-desc">- Render menu with custom colors</span></a></li>
+            </ul>
+
+            <h3>Option Management Methods</h3>
+            <ul>
+                <li><a href="#addoption">AddOption() <span class="endpoint-desc">- Add option to menu</span></a></li>
+                <li><a href="#removeoption">RemoveOption() <span class="endpoint-desc">- Remove option by index</span></a></li>
+                <li><a href="#setoption">SetOption() <span class="endpoint-desc">- Change option text</span></a></li>
+                <li><a href="#getoption">GetOption() <span class="endpoint-desc">- Get option text by index</span></a></li>
+                <li><a href="#getoptionrect">GetOptionRect() <span class="endpoint-desc">- Get bounding rectangle of option</span></a></li>
+                <li><a href="#getnumoptions">GetNumOptions() <span class="endpoint-desc">- Get total number of options</span></a></li>
+                <li><a href="#clearoptions">ClearOptions() <span class="endpoint-desc">- Remove all options</span></a></li>
+            </ul>
+
+            <h3>Highlight Management Methods</h3>
+            <ul>
+                <li><a href="#gethighlight">GetHighlight() <span class="endpoint-desc">- Get highlighted option index</span></a></li>
+                <li><a href="#sethighlight">SetHighlight() <span class="endpoint-desc">- Set highlighted option</span></a></li>
+                <li><a href="#gethighlightoption">GetHighlightOption() <span class="endpoint-desc">- Get highlighted option text</span></a></li>
+                <li><a href="#gethighlightrect">GetHighlightRect() <span class="endpoint-desc">- Get highlight bounding rectangle</span></a></li>
+                <li><a href="#highlightnext">HighlightNext() <span class="endpoint-desc">- Move highlight to next option</span></a></li>
+                <li><a href="#highlightprev">HighlightPrev() <span class="endpoint-desc">- Move highlight to previous option</span></a></li>
+            </ul>
+
+            <h3>Property Methods</h3>
+            <ul>
+                <li><a href="#settitle">SetTitle() <span class="endpoint-desc">- Set menu title text</span></a></li>
+                <li><a href="#getcols">GetCols() <span class="endpoint-desc">- Get number of columns</span></a></li>
+                <li><a href="#getrows">GetRows() <span class="endpoint-desc">- Get number of rows</span></a></li>
+                <li><a href="#getwidth">GetWidth() <span class="endpoint-desc">- Get menu width</span></a></li>
+                <li><a href="#getheight">GetHeight() <span class="endpoint-desc">- Get menu height</span></a></li>
+                <li><a href="#setdestxy">SetDestX/Y() <span class="endpoint-desc">- Set menu position</span></a></li>
+                <li><a href="#getdestxy">GetDestX/Y() <span class="endpoint-desc">- Get menu position</span></a></li>
+                <li><a href="#getdestrect">GetDestRect() <span class="endpoint-desc">- Get menu bounding rectangle</span></a></li>
+                <li><a href="#setscalexy">SetScaleXY() <span class="endpoint-desc">- Set menu scale</span></a></li>
+                <li><a href="#getscalexy">GetScaleXY() <span class="endpoint-desc">- Get menu scale</span></a></li>
+                <li><a href="#setmodulatecolor">SetModulateColor() <span class="endpoint-desc">- Set menu color tint</span></a></li>
+                <li><a href="#getmodulatecolor">GetModulateColor() <span class="endpoint-desc">- Get menu color tint</span></a></li>
+            </ul>
+        </div>
+    </section>
+    
+    <!-- Class Overview -->
+    <section class="api-section">
+        <h2>Class Overview</h2>
+        <div class="endpoint">
+            <h3>About GS_OGLMenu</h3>
+            <p>The <code>GS_OGLMenu</code> class provides a complete, customizable menu system for GameSystem applications. It combines a tiled sprite-based menu background with bitmap font rendering to create professional-looking menus with full keyboard and mouse support.</p>
+
+            <p>This class is essential for game UIs, providing an easy way to create title screens, pause menus, options screens, and any other menu-based interface. The menu automatically handles layout, highlighting, navigation, and rendering.</p>
+
+            <h3>Key Features</h3>
+            <ul>
+                <li><strong>Tiled Menu Background:</strong> Uses a 16-tile sprite set for borders, separators, and backgrounds</li>
+                <li><strong>Bitmap Font Integration:</strong> Renders menu title and options using GS_OGLFont</li>
+                <li><strong>Optional Title:</strong> Supports menus with or without a title section</li>
+                <li><strong>Highlight System:</strong> Visual feedback for selected options with keyboard/mouse navigation</li>
+                <li><strong>Dynamic Options:</strong> Add, remove, or modify options at runtime</li>
+                <li><strong>Custom Colors:</strong> Separate colors for normal and highlighted text</li>
+                <li><strong>Auto-Sizing:</strong> Menu dimensions automatically adjust to content</li>
+                <li><strong>Scaling Support:</strong> Scale entire menu uniformly</li>
+                <li><strong>Collision Detection:</strong> Get bounding rectangles for mouse interaction</li>
+                <li><strong>Cross-Platform:</strong> Works identically on Windows, Linux, and macOS</li>
+            </ul>
+
+            <h3>Menu Tile Structure</h3>
+            <p>GS_OGLMenu requires a texture with 16 tiles arranged in a specific layout:</p>
+
+            <div style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; margin: 15px 0;">
+                <h4 style="margin-top: 0;">Tile Layout (16 tiles, 16 tiles per line)</h4>
+                <table style="width: 100%; border-collapse: collapse; margin: 10px 0;">
+                    <tr style="background-color: #f9f9f9;">
+                        <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Index</th>
+                        <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Constant</th>
+                        <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Purpose</th>
+                    </tr>
+                    <tr><td style="padding: 8px; border: 1px solid #ddd;">0</td><td style="padding: 8px; border: 1px solid #ddd;"><code>MENU_LEFT</code></td><td style="padding: 8px; border: 1px solid #ddd;">Left border</td></tr>
+                    <tr style="background-color: #f9f9f9;"><td style="padding: 8px; border: 1px solid #ddd;">1</td><td style="padding: 8px; border: 1px solid #ddd;"><code>MENU_RIGHT</code></td><td style="padding: 8px; border: 1px solid #ddd;">Right border</td></tr>
+                    <tr><td style="padding: 8px; border: 1px solid #ddd;">2</td><td style="padding: 8px; border: 1px solid #ddd;"><code>MENU_TOP_LEFT</code></td><td style="padding: 8px; border: 1px solid #ddd;">Top-left corner</td></tr>
+                    <tr style="background-color: #f9f9f9;"><td style="padding: 8px; border: 1px solid #ddd;">3</td><td style="padding: 8px; border: 1px solid #ddd;"><code>MENU_TOP</code></td><td style="padding: 8px; border: 1px solid #ddd;">Top border</td></tr>
+                    <tr><td style="padding: 8px; border: 1px solid #ddd;">4</td><td style="padding: 8px; border: 1px solid #ddd;"><code>MENU_TOP_RIGHT</code></td><td style="padding: 8px; border: 1px solid #ddd;">Top-right corner</td></tr>
+                    <tr style="background-color: #f9f9f9;"><td style="padding: 8px; border: 1px solid #ddd;">5</td><td style="padding: 8px; border: 1px solid #ddd;"><code>MENU_BOTTOM_LEFT</code></td><td style="padding: 8px; border: 1px solid #ddd;">Bottom-left corner</td></tr>
+                    <tr><td style="padding: 8px; border: 1px solid #ddd;">6</td><td style="padding: 8px; border: 1px solid #ddd;"><code>MENU_BOTTOM</code></td><td style="padding: 8px; border: 1px solid #ddd;">Bottom border</td></tr>
+                    <tr style="background-color: #f9f9f9;"><td style="padding: 8px; border: 1px solid #ddd;">7</td><td style="padding: 8px; border: 1px solid #ddd;"><code>MENU_BOTTOM_RIGHT</code></td><td style="padding: 8px; border: 1px solid #ddd;">Bottom-right corner</td></tr>
+                    <tr><td style="padding: 8px; border: 1px solid #ddd;">8</td><td style="padding: 8px; border: 1px solid #ddd;"><code>MENU_SEPERATOR_LEFT</code></td><td style="padding: 8px; border: 1px solid #ddd;">Left separator (title divider)</td></tr>
+                    <tr style="background-color: #f9f9f9;"><td style="padding: 8px; border: 1px solid #ddd;">9</td><td style="padding: 8px; border: 1px solid #ddd;"><code>MENU_SEPERATOR</code></td><td style="padding: 8px; border: 1px solid #ddd;">Horizontal separator</td></tr>
+                    <tr><td style="padding: 8px; border: 1px solid #ddd;">10</td><td style="padding: 8px; border: 1px solid #ddd;"><code>MENU_SEPERATOR_RIGHT</code></td><td style="padding: 8px; border: 1px solid #ddd;">Right separator (title divider)</td></tr>
+                    <tr style="background-color: #f9f9f9;"><td style="padding: 8px; border: 1px solid #ddd;">11</td><td style="padding: 8px; border: 1px solid #ddd;"><code>MENU_BACKGROUND</code></td><td style="padding: 8px; border: 1px solid #ddd;">Fill background</td></tr>
+                    <tr><td style="padding: 8px; border: 1px solid #ddd;">12</td><td style="padding: 8px; border: 1px solid #ddd;"><code>MENU_HIGHLIGHT_LEFT</code></td><td style="padding: 8px; border: 1px solid #ddd;">Left highlight edge</td></tr>
+                    <tr style="background-color: #f9f9f9;"><td style="padding: 8px; border: 1px solid #ddd;">13</td><td style="padding: 8px; border: 1px solid #ddd;"><code>MENU_HIGHLIGHT</code></td><td style="padding: 8px; border: 1px solid #ddd;">Highlight fill</td></tr>
+                    <tr><td style="padding: 8px; border: 1px solid #ddd;">14</td><td style="padding: 8px; border: 1px solid #ddd;"><code>MENU_HIGHLIGHT_RIGHT</code></td><td style="padding: 8px; border: 1px solid #ddd;">Right highlight edge</td></tr>
+                    <tr style="background-color: #f9f9f9;"><td style="padding: 8px; border: 1px solid #ddd;">15</td><td style="padding: 8px; border: 1px solid #ddd;"><code>MENU_EXTRA</code></td><td style="padding: 8px; border: 1px solid #ddd;">Reserved for custom use</td></tr>
+                </table>
+            </div>
+
+            <h3>Inheritance Hierarchy</h3>
+            <p>GS_OGLMenu inherits from GS_Object, providing basic object functionality:</p>
+
+            <div style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; margin: 15px 0;">
+                <pre style="margin: 0; font-family: 'Courier New', monospace;">
+GS_Object
+    ↓
+GS_OGLMenu
+</pre>
+            </div>
+
+            <h3>Member Variables</h3>
+            <p>All member variables are private:</p>
+
+            <table style="width: 100%; border-collapse: collapse; margin: 1em 0;">
+                <thead>
+                    <tr style="background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Variable</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Type</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_gsOptionList</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">GS_List&lt;char*&gt;</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">List of menu option strings</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_gsMenuSprite</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">GS_OGLSpriteEx</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Tiled sprite for menu rendering</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_gsMenuFont</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">GS_OGLFont</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Font for rendering text</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_bIsReady</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">BOOL</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Initialization state flag</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_lDestX, m_lDestY</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">long</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Menu position coordinates</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_pszTitleString</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">char*</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Optional title text (NULL if no title)</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_nHighlightOption</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">int</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Index of highlighted option (-1 if none)</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Usage Pattern</h3>
+            <p>Typical workflow for using GS_OGLMenu:</p>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Create menu
+GS_OGLMenu menu;
+menu.Create("data/menu_01.tga", fontTexture.GetID(), 
+            fontTexture.GetWidth(), fontTexture.GetHeight(),
+            16, 16, 16);
+
+// Configure menu
+menu.SetTitle("MAIN MENU");
+menu.AddOption("NEW GAME");
+menu.AddOption("LOAD GAME");
+menu.AddOption("OPTIONS");
+menu.AddOption("QUIT");
+menu.SetHighlight(0);
+
+// Position menu
+menu.SetDestXY((screenWidth - menu.GetWidth()) / 2,
+               (screenHeight - menu.GetHeight()) / 2);
+
+// In game loop - handle input
+if (keyPressed == GSK_UP)   menu.HighlightPrev();
+if (keyPressed == GSK_DOWN) menu.HighlightNext();
+if (keyPressed == GSK_ENTER)
+{
+    int selected = menu.GetHighlight();
+    // Process selection...
+}
+
+// Render menu
+m_gsDisplay.BeginRender2D(GetWindow());
+menu.Render(normalColor, highlightColor);
+m_gsDisplay.EndRender2D();</code></pre>
+        </div>
+    </section>
+
+    <!-- Constructor & Destructor -->
+    <section class="api-section">
+        <h2>Constructor & Destructor</h2>
+
+        <div class="endpoint" id="constructor">
+            <h3>GS_OGLMenu()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_menu.cpp</code></p>
+            <p>Constructor that initializes all member variables to default values.</p>
+            
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Initialization:</strong></p>
+            <ul>
+                <li><code>m_bIsReady = FALSE</code> - Menu not initialized</li>
+                <li><code>m_lDestX = 0, m_lDestY = 0</code> - Position at origin</li>
+                <li><code>m_nHighlightOption = -1</code> - No option highlighted</li>
+                <li><code>m_pszTitleString = NULL</code> - No title</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>GS_OGLMenu menu;  // Ready for Create() call</pre>
+        </div>
+
+        <div class="endpoint" id="destructor">
+            <h3>~GS_OGLMenu()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_menu.cpp</code></p>
+            <p>Destructor that ensures proper cleanup of menu resources.</p>
+            
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Calls <code>Destroy()</code> to free all resources</li>
+                <li>Releases option list memory</li>
+                <li>Frees title string if allocated</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Initialization Methods -->
+    <section class="api-section">
+        <h2>Initialization Methods</h2>
+
+        <div class="endpoint" id="create-file">
+            <h3>Create() - From Files</h3>
+            <p><strong>File:</strong> <code>gs_ogl_menu.cpp</code></p>
+            <p>Creates a menu by loading both menu and font textures from files.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL Create(const char* pszMenuPathname, const char* pszFontPathname, 
+            int nTilesPerLine, int nTileWidth, int nTileHeight,
+            BOOL bFiltered = FALSE, BOOL bMipmap = TRUE)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>pszMenuPathname</code> - Path to menu tile texture (TGA/PCX)</li>
+                <li><code>pszFontPathname</code> - Path to font texture (TGA/PCX)</li>
+                <li><code>nTilesPerLine</code> - Characters per line in font (e.g., 16)</li>
+                <li><code>nTileWidth</code> - Width of each tile/character in pixels</li>
+                <li><code>nTileHeight</code> - Height of each tile/character in pixels</li>
+                <li><code>bFiltered</code> - TRUE for bilinear filtering (default: FALSE)</li>
+                <li><code>bMipmap</code> - TRUE to generate mipmaps (default: TRUE)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Creates menu sprite with 16 tiles</li>
+                <li>Creates font with matching tile size</li>
+                <li>Font tile size must match menu tile size</li>
+                <li>Sets <code>m_bIsReady = TRUE</code> on success</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Menu created successfully</li>
+                <li><code>FALSE</code> - Creation failed</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>GS_OGLMenu menu;
+if (!menu.Create("data/menu.tga", "data/font.tga", 16, 16, 16))
+{
+    GS_Error::Report(__FILE__, __LINE__, "Failed to create menu!");
+    return FALSE;
+}</code></pre>
+        </div>
+
+        <div class="endpoint" id="create-texture">
+            <h3>Create() - From Existing Texture</h3>
+            <p><strong>File:</strong> <code>gs_ogl_menu.cpp</code></p>
+            <p>Creates a menu using an existing OpenGL texture ID for the font.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL Create(const char* pszMenuPathname, GLuint glFontTexture, 
+            int nWidth, int nHeight, int nTilesPerLine,
+            int nTileWidth, int nTileHeight,
+            BOOL bFiltered = FALSE, BOOL bMipmap = TRUE)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>pszMenuPathname</code> - Path to menu tile texture</li>
+                <li><code>glFontTexture</code> - OpenGL texture ID for font</li>
+                <li><code>nWidth</code> - Font texture width in pixels</li>
+                <li><code>nHeight</code> - Font texture height in pixels</li>
+                <li><code>nTilesPerLine</code> - Characters per line in font</li>
+                <li><code>nTileWidth</code> - Width of each tile/character</li>
+                <li><code>nTileHeight</code> - Height of each tile/character</li>
+                <li><code>bFiltered</code> - Texture filtering</li>
+                <li><code>bMipmap</code> - Generate mipmaps for menu</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Menu created successfully</li>
+                <li><code>FALSE</code> - Creation failed</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Share font texture between menu and other font objects
+GS_OGLTexture fontTexture;
+fontTexture.Create("data/font.tga", GS_MIPMAP, GL_NEAREST, GL_NEAREST);
+
+GS_OGLMenu menu;
+menu.Create("data/menu.tga", fontTexture.GetID(),
+            fontTexture.GetWidth(), fontTexture.GetHeight(),
+            16, 16, 16);</code></pre>
+
+            <p><strong>Use Case:</strong> Efficient when multiple menus or fonts share the same texture.</p>
+        </div>
+
+        <div class="endpoint" id="destroy">
+            <h3>Destroy()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_menu.cpp</code></p>
+            <p>Destroys the menu and releases all associated resources.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void Destroy()</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Returns immediately if not initialized</li>
+                <li>Destroys menu sprite and font</li>
+                <li>Frees title string memory</li>
+                <li>Deletes all option strings</li>
+                <li>Clears option list</li>
+                <li>Resets all variables to default values</li>
+                <li>Sets <code>m_bIsReady = FALSE</code></li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>None (void)</li>
+            </ul>
+
+            <p><strong>Note:</strong> Called automatically by destructor.</p>
+        </div>
+    </section>
+
+    <!-- Rendering Methods -->
+    <section class="api-section">
+        <h2>Rendering Methods</h2>
+
+        <div class="endpoint" id="render-basic">
+            <h3>Render() - Basic</h3>
+            <p><strong>File:</strong> <code>gs_ogl_menu.cpp</code></p>
+            <p>Renders the menu with default white text color.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL Render(HWND hWnd = NULL)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>hWnd</code> - Window handle (ignored, for compatibility)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Returns FALSE if menu not created</li>
+                <li>Renders menu borders (corners, edges)</li>
+                <li>Renders menu background fill</li>
+                <li>Renders title separator if title exists</li>
+                <li>Renders highlight background if option selected</li>
+                <li>Renders title text (if present)</li>
+                <li>Renders all option texts</li>
+                <li>Uses white (1.0, 1.0, 1.0, 1.0) for all text</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Menu rendered successfully</li>
+                <li><code>FALSE</code> - Rendering failed</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>menu.Render();  // Simple render with white text</code></pre>
+        </div>
+
+        <div class="endpoint" id="render-color">
+            <h3>Render() - With Colors</h3>
+            <p><strong>File:</strong> <code>gs_ogl_menu.cpp</code></p>
+            <p>Renders the menu with custom colors for normal and highlighted text.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL Render(GS_OGLColor gsNormalColor, GS_OGLColor gsHighlightColor, HWND hWnd = NULL)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>gsNormalColor</code> - Color for non-highlighted options</li>
+                <li><code>gsHighlightColor</code> - Color for highlighted option</li>
+                <li><code>hWnd</code> - Window handle (ignored)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Same as basic Render() for menu background</li>
+                <li>Title rendered in white (1.0, 1.0, 1.0, 1.0)</li>
+                <li>Normal options rendered in <code>gsNormalColor</code></li>
+                <li>Highlighted option rendered in <code>gsHighlightColor</code></li>
+                <li>Automatically switches colors based on highlight state</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Menu rendered successfully</li>
+                <li><code>FALSE</code> - Rendering failed</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Semi-transparent gray for normal text
+GS_OGLColor normalColor(1.0f, 1.0f, 1.0f, 0.3f);
+
+// Solid white for highlighted text
+GS_OGLColor highlightColor(1.0f, 1.0f, 1.0f, 1.0f);
+
+menu.Render(normalColor, highlightColor);
+
+// Yellow highlight
+menu.Render(GS_OGLColor(0.7f, 0.7f, 0.7f, 1.0f),  // Gray normal
+            GS_OGLColor(1.0f, 1.0f, 0.0f, 1.0f)); // Yellow highlight</code></pre>
+        </div>
+    </section>
+
+    <!-- Option Management Methods -->
+    <section class="api-section">
+        <h2>Option Management Methods</h2>
+
+        <div class="endpoint" id="addoption">
+            <h3>AddOption()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_menu.cpp</code></p>
+            <p>Adds a new option to the menu.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL AddOption(const char* pszOptionString)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>pszOptionString</code> - Text for the new option</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Returns FALSE if string is NULL</li>
+                <li>Allocates memory for option string</li>
+                <li>Copies string and null-terminates it</li>
+                <li>Adds to option list</li>
+                <li>Menu dimensions update automatically</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Option added successfully</li>
+                <li><code>FALSE</code> - Failed (NULL string)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>menu.AddOption("NEW GAME");
+menu.AddOption("CONTINUE");
+menu.AddOption("OPTIONS");
+menu.AddOption("QUIT");</code></pre>
+        </div>
+
+        <div class="endpoint" id="removeoption">
+            <h3>RemoveOption()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_menu.cpp</code></p>
+            <p>Removes an option from the menu by index.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL RemoveOption(int nIndex)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>nIndex</code> - Zero-based index of option to remove</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Returns FALSE if index is invalid</li>
+                <li>Frees memory for option string</li>
+                <li>Removes from option list</li>
+                <li>Remaining options shift up</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Option removed</li>
+                <li><code>FALSE</code> - Invalid index</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>menu.RemoveOption(2);  // Remove third option</pre>
+        </div>
+
+        <div class="endpoint" id="setoption">
+            <h3>SetOption()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_menu.cpp</code></p>
+            <p>Changes the text of an existing option.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL SetOption(int nIndex, const char* pszOptionString)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>nIndex</code> - Index of option to modify</li>
+                <li><code>pszOptionString</code> - New text for option</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Returns FALSE if index invalid or string NULL</li>
+                <li>Frees old option string</li>
+                <li>Allocates and copies new string</li>
+                <li>Menu width may change if new text is longer/shorter</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Option updated</li>
+                <li><code>FALSE</code> - Failed</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Toggle fullscreen option text
+if (isFullscreen)
+    menu.SetOption(1, "WINDOWED MODE");
+else
+    menu.SetOption(1, "FULLSCREEN MODE");
+
+// Update volume display
+char buffer[32];
+sprintf(buffer, "MUSIC VOLUME...%03d", volume);
+menu.SetOption(4, buffer);</code></pre>
+        </div>
+
+        <div class="endpoint" id="getoption">
+            <h3>GetOption()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_menu.cpp</code></p>
+            <p>Retrieves the text of an option by index.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>char* GetOption(int nIndex)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>nIndex</code> - Index of option to retrieve</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>char*</code> - Pointer to option text</li>
+                <li><code>NULL</code> - Invalid index</li>
+            </ul>
+
+            <p><strong>Warning:</strong> Do not modify or free the returned string.</p>
+
+            <p><strong>Example:</strong></p>
+            <pre>const char* option = menu.GetOption(0);
+if (strcmp(option, "NEW GAME") == 0) { /* ... */ }</pre>
+        </div>
+
+        <div class="endpoint" id="getoptionrect">
+            <h3>GetOptionRect()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_menu.cpp</code></p>
+            <p>Gets the bounding rectangle of a specific option for mouse detection.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void GetOptionRect(int nIndex, RECT* pDestRect)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>nIndex</code> - Index of option</li>
+                <li><code>pDestRect</code> - Pointer to RECT to receive bounds</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Returns silently if index invalid or no options</li>
+                <li>Calculates option position within menu</li>
+                <li>Sets rectangle to option text area (excludes borders)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Check if mouse is over an option
+for (int i = 0; i < menu.GetNumOptions(); i++)
+{
+    RECT optionRect;
+    menu.GetOptionRect(i, &optionRect);
+    
+    if (collide.IsCoordInRect(mouseX, mouseY, optionRect))
+    {
+        menu.SetHighlight(i);
+        break;
+    }
+}</code></pre>
+        </div>
+
+        <div class="endpoint" id="getnumoptions">
+            <h3>GetNumOptions()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_menu.cpp</code></p>
+            <p>Returns the total number of options in the menu.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>int GetNumOptions()</pre>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>int</code> - Number of options (0 if empty)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>int count = menu.GetNumOptions();</pre>
+        </div>
+
+        <div class="endpoint" id="clearoptions">
+            <h3>ClearOptions()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_menu.cpp</code></p>
+            <p>Removes all options from the menu.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void ClearOptions()</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Frees memory for all option strings</li>
+                <li>Removes all items from option list</li>
+                <li>Menu becomes empty (only title if set)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Rebuild menu with different options
+menu.ClearOptions();
+menu.AddOption("EASY");
+menu.AddOption("MEDIUM");
+menu.AddOption("HARD");</code></pre>
+        </div>
+    </section>
+
+    <!-- Highlight Management Methods -->
+    <section class="api-section">
+        <h2>Highlight Management Methods</h2>
+
+        <div class="endpoint" id="gethighlight">
+            <h3>GetHighlight()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_menu.cpp</code></p>
+            <p>Returns the index of the currently highlighted option.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>int GetHighlight()</pre>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>int</code> - Index of highlighted option (0-based)</li>
+                <li><code>-1</code> - No option highlighted</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>if (keyPressed == GSK_ENTER)
+{
+    int selected = menu.GetHighlight();
+    switch (selected)
+    {
+        case 0: StartNewGame(); break;
+        case 1: LoadGame(); break;
+        case 2: ShowOptions(); break;
+        case 3: QuitGame(); break;
+    }
+}</code></pre>
+        </div>
+
+        <div class="endpoint" id="sethighlight">
+            <h3>SetHighlight()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_menu.cpp</code></p>
+            <p>Sets which option is highlighted.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void SetHighlight(int nIndex)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>nIndex</code> - Index to highlight (0-based), or -1 for no highlight</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Sets highlight to -1 if index is out of range</li>
+                <li>Otherwise sets highlight to specified index</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>menu.SetHighlight(0);   // Highlight first option
+menu.SetHighlight(-1);  // No highlight</code></pre>
+        </div>
+
+        <div class="endpoint" id="gethighlightoption">
+            <h3>GetHighlightOption()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_menu.cpp</code></p>
+            <p>Gets the text of the currently highlighted option.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>char* GetHighlightOption()</pre>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>char*</code> - Pointer to highlighted option text</li>
+                <li><code>NULL</code> - No option highlighted</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>const char* selected = menu.GetHighlightOption();
+if (selected) printf("Selected: %s\n", selected);</pre>
+        </div>
+
+        <div class="endpoint" id="gethighlightrect">
+            <h3>GetHighlightRect()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_menu.cpp</code></p>
+            <p>Gets the bounding rectangle of the highlighted option.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void GetHighlightRect(RECT* pDestRect)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>pDestRect</code> - Pointer to RECT to receive bounds</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Returns silently if no highlight or no options</li>
+                <li>Fills rectangle with highlighted option bounds</li>
+            </ul>
+        </div>
+
+        <div class="endpoint" id="highlightnext">
+            <h3>HighlightNext()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_menu.cpp</code></p>
+            <p>Moves the highlight to the next option, wrapping to first if at end.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void HighlightNext(BOOL bSkipEmpty = TRUE)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>bSkipEmpty</code> - TRUE to skip options with no text (default: TRUE)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Increments highlight index</li>
+                <li>Wraps to 0 if at last option</li>
+                <li>Skips empty options if <code>bSkipEmpty</code> is TRUE</li>
+                <li>Prevents infinite loop if all options empty</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>if (keyPressed == GSK_DOWN)
+    menu.HighlightNext();
+
+// Include empty separators
+if (keyPressed == GSK_DOWN)
+    menu.HighlightNext(FALSE);</code></pre>
+        </div>
+
+        <div class="endpoint" id="highlightprev">
+            <h3>HighlightPrev()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_menu.cpp</code></p>
+            <p>Moves the highlight to the previous option, wrapping to last if at start.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void HighlightPrev(BOOL bSkipEmpty = TRUE)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>bSkipEmpty</code> - TRUE to skip options with no text (default: TRUE)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Decrements highlight index</li>
+                <li>Wraps to last option if at first</li>
+                <li>Skips empty options if <code>bSkipEmpty</code> is TRUE</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>if (keyPressed == GSK_UP)
+    menu.HighlightPrev();</pre>
+        </div>
+    </section>
+
+    <!-- Property Methods -->
+    <section class="api-section">
+        <h2>Property Methods</h2>
+
+        <div class="endpoint" id="settitle">
+            <h3>SetTitle()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_menu.cpp</code></p>
+            <p>Sets the optional title text displayed at the top of the menu.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void SetTitle(const char* pszTextString)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>pszTextString</code> - Title text (or empty string to remove title)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Frees existing title if present</li>
+                <li>Allocates and copies new title string</li>
+                <li>Empty string removes title (no separator rendered)</li>
+                <li>Menu height increases by 2 rows when title is set</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>menu.SetTitle("MAIN MENU");
+menu.SetTitle("OPTIONS");
+menu.SetTitle("");  // Remove title</code></pre>
+        </div>
+
+        <div class="endpoint" id="getcols">
+            <h3>GetCols()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_menu.cpp</code></p>
+            <p>Returns the number of columns (character width) of the menu.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>int GetCols()</pre>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>int</code> - Number of columns (longest option/title + 2 for borders)</li>
+            </ul>
+
+            <p><strong>Calculation:</strong></p>
+            <pre>cols = max(titleLength, longestOptionLength) + 2</pre>
+        </div>
+
+        <div class="endpoint" id="getrows">
+            <h3>GetRows()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_menu.cpp</code></p>
+            <p>Returns the number of rows (character height) of the menu.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>int GetRows()</pre>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>int</code> - Number of rows</li>
+            </ul>
+
+            <p><strong>Calculation:</strong></p>
+            <pre>rows = 2 (borders) + numOptions + (title ? 2 : 0)</pre>
+        </div>
+
+        <div class="endpoint" id="getwidth">
+            <h3>GetWidth()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_menu.cpp</code></p>
+            <p>Returns the pixel width of the menu.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>long GetWidth()</pre>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>long</code> - Width in pixels (cols × tileWidth × scaleX)</li>
+            </ul>
+        </div>
+
+        <div class="endpoint" id="getheight">
+            <h3>GetHeight()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_menu.cpp</code></p>
+            <p>Returns the pixel height of the menu.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>long GetHeight()</pre>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>long</code> - Height in pixels (rows × tileHeight × scaleY)</li>
+            </ul>
+        </div>
+
+        <div class="endpoint" id="setdestxy">
+            <h3>SetDestX() / SetDestY()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_menu.cpp</code></p>
+            <p>Sets the menu position on screen.</p>
+            
+            <p><strong>Signatures:</strong></p>
+            <pre>void SetDestX(long lDestX)
+void SetDestY(long lDestY)</pre>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Center menu
+menu.SetDestX((screenWidth - menu.GetWidth()) / 2);
+menu.SetDestY((screenHeight - menu.GetHeight()) / 2);</code></pre>
+        </div>
+
+        <div class="endpoint" id="getdestxy">
+            <h3>GetDestX() / GetDestY()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_menu.cpp</code></p>
+            <p>Gets the menu position on screen.</p>
+            
+            <p><strong>Signatures:</strong></p>
+            <pre>long GetDestX()
+long GetDestY()</pre>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>long</code> - X or Y coordinate</li>
+            </ul>
+        </div>
+
+        <div class="endpoint" id="getdestrect">
+            <h3>GetDestRect()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_menu.cpp</code></p>
+            <p>Gets the bounding rectangle of the entire menu.</p>
+            
+            <p><strong>Signatures:</strong></p>
+            <pre>void GetDestRect(long* pLeft, long* pTop, long* pRight, long* pBottom)
+void GetDestRect(RECT* pDestRect)</pre>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>RECT menuRect;
+menu.GetDestRect(&menuRect);
+
+// Check if mouse is over menu
+if (collide.IsCoordInRect(mouseX, mouseY, menuRect))
+{
+    // Process menu interaction
+}</code></pre>
+        </div>
+
+        <div class="endpoint" id="setscalexy">
+            <h3>SetScaleXY() / SetScaleX() / SetScaleY()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_menu.cpp</code></p>
+            <p>Sets the scale factor for the menu.</p>
+            
+            <p><strong>Signatures:</strong></p>
+            <pre>void SetScaleXY(float glfScaleX, float glfScaleY)
+void SetScaleX(float glfScaleX)
+void SetScaleY(float glfScaleY)</pre>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Scales both menu sprite and font</li>
+                <li>Affects menu dimensions (width/height)</li>
+                <li>1.0 = original size, 2.0 = double size, 0.5 = half size</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>menu.SetScaleXY(1.5f, 1.5f);  // 1.5x larger
+menu.SetScaleXY(0.75f, 0.75f); // Smaller menu</code></pre>
+        </div>
+
+        <div class="endpoint" id="getscalexy">
+            <h3>GetScaleXY() / GetScaleX() / GetScaleY()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_menu.cpp</code></p>
+            <p>Gets the current scale factor.</p>
+            
+            <p><strong>Signatures:</strong></p>
+            <pre>void GetScaleXY(float* pScaleX, float* pScaleY)
+float GetScaleX()
+float GetScaleY()</pre>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Scale factor (1.0 = original size)</li>
+            </ul>
+        </div>
+
+        <div class="endpoint" id="setmodulatecolor">
+            <h3>SetModulateColor()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_menu.cpp</code></p>
+            <p>Sets a color tint for the entire menu (background and text).</p>
+            
+            <p><strong>Signatures:</strong></p>
+            <pre>void SetModulateColor(GS_OGLColor gsColor)
+void SetModulateColor(float fRed = -1.0f, float fGreen = -1.0f, 
+                      float fBlue = -1.0f, float fAlpha = -1.0f)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>gsColor</code> - Color tint</li>
+                <li><code>fRed/Green/Blue/Alpha</code> - Components (0.0-1.0), -1.0 to keep current</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Fade menu in
+menu.SetModulateColor(-1.0f, -1.0f, -1.0f, alpha);
+
+// Red tint
+menu.SetModulateColor(1.0f, 0.5f, 0.5f, 1.0f);</code></pre>
+        </div>
+
+        <div class="endpoint" id="getmodulatecolor">
+            <h3>GetModulateColor()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_menu.cpp</code></p>
+            <p>Gets the current color modulation.</p>
+            
+            <p><strong>Signatures:</strong></p>
+            <pre>void GetModulateColor(GS_OGLColor* pgsColor)
+void GetModulateColor(float* pRed, float* pGreen, float* pBlue, float* pAlpha)</pre>
+        </div>
+    </section>
+
+    <!-- Practical Examples -->
+    <section class="api-section">
+        <h2>Practical Examples</h2>
+        <div class="endpoint">
+            <h3>Creating a Main Menu</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// In GameInit()
+GS_OGLTexture fontTexture;
+fontTexture.Create("data/font.tga", GS_MIPMAP, GL_NEAREST, GL_NEAREST);
+
+GS_OGLMenu mainMenu;
+mainMenu.Create("data/menu_01.tga", fontTexture.GetID(),
+                fontTexture.GetWidth(), fontTexture.GetHeight(),
+                16, 16, 16);
+
+mainMenu.SetTitle("MAIN MENU");
+mainMenu.AddOption("NEW GAME");
+mainMenu.AddOption("LOAD GAME");
+mainMenu.AddOption("OPTIONS");
+mainMenu.AddOption("QUIT");
+mainMenu.SetHighlight(0);
+
+// Center on screen
+mainMenu.SetDestX((SCREEN_WIDTH - mainMenu.GetWidth()) / 2);
+mainMenu.SetDestY((SCREEN_HEIGHT - mainMenu.GetHeight()) / 2);</code></pre>
+
+            <h3>Menu Navigation with Keyboard</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>int nKey = m_gsKeyboard.GetBufferedKey();
+
+switch (nKey)
+{
+    case GSK_UP:
+        menu.HighlightPrev();
+        m_gsSound.PlaySample(SOUND_MENU_MOVE);
+        break;
+        
+    case GSK_DOWN:
+        menu.HighlightNext();
+        m_gsSound.PlaySample(SOUND_MENU_MOVE);
+        break;
+        
+    case GSK_ENTER:
+        int selected = menu.GetHighlight();
+        m_gsSound.PlaySample(SOUND_MENU_SELECT);
+        
+        switch (selected)
+        {
+            case 0: m_nGameState = NEW_GAME; break;
+            case 1: m_nGameState = LOAD_GAME; break;
+            case 2: m_nGameState = OPTIONS; break;
+            case 3: m_nGameState = QUIT; break;
+        }
+        break;
+        
+    case GSK_ESCAPE:
+        m_nGameState = TITLE_SCREEN;
+        break;
+}</code></pre>
+
+            <h3>Menu Navigation with Mouse</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Mouse hover detection
+static int oldMouseX = 0, oldMouseY = 0;
+int mouseX = m_gsMouse.GetX();
+int mouseY = m_gsMouse.GetY();
+
+if (mouseX != oldMouseX || mouseY != oldMouseY)
+{
+    // Check each option for mouse hover
+    for (int i = 0; i < menu.GetNumOptions(); i++)
+    {
+        RECT optionRect;
+        menu.GetOptionRect(i, &optionRect);
+        
+        if (m_gsCollide.IsCoordInRect(mouseX, mouseY, optionRect))
+        {
+            menu.SetHighlight(i);
+            m_gsSound.PlaySample(SOUND_MENU_MOVE);
+            break;
+        }
+    }
+    
+    oldMouseX = mouseX;
+    oldMouseY = mouseY;
+}
+
+// Mouse click detection
+static bool mouseReleased = true;
+
+if (!m_gsMouse.IsLeftPressed())
+{
+    mouseReleased = true;
+}
+
+if (m_gsMouse.IsLeftPressed() && mouseReleased)
+{
+    RECT highlightRect;
+    menu.GetHighlightRect(&highlightRect);
+    
+    if (m_gsCollide.IsCoordInRect(mouseX, mouseY, highlightRect))
+    {
+        int selected = menu.GetHighlight();
+        // Process selection...
+        mouseReleased = false;
+    }
+}</code></pre>
+
+            <h3>Dynamic Options Menu</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Build options menu dynamically
+GS_OGLMenu optionsMenu;
+optionsMenu.Create("data/menu_01.tga", fontTexture.GetID(),
+                   fontTexture.GetWidth(), fontTexture.GetHeight(),
+                   16, 16, 16);
+
+optionsMenu.SetTitle("OPTIONS");
+
+// Add resolution option
+char resText[64];
+sprintf(resText, "RESOLUTION....%dx%d", resWidth, resHeight);
+optionsMenu.AddOption(resText);
+
+// Add fullscreen toggle
+optionsMenu.AddOption(isFullscreen ? "WINDOWED MODE" : "FULLSCREEN MODE");
+
+// Add VSync option
+optionsMenu.AddOption(vsyncEnabled ? "VSYNC.........ON" : "VSYNC........OFF");
+
+// Add volume controls
+sprintf(resText, "MUSIC VOLUME..%03d", musicVolume);
+optionsMenu.AddOption(resText);
+
+sprintf(resText, "SOUND VOLUME..%03d", soundVolume);
+optionsMenu.AddOption(resText);
+
+optionsMenu.AddOption("BACK");
+optionsMenu.SetHighlight(0);</code></pre>
+
+            <h3>Menu with Empty Separator Options</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>menu.SetTitle("DIFFICULTY");
+menu.AddOption("EASY");
+menu.AddOption("MEDIUM");
+menu.AddOption("HARD");
+menu.AddOption("");  // Empty separator
+menu.AddOption("BACK");
+
+// HighlightNext() automatically skips empty options by default
+menu.SetHighlight(0);</code></pre>
+
+            <h3>Colored Menu Rendering</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Define colors
+GS_OGLColor normalColor(1.0f, 1.0f, 1.0f, 0.3f);  // Semi-transparent white
+GS_OGLColor highlightColor(1.0f, 1.0f, 1.0f, 1.0f);  // Bright yellow
+
+// Render with colors
+m_gsDisplay.BeginRender2D(GetWindow());
+menu.Render(normalColor, highlightColor);
+m_gsDisplay.EndRender2D();</code></pre>
+
+            <h3>Animated Menu Fade-In</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// State variables
+static float menuAlpha = 0.0f;
+static bool fadingIn = true;
+
+if (fadingIn)
+{
+    menuAlpha += 0.02f;
+    if (menuAlpha >= 1.0f)
+    {
+        menuAlpha = 1.0f;
+        fadingIn = false;
+    }
+}
+
+// Render with fade
+GS_OGLColor normalColor(1.0f, 1.0f, 1.0f, menuAlpha * 0.5f);
+GS_OGLColor highlightColor(1.0f, 1.0f, 1.0f, menuAlpha);
+
+menu.Render(normalColor, highlightColor);</code></pre>
+
+            <h3>Best Practices</h3>
+            <ul>
+                <li><strong>Create Once:</strong> Initialize menus in GameInit(), reuse throughout</li>
+                <li><strong>Update Dynamically:</strong> Use SetOption() to update text without recreating menu</li>
+                <li><strong>Clear Before Rebuild:</strong> Call ClearOptions() before adding new options</li>
+                <li><strong>Center Menus:</strong> Calculate position based on menu dimensions</li>
+                <li><strong>Keyboard First:</strong> Always support keyboard navigation</li>
+                <li><strong>Mouse as Bonus:</strong> Mouse support is convenient but keyboard should be primary</li>
+                <li><strong>Sound Feedback:</strong> Play sounds on navigation and selection</li>
+                <li><strong>Consistent Tile Size:</strong> Menu tiles and font characters must be same size</li>
+            </ul>
+
+            <div style="background-color: #fffbcc; padding: 15px; border-left: 4px solid #ffcc00; margin: 20px 0;">
+                <h4 style="margin-top: 0;">💡 Pro Tip</h4>
+                <p style="margin-bottom: 0;">Create a reusable menu texture template with borders, backgrounds, and highlights that matches your game's art style. You can then use the same menu texture for all menus in your game, just changing the font and options.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Platform Notes -->
+    <section class="api-section">
+        <h2>Platform-Specific Notes</h2>
+        <div class="endpoint">
+            <h3>Cross-Platform Compatibility</h3>
+            <p>GS_OGLMenu is completely cross-platform and works identically on all platforms:</p>
+            <ul>
+                <li><strong>Windows</strong> - Full support with native OpenGL</li>
+                <li><strong>Linux</strong> - Full support via SDL2 + OpenGL</li>
+                <li><strong>macOS</strong> - Full support via SDL2 + OpenGL</li>
+            </ul>
+
+            <p>There are no platform-specific implementations or behavior differences.</p>
+
+            <h3>Performance Considerations</h3>
+            <ul>
+                <li><strong>Rendering:</strong> Menu rendering is efficient - draws individual tiles only when needed</li>
+                <li><strong>Memory:</strong> Each option string is dynamically allocated, minimal overhead</li>
+                <li><strong>Updates:</strong> Changing option text requires memory reallocation</li>
+                <li><strong>Scaling:</strong> Scaling is free (GPU handles it)</li>
+            </ul>
+
+            <h3>Texture Requirements</h3>
+            <ul>
+                <li><strong>Menu Texture:</strong> Must contain exactly 16 tiles in specific order</li>
+                <li><strong>Font Texture:</strong> Character grid (typically 16×16 = 256 characters)</li>
+                <li><strong>Tile Alignment:</strong> Font character size must match menu tile size</li>
+                <li><strong>Format:</strong> TGA with alpha channel recommended</li>
+            </ul>
+
+            <div style="background-color: #d4edda; padding: 15px; border-left: 4px solid #28a745; margin: 20px 0;">
+                <h4 style="margin-top: 0;">✅ Design Tip</h4>
+                <p style="margin-bottom: 0;">When creating menu tiles, design them to tile seamlessly. The background tile (index 11) should tile perfectly both horizontally and vertically. Test your menu with different option counts to ensure it looks good at any size.</p>
+            </div>
+        </div>
+    </section>
+</body>
+
+</html>

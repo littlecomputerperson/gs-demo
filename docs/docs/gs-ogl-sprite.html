@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GS_OGLSprite Class</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+
+<body class="endpoint-page">
+    <!-- GS_OGLSprite Methods Index -->
+    <section class="api-section">
+        <h2>GS_OGLSprite Class Reference</h2>
+        <p><strong>Files:</strong> <code>gs_ogl_sprite.h</code>, <code>gs_ogl_sprite.cpp</code></p>
+        <p><strong>Inherits from:</strong> <code>GS_Object</code></p>
+        
+        <div class="endpoint-index">
+            <h3>Constructor & Destructor</h3>
+            <ul>
+                <li><a href="#constructor">GS_OGLSprite() <span class="endpoint-desc">- Constructor</span></a></li>
+                <li><a href="#destructor">~GS_OGLSprite() <span class="endpoint-desc">- Destructor</span></a></li>
+            </ul>
+
+            <h3>Creation Methods</h3>
+            <ul>
+                <li><a href="#create-file">Create(pathname) <span class="endpoint-desc">- Create from image file</span></a></li>
+                <li><a href="#create-texture">Create(texture) <span class="endpoint-desc">- Create from existing texture</span></a></li>
+                <li><a href="#destroy">Destroy() <span class="endpoint-desc">- Destroy sprite and free resources</span></a></li>
+            </ul>
+
+            <h3>Rendering Methods</h3>
+            <ul>
+                <li><a href="#beginrender">BeginRender() <span class="endpoint-desc">- Setup for 2D rendering</span></a></li>
+                <li><a href="#endrender">EndRender() <span class="endpoint-desc">- Cleanup after rendering</span></a></li>
+                <li><a href="#render">Render() <span class="endpoint-desc">- Render sprite</span></a></li>
+                <li><a href="#rendertiles">RenderTiles() <span class="endpoint-desc">- Tile sprite across area</span></a></li>
+                <li><a href="#rendertargets">RenderTargets() <span class="endpoint-desc">- Batch render multiple sprites</span></a></li>
+            </ul>
+
+            <h3>Status Methods</h3>
+            <ul>
+                <li><a href="#isready">IsReady() <span class="endpoint-desc">- Check if sprite is created</span></a></li>
+            </ul>
+
+            <h3>Position Methods</h3>
+            <ul>
+                <li><a href="#getdestxy">GetDestX/Y() <span class="endpoint-desc">- Get sprite position</span></a></li>
+                <li><a href="#setdestxy">SetDestX/Y() <span class="endpoint-desc">- Set sprite position</span></a></li>
+                <li><a href="#adddestxy">AddDestX/Y() <span class="endpoint-desc">- Move sprite by offset</span></a></li>
+                <li><a href="#getdestrect">GetDestRect() <span class="endpoint-desc">- Get bounding rectangle</span></a></li>
+            </ul>
+
+            <h3>Rotation Methods</h3>
+            <ul>
+                <li><a href="#getrotate">GetRotateX/Y/Z() <span class="endpoint-desc">- Get rotation angles</span></a></li>
+                <li><a href="#setrotate">SetRotateX/Y/Z() <span class="endpoint-desc">- Set rotation angles</span></a></li>
+                <li><a href="#addrotate">AddRotateX/Y/Z() <span class="endpoint-desc">- Rotate by angle</span></a></li>
+                <li><a href="#rotationpoint">Get/SetRotationPoint() <span class="endpoint-desc">- Control rotation pivot</span></a></li>
+            </ul>
+
+            <h3>Scaling Methods</h3>
+            <ul>
+                <li><a href="#getscale">GetScaleX/Y() <span class="endpoint-desc">- Get scale factors</span></a></li>
+                <li><a href="#setscale">SetScaleX/Y() <span class="endpoint-desc">- Set scale factors</span></a></li>
+                <li><a href="#addscale">AddScaleX/Y() <span class="endpoint-desc">- Modify scale</span></a></li>
+                <li><a href="#getwidth">GetWidth/Height() <span class="endpoint-desc">- Get sprite dimensions</span></a></li>
+                <li><a href="#getscaledwidth">GetScaledWidth/Height() <span class="endpoint-desc">- Get scaled dimensions</span></a></li>
+                <li><a href="#setscaledwidth">SetScaledWidth/Height() <span class="endpoint-desc">- Set by pixel size</span></a></li>
+            </ul>
+
+            <h3>Scrolling Methods</h3>
+            <ul>
+                <li><a href="#getscroll">GetScrollX/Y() <span class="endpoint-desc">- Get scroll offset</span></a></li>
+                <li><a href="#setscroll">SetScrollX/Y() <span class="endpoint-desc">- Set scroll offset</span></a></li>
+                <li><a href="#addscroll">AddScrollX/Y() <span class="endpoint-desc">- Scroll texture</span></a></li>
+            </ul>
+
+            <h3>Color Methods</h3>
+            <ul>
+                <li><a href="#getmodulatecolor">GetModulateColor() <span class="endpoint-desc">- Get sprite color tint</span></a></li>
+                <li><a href="#setmodulatecolor">SetModulateColor() <span class="endpoint-desc">- Set sprite color tint</span></a></li>
+            </ul>
+
+            <h3>Source Rectangle Methods</h3>
+            <ul>
+                <li><a href="#getsourcerect">GetSourceRect() <span class="endpoint-desc">- Get texture region</span></a></li>
+                <li><a href="#setsourcerect">SetSourceRect() <span class="endpoint-desc">- Set texture region</span></a></li>
+            </ul>
+
+            <h3>Texture Info Methods</h3>
+            <ul>
+                <li><a href="#gettexturewidth">GetTextureWidth/Height() <span class="endpoint-desc">- Get texture dimensions</span></a></li>
+            </ul>
+        </div>
+    </section>
+    
+    <!-- Class Overview -->
+    <section class="api-section">
+        <h2>Class Overview</h2>
+        <div class="endpoint">
+            <h3>About GS_OGLSprite</h3>
+            <p>The <code>GS_OGLSprite</code> class is the core 2D rendering component of the GameSystem framework. It provides a complete sprite system with support for positioning, rotation, scaling, color modulation, texture scrolling, and batch rendering. This class wraps OpenGL texture rendering in an easy-to-use object-oriented interface.</p>
+
+            <p>GS_OGLSprite is designed for general-purpose 2D sprite rendering including characters, backgrounds, UI elements, and visual effects. It supports both individual sprite rendering and efficient batch rendering of multiple sprites using the same texture.</p>
+
+            <h3>Key Features</h3>
+            <ul>
+                <li><strong>Texture Loading:</strong> Load sprites from TGA, PCX, or BMP image files</li>
+                <li><strong>Texture Sharing:</strong> Multiple sprites can share the same texture for efficiency</li>
+                <li><strong>Transformations:</strong> Position, rotate on 3 axes, and scale sprites independently</li>
+                <li><strong>Custom Pivot Points:</strong> Control rotation center for any point on the sprite</li>
+                <li><strong>Color Modulation:</strong> Tint sprites with RGBA color values</li>
+                <li><strong>Texture Scrolling:</strong> Seamless texture scrolling for parallax effects</li>
+                <li><strong>Source Rectangle:</strong> Render specific regions of a texture (sprite sheets)</li>
+                <li><strong>Tile Rendering:</strong> Automatically tile sprites to fill an area</li>
+                <li><strong>Batch Rendering:</strong> Render multiple sprites efficiently in one call</li>
+                <li><strong>Automatic Scaling:</strong> Resolution-independent rendering support</li>
+                <li><strong>Cross-Platform:</strong> Works identically on Windows, Linux, and macOS</li>
+            </ul>
+
+            <h3>Member Variables</h3>
+            <p>All member variables are private:</p>
+
+            <table style="width: 100%; border-collapse: collapse; margin: 1em 0;">
+                <thead>
+                    <tr style="background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Variable</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Type</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_gsTexture</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">GS_OGLTexture</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Internal texture object (if loaded from file)</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_gluTexture</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">GLuint</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">OpenGL texture ID</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_SourceRect</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">RECT</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Source rectangle defining visible texture region</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_bIsReady</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">BOOL</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Initialization state flag</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_gliDestX/Y</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">GLint</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Position (bottom-left corner)</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_glfScrollX/Y</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">GLfloat</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Texture scroll offset</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_glfRotateX/Y/Z</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">GLfloat</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Rotation angles in degrees</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_gliRotationPointX/Y</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">GLint</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Rotation pivot point (-1 = center)</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_glfScaleX/Y</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">GLfloat</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Scale factors (1.0 = normal size)</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_gsModulateColor</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">GS_OGLColor</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">RGBA color modulation</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_gliWidth/Height</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">GLint</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Texture dimensions in pixels</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Coordinate System</h3>
+            <div style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; margin: 15px 0;">
+                <h4 style="margin-top: 0;">OpenGL Bottom-Left Origin</h4>
+                <p>GS_OGLSprite uses OpenGL's coordinate convention:</p>
+                <ul style="margin-bottom: 0;">
+                    <li><strong>Origin (0, 0):</strong> Bottom-left corner of the screen</li>
+                    <li><strong>X-axis:</strong> Increases to the right</li>
+                    <li><strong>Y-axis:</strong> Increases upward</li>
+                    <li><strong>Position:</strong> SetDestXY() sets the bottom-left corner position</li>
+                    <li><strong>Rotation:</strong> Sprites rotate around their center (or custom pivot point)</li>
+                </ul>
+            </div>
+
+            <h3>Usage Pattern</h3>
+            <p>Typical workflow for using GS_OGLSprite:</p>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Create sprite from image file
+GS_OGLSprite playerSprite;
+playerSprite.Create("data/player.tga", TRUE);  // Filtered texture
+
+// Set position
+playerSprite.SetDestXY(100, 200);
+
+// Apply transformations
+playerSprite.SetRotateZ(45.0f);    // Rotate 45 degrees
+playerSprite.SetScaleXY(2.0f, 2.0f);  // Double size
+
+// Set color tint (optional)
+playerSprite.SetModulateColor(1.0f, 0.5f, 0.5f, 1.0f);  // Red tint
+
+// Render
+playerSprite.Render();</code></pre>
+
+            <h3>Rendering Pipeline</h3>
+            <div style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; margin: 15px 0;">
+                <h4 style="margin-top: 0;">How Sprites Are Rendered</h4>
+                <ol style="margin-bottom: 0;">
+                    <li><strong>Setup (BeginRender):</strong> Configure OpenGL for 2D rendering
+                        <ul>
+                            <li>Set orthographic projection</li>
+                            <li>Disable depth testing and lighting</li>
+                        </ul>
+                    </li>
+                    <li><strong>Render (Render):</strong> Draw the sprite
+                        <ul>
+                            <li>Bind texture</li>
+                            <li>Apply position, rotation, and scale</li>
+                            <li>Apply color modulation</li>
+                            <li>Render textured quad</li>
+                        </ul>
+                    </li>
+                    <li><strong>Cleanup (EndRender):</strong> Restore OpenGL state
+                        <ul>
+                            <li>Restore projection matrix</li>
+                            <li>Re-enable depth testing/lighting if needed</li>
+                        </ul>
+                    </li>
+                </ol>
+            </div>
+        </div>
+    </section>
+
+    <!-- Constructor & Destructor -->
+    <section class="api-section">
+        <h2>Constructor & Destructor</h2>
+
+        <div class="endpoint" id="constructor">
+            <h3>GS_OGLSprite()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_sprite.cpp</code></p>
+            <p>Constructor that initializes all member variables to default values.</p>
+            
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Initialization:</strong></p>
+            <ul>
+                <li><code>m_gluTexture = 0</code> - No texture assigned</li>
+                <li><code>m_bIsReady = FALSE</code> - Sprite not created</li>
+                <li><code>m_gliDestX = 0, m_gliDestY = 0</code> - Position at origin</li>
+                <li><code>m_glfScaleX = 1.0f, m_glfScaleY = 1.0f</code> - Normal size</li>
+                <li><code>m_glfRotateX/Y/Z = 0.0f</code> - No rotation</li>
+                <li><code>m_gliRotationPointX/Y = -1</code> - Center rotation</li>
+                <li><code>m_gsModulateColor</code> - White (no tint)</li>
+                <li><code>m_SourceRect</code> - Empty</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>GS_OGLSprite sprite;  // Ready for Create() call</pre>
+        </div>
+
+        <div class="endpoint" id="destructor">
+            <h3>~GS_OGLSprite()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_sprite.cpp</code></p>
+            <p>Destructor that ensures proper cleanup of sprite resources.</p>
+            
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Calls <code>Destroy()</code> to clean up texture and reset variables</li>
+                <li>Safe to call even if sprite was never created</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Creation Methods -->
+    <section class="api-section">
+        <h2>Creation Methods</h2>
+
+        <div class="endpoint" id="create-file">
+            <h3>Create() - From File</h3>
+            <p><strong>File:</strong> <code>gs_ogl_sprite.cpp</code></p>
+            <p>Creates a sprite by loading a texture from an image file.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL Create(const char* pszPathname, BOOL bFiltered = TRUE, BOOL bMipmap = TRUE)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>pszPathname</code> - Path to image file (TGA, PCX, or BMP)</li>
+                <li><code>bFiltered</code> - TRUE for bilinear filtering (smooth), FALSE for nearest (pixelated)</li>
+                <li><code>bMipmap</code> - TRUE to generate mipmaps (better quality when scaled), FALSE for simple texture</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Destroys previous sprite if already created</li>
+                <li>Loads texture using internal GS_OGLTexture object</li>
+                <li>Sets source rectangle to full texture size</li>
+                <li>Returns FALSE if pathname is NULL or texture loading fails</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Sprite created successfully</li>
+                <li><code>FALSE</code> - Creation failed (invalid path or file format)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>GS_OGLSprite player;
+
+// Create filtered sprite with mipmaps (recommended for smooth scaling)
+if (!player.Create("data/player.tga", TRUE, TRUE))
+{
+    GS_Error::Report(__FILE__, __LINE__, "Failed to load player sprite!");
+    return FALSE;
+}
+
+// Create unfiltered sprite (pixel-perfect, no mipmaps)
+GS_OGLSprite pixelArt;
+pixelArt.Create("data/tileset.pcx", FALSE, FALSE);</code></pre>
+        </div>
+
+        <div class="endpoint" id="create-texture">
+            <h3>Create() - From Existing Texture</h3>
+            <p><strong>File:</strong> <code>gs_ogl_sprite.cpp</code></p>
+            <p>Creates a sprite using an existing OpenGL texture ID.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL Create(GLuint glTexture, int nWidth, int nHeight)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>glTexture</code> - OpenGL texture ID (from GS_OGLTexture::GetID())</li>
+                <li><code>nWidth</code> - Texture width in pixels</li>
+                <li><code>nHeight</code> - Texture height in pixels</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Uses provided texture instead of loading from file</li>
+                <li>Texture must remain valid for lifetime of sprite</li>
+                <li>Useful for sharing textures between multiple sprites</li>
+                <li>Does NOT take ownership of texture (won't delete it on destroy)</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Sprite created successfully</li>
+                <li><code>FALSE</code> - Creation failed (invalid texture ID)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Load one texture, create multiple sprites
+GS_OGLTexture sharedTexture;
+sharedTexture.Create("data/enemies.tga", GS_IMAGE2D, GL_LINEAR, GL_LINEAR);
+
+GS_OGLSprite enemy1, enemy2, enemy3;
+
+enemy1.Create(sharedTexture.GetID(), 
+              sharedTexture.GetWidth(), 
+              sharedTexture.GetHeight());
+
+enemy2.Create(sharedTexture.GetID(),
+              sharedTexture.GetWidth(),
+              sharedTexture.GetHeight());
+
+enemy3.Create(sharedTexture.GetID(),
+              sharedTexture.GetWidth(),
+              sharedTexture.GetHeight());</code></pre>
+        </div>
+
+        <div class="endpoint" id="destroy">
+            <h3>Destroy()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_sprite.cpp</code></p>
+            <p>Destroys the sprite and releases all associated resources.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void Destroy()</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Returns immediately if not initialized</li>
+                <li>Destroys internal texture (if loaded from file)</li>
+                <li>Resets all transformation values to defaults</li>
+                <li>Resets color modulation to white</li>
+                <li>Sets <code>m_bIsReady = FALSE</code></li>
+                <li>Safe to call multiple times</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>None (void)</li>
+            </ul>
+
+            <p><strong>Note:</strong> Called automatically by destructor.</p>
+        </div>
+    </section>
+
+    <!-- Rendering Methods -->
+    <section class="api-section">
+        <h2>Rendering Methods</h2>
+
+        <div class="endpoint" id="beginrender">
+            <h3>BeginRender()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_sprite.cpp</code></p>
+            <p>Prepares OpenGL state for 2D sprite rendering.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL BeginRender(HWND hWnd)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>hWnd</code> - Window handle (used to get client area dimensions)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Saves current depth test and lighting state</li>
+                <li>Disables depth testing (for correct sprite blending)</li>
+                <li>Disables lighting (for color modulation)</li>
+                <li>Sets up orthographic projection matching window size</li>
+                <li>Configures projection depth for 3D rotation support</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Setup successful</li>
+                <li><code>FALSE</code> - Not ready or NULL window</li>
+            </ul>
+
+            <p><strong>Note:</strong> Usually called automatically by Render() if window handle provided.</p>
+        </div>
+
+        <div class="endpoint" id="endrender">
+            <h3>EndRender()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_sprite.cpp</code></p>
+            <p>Restores OpenGL state after sprite rendering.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void EndRender()</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Restores projection matrix</li>
+                <li>Restores modelview matrix</li>
+                <li>Re-enables depth testing if it was enabled before</li>
+                <li>Re-enables lighting if it was enabled before</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>None (void)</li>
+            </ul>
+
+            <p><strong>Note:</strong> Usually called automatically by Render() if window handle provided.</p>
+        </div>
+
+        <div class="endpoint" id="render">
+            <h3>Render()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_sprite.cpp</code></p>
+            <p>Renders the sprite with all transformations and effects applied.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL Render(HWND hWnd = NULL)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>hWnd</code> - Optional window handle (if NULL, assumes BeginRender2D already called)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>If hWnd provided, calls BeginRender()/EndRender() automatically</li>
+                <li>Applies resolution scaling (g_fScaleFactorX/Y)</li>
+                <li>Applies position transformation</li>
+                <li>Applies rotation around pivot point (X, Y, Z axes)</li>
+                <li>Applies scale transformation</li>
+                <li>Applies color modulation</li>
+                <li>Renders textured quad with correct texture coordinates</li>
+                <li>Accounts for texture scrolling if set</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Rendering successful</li>
+                <li><code>FALSE</code> - Sprite not ready</li>
+            </ul>
+
+            <p><strong>Examples:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Automatic setup (includes BeginRender2D)
+sprite.Render(GetWindow());
+
+// Manual setup (you handle BeginRender2D)
+m_gsDisplay.BeginRender2D(GetWindow());
+sprite.Render();  // No window handle
+// ...render other sprites...
+m_gsDisplay.EndRender2D();</code></pre>
+        </div>
+
+        <div class="endpoint" id="rendertiles">
+            <h3>RenderTiles()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_sprite.cpp</code></p>
+            <p>Tiles the sprite to fill a rectangular area (useful for backgrounds).</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL RenderTiles(RECT rcTileArea, BOOL bWrapAround = TRUE, HWND hWnd = NULL)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>rcTileArea</code> - Rectangle defining the area to fill with tiles</li>
+                <li><code>bWrapAround</code> - TRUE to clip rendering to rcTileArea (default: TRUE)</li>
+                <li><code>hWnd</code> - Optional window handle</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Renders the sprite repeatedly to fill the specified area</li>
+                <li>Uses scissor test to clip tiles to exact boundaries</li>
+                <li>Respects rotation and color modulation</li>
+                <li>Accounts for texture scrolling for parallax effects</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Rendering successful</li>
+                <li><code>FALSE</code> - Sprite not ready</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Tile a background texture across the screen
+RECT screenArea = {0, 540, 960, 0};  // Full screen
+backgroundTile.RenderTiles(screenArea, TRUE);
+
+// Scrolling background
+backgroundTile.AddScrollX(scrollSpeed);
+backgroundTile.RenderTiles(screenArea);</code></pre>
+        </div>
+
+        <div class="endpoint" id="rendertargets">
+            <h3>RenderTargets()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_sprite.cpp</code></p>
+            <p>Batch renders multiple sprites using the same texture efficiently.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL RenderTargets(int nNumTargets, GS_RenderTarget* pgsTargets, HWND hWnd = NULL)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>nNumTargets</code> - Number of sprites to render</li>
+                <li><code>pgsTargets</code> - Array of GS_RenderTarget structures defining each sprite</li>
+                <li><code>hWnd</code> - Optional window handle</li>
+            </ul>
+
+            <p><strong>GS_RenderTarget Structure:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>struct GS_RenderTarget {
+    GLint nDestX, nDestY;        // Position
+    GLint nSrcLeft, nSrcTop;     // Source rectangle
+    GLint nSrcRight, nSrcBottom;
+    GLfloat fScaleX, fScaleY;    // Scale
+    GLfloat fRotateX, fRotateY, fRotateZ;  // Rotation
+    GLfloat fRed, fGreen, fBlue, fAlpha;   // Color
+    GLfloat fScrollX, fScrollY;  // Scroll
+};</code></pre>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Rendering successful</li>
+                <li><code>FALSE</code> - Invalid parameters or not ready</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Render 100 stars efficiently
+GS_RenderTarget stars[100];
+for (int i = 0; i < 100; i++)
+{
+    stars[i].nDestX = starPosX[i];
+    stars[i].nDestY = starPosY[i];
+    stars[i].fScaleX = 0.5f;
+    stars[i].fScaleY = 0.5f;
+    stars[i].fAlpha = starAlpha[i];
+    // ...other properties
+}
+
+starSprite.RenderTargets(100, stars);</code></pre>
+        </div>
+    </section>
+
+    <!-- Status Methods -->
+    <section class="api-section">
+        <h2>Status Methods</h2>
+
+        <div class="endpoint" id="isready">
+            <h3>IsReady()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_sprite.cpp</code></p>
+            <p>Checks if the sprite has been successfully created.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL IsReady()</pre>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Sprite is initialized and ready to render</li>
+                <li><code>FALSE</code> - Sprite not created or has been destroyed</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>if (sprite.IsReady())
+{
+    sprite.Render();
+}</code></pre>
+        </div>
+    </section>
+
+    <!-- Position, Rotation, Scale, etc. methods continue in similar fashion -->
+    <!-- I'll provide a condensed version for brevity -->
+
+    <section class="api-section">
+        <h2>Position Methods</h2>
+        <div class="endpoint" id="getdestxy">
+            <h3>GetDestX() / GetDestY()</h3>
+            <p>Gets the current position of the sprite.</p>
+            <pre>GLint GetDestX()
+GLint GetDestY()
+void GetDestXY(GLint* pDestX, GLint* pDestY)</pre>
+            <p><strong>Returns:</strong> X or Y coordinate (bottom-left corner)</p>
+        </div>
+
+        <div class="endpoint" id="setdestxy">
+            <h3>SetDestX() / SetDestY()</h3>
+            <p>Sets the sprite position.</p>
+            <pre>void SetDestX(GLint gliDestX)
+void SetDestY(GLint gliDestY)
+void SetDestXY(GLint gliDestX, GLint gliDestY)</pre>
+            <p><strong>Example:</strong></p>
+            <pre>sprite.SetDestXY(100, 200);  // Position at (100, 200)</pre>
+        </div>
+
+        <div class="endpoint" id="adddestxy">
+            <h3>AddDestX() / AddDestY()</h3>
+            <p>Moves the sprite by a relative offset.</p>
+            <pre>void AddDestX(GLint gliAddX)
+void AddDestY(GLint gliAddY)</pre>
+            <p><strong>Example:</strong></p>
+            <pre>sprite.AddDestX(5);   // Move 5 pixels right
+sprite.AddDestY(-10); // Move 10 pixels down</pre>
+        </div>
+
+        <div class="endpoint" id="getdestrect">
+            <h3>GetDestRect()</h3>
+            <p>Gets the sprite's bounding rectangle in screen space.</p>
+            <pre>void GetDestRect(long* pLeft, long* pTop, long* pRight, long* pBottom)
+void GetDestRect(RECT* pDestRect)</pre>
+            <p><strong>Note:</strong> Accounts for scaling but NOT rotation.</p>
+        </div>
+    </section>
+
+    <section class="api-section">
+        <h2>Rotation Methods</h2>
+        <div class="endpoint" id="getrotate">
+            <h3>GetRotateX/Y/Z()</h3>
+            <p>Gets rotation angles in degrees.</p>
+            <pre>GLfloat GetRotateX()
+GLfloat GetRotateY()
+GLfloat GetRotateZ()</pre>
+        </div>
+
+        <div class="endpoint" id="setrotate">
+            <h3>SetRotateX/Y/Z()</h3>
+            <p>Sets rotation angles.</p>
+            <pre>void SetRotateX(GLfloat glfRotateX)
+void SetRotateY(GLfloat glfRotateY)
+void SetRotateZ(GLfloat glfRotateZ)</pre>
+            <p><strong>Example:</strong></p>
+            <pre>sprite.SetRotateZ(45.0f);  // Rotate 45 degrees on Z-axis</pre>
+        </div>
+
+        <div class="endpoint" id="addrotate">
+            <h3>AddRotateX/Y/Z()</h3>
+            <p>Rotates sprite by adding to current angle.</p>
+            <pre>void AddRotateX(GLfloat glfRotateX)
+void AddRotateY(GLfloat glfRotateY)
+void AddRotateZ(GLfloat glfRotateZ)</pre>
+            <p><strong>Example:</strong></p>
+            <pre>sprite.AddRotateZ(5.0f);  // Spin continuously</pre>
+        </div>
+
+        <div class="endpoint" id="rotationpoint">
+            <h3>Get/SetRotationPoint()</h3>
+            <p>Controls the pivot point for rotation.</p>
+            <pre>GLint GetRotationPointX()
+GLint GetRotationPointY()
+void SetRotationPointX(GLint gliRotationPointX)
+void SetRotationPointY(GLint gliRotationPointY)
+void SetRotationPointXY(GLint gliRotationPointX, GLint gliRotationPointY)</pre>
+            <p><strong>Default:</strong> -1 (center of sprite)</p>
+            <p><strong>Example:</strong></p>
+            <pre>sprite.SetRotationPointXY(0, 0);  // Rotate around bottom-left corner</pre>
+        </div>
+    </section>
+
+    <section class="api-section">
+        <h2>Scaling Methods</h2>
+        <div class="endpoint" id="getscale">
+            <h3>GetScaleX/Y()</h3>
+            <pre>GLfloat GetScaleX()
+GLfloat GetScaleY()
+void GetScaleXY(GLfloat* pScaleX, GLfloat* pScaleY)</pre>
+        </div>
+
+        <div class="endpoint" id="setscale">
+            <h3>SetScaleX/Y()</h3>
+            <pre>void SetScaleX(GLfloat glfScaleX)
+void SetScaleY(GLfloat glfScaleY)
+void SetScaleXY(GLfloat glfScaleX, GLfloat glfScaleY)</pre>
+            <p><strong>Example:</strong></p>
+            <pre>sprite.SetScaleXY(2.0f, 2.0f);  // Double size
+sprite.SetScaleXY(0.5f, 0.5f);  // Half size</pre>
+        </div>
+
+        <div class="endpoint" id="addscale">
+            <h3>AddScaleX/Y()</h3>
+            <pre>void AddScaleX(GLfloat glfScaleX)
+void AddScaleY(GLfloat glfScaleY)</pre>
+            <p><strong>Note:</strong> Scale clamped to >= 0.0</p>
+        </div>
+
+        <div class="endpoint" id="getwidth">
+            <h3>GetWidth/Height()</h3>
+            <p>Gets the source rectangle dimensions (unscaled).</p>
+            <pre>long GetWidth()
+long GetHeight()</pre>
+        </div>
+
+        <div class="endpoint" id="getscaledwidth">
+            <h3>GetScaledWidth/Height()</h3>
+            <p>Gets actual rendered dimensions (with scaling).</p>
+            <pre>GLfloat GetScaledWidth()
+GLfloat GetScaledHeight()</pre>
+        </div>
+
+        <div class="endpoint" id="setscaledwidth">
+            <h3>SetScaledWidth/Height()</h3>
+            <p>Sets sprite size by specifying pixel dimensions.</p>
+            <pre>void SetScaledWidth(GLint gliWidth)
+void SetScaledHeight(GLint gliHeight)</pre>
+            <p><strong>Example:</strong></p>
+            <pre>sprite.SetScaledWidth(64);   // Make 64 pixels wide
+sprite.SetScaledHeight(64);  // Make 64 pixels tall</pre>
+        </div>
+    </section>
+
+    <section class="api-section">
+        <h2>Scrolling Methods</h2>
+        <p>Texture scrolling creates seamless wrapping effects for parallax backgrounds.</p>
+
+        <div class="endpoint" id="getscroll">
+            <h3>GetScrollX/Y()</h3>
+            <pre>GLfloat GetScrollX()
+GLfloat GetScrollY()
+void GetScrollXY(GLfloat* pScrollX, GLfloat* pScrollY)</pre>
+        </div>
+
+        <div class="endpoint" id="setscroll">
+            <h3>SetScrollX/Y()</h3>
+            <pre>void SetScrollX(GLfloat glfScrollX)
+void SetScrollY(GLfloat glfScrollY)
+void SetScrollXY(GLfloat glfScrollX, GLfloat glfScrollY)</pre>
+        </div>
+
+        <div class="endpoint" id="addscroll">
+            <h3>AddScrollX/Y()</h3>
+            <p>Scrolls the texture coordinates (automatically wraps).</p>
+            <pre>void AddScrollX(GLfloat glfDistance)
+void AddScrollY(GLfloat glfDistance)</pre>
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Scrolling background
+background.AddScrollX(scrollSpeed);  // Auto-wraps at texture width
+background.RenderTiles(screenArea);</code></pre>
+        </div>
+    </section>
+
+    <section class="api-section">
+        <h2>Color Methods</h2>
+        <div class="endpoint" id="getmodulatecolor">
+            <h3>GetModulateColor()</h3>
+            <pre>void GetModulateColor(GS_OGLColor* pgsColor)
+void GetModulateColor(float* pRed, float* pGreen, float* pBlue, float* pAlpha)</pre>
+        </div>
+
+        <div class="endpoint" id="setmodulatecolor">
+            <h3>SetModulateColor()</h3>
+            <p>Sets color tint and transparency.</p>
+            <pre>void SetModulateColor(GS_OGLColor gsColor)
+void SetModulateColor(float fRed = -1.0f, float fGreen = -1.0f, 
+                      float fBlue = -1.0f, float fAlpha = -1.0f)</pre>
+            <p><strong>Parameters:</strong> RGBA values (0.0-1.0), -1.0 = keep current</p>
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>sprite.SetModulateColor(1.0f, 0.0f, 0.0f, 1.0f);  // Red tint
+sprite.SetModulateColor(1.0f, 1.0f, 1.0f, 0.5f);  // 50% transparent
+sprite.SetModulateColor(-1.0f, -1.0f, -1.0f, 0.0f); // Fade out (keep color)</code></pre>
+        </div>
+    </section>
+
+    <section class="api-section">
+        <h2>Source Rectangle Methods</h2>
+        <p>Control which portion of the texture is rendered (useful for sprite sheets).</p>
+
+        <div class="endpoint" id="getsourcerect">
+            <h3>GetSourceRect()</h3>
+            <pre>void GetSourceRect(long* pLeft, long* pTop, long* pRight, long* pBottom)
+void GetSourceRect(RECT* pSourceRect)</pre>
+        </div>
+
+        <div class="endpoint" id="setsourcerect">
+            <h3>SetSourceRect()</h3>
+            <pre>void SetSourceRect(long lLeft, long lTop, long lRight, long lBottom)
+void SetSourceRect(RECT SourceRect)</pre>
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Select specific region of texture
+sprite.SetSourceRect(0, 64, 32, 0);  // 32x64 region at top-left</code></pre>
+        </div>
+    </section>
+
+    <section class="api-section">
+        <h2>Texture Info Methods</h2>
+        <div class="endpoint" id="gettexturewidth">
+            <h3>GetTextureWidth/Height()</h3>
+            <p>Gets the full texture dimensions.</p>
+            <pre>GLint GetTextureWidth()
+GLint GetTextureHeight()</pre>
+        </div>
+    </section>
+
+    <!-- Platform Notes -->
+    <section class="api-section">
+        <h2>Platform-Specific Notes</h2>
+        <div class="endpoint">
+            <h3>Cross-Platform Compatibility</h3>
+            <p>GS_OGLSprite is completely cross-platform and works identically on all platforms:</p>
+            <ul>
+                <li><strong>Windows</strong> - Full support with native OpenGL</li>
+                <li><strong>Linux</strong> - Full support via SDL2 + OpenGL</li>
+                <li><strong>macOS</strong> - Full support via SDL2 + OpenGL</li>
+            </ul>
+
+            <p>There are no platform-specific implementations or behavior differences.</p>
+
+            <h3>Performance Tips</h3>
+            <ul>
+                <li><strong>Texture Sharing:</strong> Use Create(texture) to share textures between sprites</li>
+                <li><strong>Batch Rendering:</strong> Use RenderTargets() for multiple sprites with same texture</li>
+                <li><strong>Filtering:</strong> Use FALSE for pixel-perfect retro graphics</li>
+                <li><strong>Mipmaps:</strong> Enable for sprites that scale frequently</li>
+                <li><strong>Resolution Scaling:</strong> Framework handles g_fScaleFactorX/Y automatically</li>
+            </ul>
+
+            <div style="background-color: #fffbcc; padding: 15px; border-left: 4px solid #ffcc00; margin: 20px 0;">
+                <h4 style="margin-top: 0;">💡 Pro Tip</h4>
+                <p style="margin-bottom: 0;">For best performance, create all sprites in GameInit(), not during gameplay. Use SetSourceRect() and frame animation (GS_OGLSpriteEx) instead of creating new sprites for each animation frame.</p>
+            </div>
+        </div>
+    </section>
+</body>
+
+</html>

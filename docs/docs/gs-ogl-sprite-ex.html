@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GS_OGLSpriteEx Class</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+
+<body class="endpoint-page">
+    <!-- GS_OGLSpriteEx Methods Index -->
+    <section class="api-section">
+        <h2>GS_OGLSpriteEx Class Reference</h2>
+        <p><strong>Files:</strong> <code>gs_ogl_sprite_ex.h</code>, <code>gs_ogl_sprite_ex.cpp</code></p>
+        <p><strong>Inherits from:</strong> <code>GS_OGLSprite</code> → <code>GS_Object</code></p>
+        
+        <div class="endpoint-index">
+            <h3>Constructor & Destructor</h3>
+            <ul>
+                <li><a href="#constructor">GS_OGLSpriteEx() <span class="endpoint-desc">- Constructor</span></a></li>
+                <li><a href="#destructor">~GS_OGLSpriteEx() <span class="endpoint-desc">- Destructor</span></a></li>
+            </ul>
+
+            <h3>Creation Methods</h3>
+            <ul>
+                <li><a href="#create-file">Create(pathname, frames) <span class="endpoint-desc">- Create from image file</span></a></li>
+                <li><a href="#create-texture">Create(texture, frames) <span class="endpoint-desc">- Create from existing texture</span></a></li>
+                <li><a href="#destroy">Destroy() <span class="endpoint-desc">- Destroy sprite and free resources</span></a></li>
+            </ul>
+
+            <h3>Rendering Methods</h3>
+            <ul>
+                <li><a href="#render">Render() <span class="endpoint-desc">- Render current frame</span></a></li>
+            </ul>
+
+            <h3>Frame Management Methods</h3>
+            <ul>
+                <li><a href="#getframe">GetFrame() <span class="endpoint-desc">- Get current frame index</span></a></li>
+                <li><a href="#setframe">SetFrame() <span class="endpoint-desc">- Set current frame</span></a></li>
+                <li><a href="#addframe">AddFrame() <span class="endpoint-desc">- Advance/reverse frames</span></a></li>
+                <li><a href="#gettotalframes">GetTotalFrames() <span class="endpoint-desc">- Get total frame count</span></a></li>
+                <li><a href="#settotalframes">SetTotalFrames() <span class="endpoint-desc">- Set total frame count</span></a></li>
+            </ul>
+
+            <h3>Frame Layout Methods</h3>
+            <ul>
+                <li><a href="#getframesperline">GetFramesPerLine() <span class="endpoint-desc">- Get frames per row</span></a></li>
+                <li><a href="#setframesperline">SetFramesPerLine() <span class="endpoint-desc">- Set frames per row</span></a></li>
+                <li><a href="#getframewidth">GetFrameWidth() <span class="endpoint-desc">- Get frame width</span></a></li>
+                <li><a href="#getframeheight">GetFrameHeight() <span class="endpoint-desc">- Get frame height</span></a></li>
+            </ul>
+
+            <h3>Inherited Methods (from GS_OGLSprite)</h3>
+            <ul>
+                <li>Position: SetDestX/Y(), GetDestX/Y(), AddDestX/Y()</li>
+                <li>Rotation: SetRotateX/Y/Z(), GetRotateX/Y/Z(), AddRotateX/Y/Z()</li>
+                <li>Scaling: SetScaleX/Y(), GetScaleX/Y(), AddScaleX/Y()</li>
+                <li>Color: SetModulateColor(), GetModulateColor()</li>
+                <li>Texture: GetTextureWidth(), GetTextureHeight()</li>
+                <li>See <a href="gs-ogl-sprite.html">GS_OGLSprite</a> for full details</li>
+            </ul>
+        </div>
+    </section>
+    
+    <!-- Class Overview -->
+    <section class="api-section">
+        <h2>Class Overview</h2>
+        <div class="endpoint">
+            <h3>About GS_OGLSpriteEx</h3>
+            <p>The <code>GS_OGLSpriteEx</code> class extends <code>GS_OGLSprite</code> to provide multi-frame animation support. It manages sprite sheets containing multiple frames of animation arranged in a grid, allowing for efficient character animation, effects, and any visual element that requires frame-by-frame animation.</p>
+
+            <p>This class automatically subdivides a texture into individual frames and provides simple methods to select and advance through frames, making it ideal for:</p>
+            <ul>
+                <li>Character walk/run cycles</li>
+                <li>Enemy movement animations</li>
+                <li>Explosion and particle effects</li>
+                <li>UI animations and transitions</li>
+                <li>Environmental animations (water, fire, etc.)</li>
+            </ul>
+
+            <h3>Key Features</h3>
+            <ul>
+                <li><strong>Sprite Sheet Support:</strong> Load multiple animation frames from a single texture</li>
+                <li><strong>Grid-Based Layout:</strong> Frames arranged in rows and columns</li>
+                <li><strong>Automatic Frame Calculation:</strong> Pre-computes frame rectangles for efficiency</li>
+                <li><strong>Frame Control:</strong> Set specific frames or advance/reverse through sequences</li>
+                <li><strong>Inherits All Sprite Features:</strong> Position, rotation, scaling, and color modulation</li>
+                <li><strong>Efficient Memory Usage:</strong> Single texture shared by all frames</li>
+                <li><strong>Wrap-Around Support:</strong> Frame indices automatically wrap at boundaries</li>
+                <li><strong>Cross-Platform:</strong> Works identically on Windows, Linux, and macOS</li>
+            </ul>
+
+            <h3>Sprite Sheet Layout</h3>
+            <p>GS_OGLSpriteEx expects frames to be arranged in a grid pattern within the texture:</p>
+
+            <div style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; margin: 15px 0;">
+                <h4 style="margin-top: 0;">Example Sprite Sheet (4×4 grid, 16 frames)</h4>
+                <pre style="margin: 0; font-family: 'Courier New', monospace;">
+┌──────┬──────┬──────┬──────┐
+│  0   │  1   │  2   │  3   │  Frame indices (left to right, top to bottom)
+├──────┼──────┼──────┼──────┤
+│  4   │  5   │  6   │  7   │
+├──────┼──────┼──────┼──────┤
+│  8   │  9   │  10  │  11  │
+├──────┼──────┼──────┼──────┤
+│  12  │  13  │  14  │  15  │
+└──────┴──────┴──────┴──────┘
+
+Parameters:
+- Total Frames: 16
+- Frames Per Line: 4
+- Frame Width: texture_width / 4
+- Frame Height: texture_height / 4
+</pre>
+            </div>
+
+            <h3>Inheritance Hierarchy</h3>
+            <div style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; margin: 15px 0;">
+                <pre style="margin: 0; font-family: 'Courier New', monospace;">
+GS_Object
+    ↓
+GS_OGLSprite (basic sprite rendering)
+    ↓
+GS_OGLSpriteEx (multi-frame animation)
+</pre>
+            </div>
+
+            <h3>Member Variables</h3>
+            <p>All member variables are private:</p>
+
+            <table style="width: 100%; border-collapse: collapse; margin: 1em 0;">
+                <thead>
+                    <tr style="background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Variable</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Type</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_nTotalFrames</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">int</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Total number of frames in the sprite sheet</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_nCurrentFrame</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">int</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Currently selected frame (0-based index)</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_nFramesPerLine</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">int</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Number of frames per row in the texture</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_nFrameWidth</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">int</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Width of each frame in pixels</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_nFrameHeight</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">int</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Height of each frame in pixels</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_pFrameRects</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">RECT*</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Pre-computed array of frame rectangles (optimization)</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Frame Rectangle Calculation</h3>
+            <p>On creation, GS_OGLSpriteEx pre-computes the texture coordinates for each frame to avoid runtime calculations:</p>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// For each frame index (0 to totalFrames-1):
+frameX = (index % framesPerLine) * frameWidth
+frameRow = index / framesPerLine
+frameY = textureHeight - (frameRow * frameHeight)
+
+frameRect = {
+    left:   frameX,
+    top:    frameY,
+    right:  frameX + frameWidth,
+    bottom: frameY - frameHeight
+}</code></pre>
+
+            <h3>Usage Pattern</h3>
+            <p>Typical workflow for using GS_OGLSpriteEx:</p>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Create animated sprite
+GS_OGLSpriteEx player;
+player.Create("data/player_walk.tga", 
+              12,   // Total frames
+              4,    // Frames per row
+              32,   // Frame width
+              32);  // Frame height
+
+// Set initial position
+player.SetDestXY(100, 200);
+
+// In game loop - animate
+static float animTimer = 0.0f;
+animTimer += deltaTime;
+
+if (animTimer >= 0.1f)  // 10 frames per second
+{
+    player.AddFrame(1);  // Next frame
+    animTimer = 0.0f;
+}
+
+// Render current frame
+player.Render();</code></pre>
+        </div>
+    </section>
+
+    <!-- Constructor & Destructor -->
+    <section class="api-section">
+        <h2>Constructor & Destructor</h2>
+
+        <div class="endpoint" id="constructor">
+            <h3>GS_OGLSpriteEx()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_sprite_ex.cpp</code></p>
+            <p>Constructor that initializes all member variables to default values.</p>
+            
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Initialization:</strong></p>
+            <ul>
+                <li>Calls base class <code>GS_OGLSprite()</code> constructor</li>
+                <li><code>m_nTotalFrames = 0</code> - No frames</li>
+                <li><code>m_nCurrentFrame = 0</code> - Start at first frame</li>
+                <li><code>m_nFramesPerLine = 0</code> - No layout</li>
+                <li><code>m_nFrameWidth = 0</code> - No frame size</li>
+                <li><code>m_nFrameHeight = 0</code> - No frame size</li>
+                <li><code>m_pFrameRects = NULL</code> - No frame data</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>GS_OGLSpriteEx sprite;  // Ready for Create() call</pre>
+        </div>
+
+        <div class="endpoint" id="destructor">
+            <h3>~GS_OGLSpriteEx()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_sprite_ex.cpp</code></p>
+            <p>Destructor that ensures proper cleanup of sprite resources.</p>
+            
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Calls <code>Destroy()</code> to free all resources</li>
+                <li>Frees frame rectangle array</li>
+                <li>Base class destructor handles texture cleanup</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Creation Methods -->
+    <section class="api-section">
+        <h2>Creation Methods</h2>
+
+        <div class="endpoint" id="create-file">
+            <h3>Create() - From File</h3>
+            <p><strong>File:</strong> <code>gs_ogl_sprite_ex.cpp</code></p>
+            <p>Creates an animated sprite by loading a sprite sheet from an image file.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL Create(const char* pszPathname, int nTotalFrames, int nFramesPerLine,
+            int nFrameWidth, int nFrameHeight, 
+            BOOL bFiltered = TRUE, BOOL bMipmap = TRUE)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>pszPathname</code> - Path to sprite sheet texture (TGA, PCX, or BMP)</li>
+                <li><code>nTotalFrames</code> - Total number of frames in the animation</li>
+                <li><code>nFramesPerLine</code> - Number of frames per row in the texture</li>
+                <li><code>nFrameWidth</code> - Width of each frame in pixels</li>
+                <li><code>nFrameHeight</code> - Height of each frame in pixels</li>
+                <li><code>bFiltered</code> - TRUE for bilinear filtering (default), FALSE for nearest</li>
+                <li><code>bMipmap</code> - TRUE to generate mipmaps (default: TRUE)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Destroys previous sprite if already created</li>
+                <li>Loads texture using base class <code>GS_OGLSprite::Create()</code></li>
+                <li>Allocates frame rectangle array</li>
+                <li>Calculates texture coordinates for each frame</li>
+                <li>Sets source rectangle to first frame (index 0)</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Sprite created successfully</li>
+                <li><code>FALSE</code> - Creation failed (invalid file or parameters)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Create 8-frame walk cycle (2 rows of 4 frames each)
+GS_OGLSpriteEx playerWalk;
+if (!playerWalk.Create("data/player_walk.tga", 8, 4, 32, 32))
+{
+    GS_Error::Report(__FILE__, __LINE__, "Failed to load walk animation!");
+    return FALSE;
+}
+
+// Create 16-frame explosion (4×4 grid)
+GS_OGLSpriteEx explosion;
+explosion.Create("data/explosion.tga", 16, 4, 64, 64, TRUE);</code></pre>
+
+            <p><strong>Texture Requirements:</strong></p>
+            <ul>
+                <li>Texture dimensions must accommodate all frames</li>
+                <li>Formula: <code>textureWidth >= framesPerLine × frameWidth</code></li>
+                <li>Formula: <code>textureHeight >= rows × frameHeight</code> where <code>rows = ceil(totalFrames / framesPerLine)</code></li>
+            </ul>
+        </div>
+
+        <div class="endpoint" id="create-texture">
+            <h3>Create() - From Existing Texture</h3>
+            <p><strong>File:</strong> <code>gs_ogl_sprite_ex.cpp</code></p>
+            <p>Creates an animated sprite using an existing OpenGL texture ID.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL Create(GLuint glTexture, int nWidth, int nHeight, 
+            int nTotalFrames, int nFramesPerLine,
+            int nFrameWidth, int nFrameHeight)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>glTexture</code> - OpenGL texture ID (from GS_OGLTexture::GetID())</li>
+                <li><code>nWidth</code> - Texture width in pixels</li>
+                <li><code>nHeight</code> - Texture height in pixels</li>
+                <li><code>nTotalFrames</code> - Total number of frames</li>
+                <li><code>nFramesPerLine</code> - Frames per row</li>
+                <li><code>nFrameWidth</code> - Width of each frame</li>
+                <li><code>nFrameHeight</code> - Height of each frame</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Uses provided texture instead of loading from file</li>
+                <li>Texture must remain valid for lifetime of sprite</li>
+                <li>Useful for sharing textures between multiple sprites</li>
+                <li>Otherwise same as file-based Create()</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Sprite created successfully</li>
+                <li><code>FALSE</code> - Creation failed</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Share one texture among multiple enemy sprites
+GS_OGLTexture enemyTexture;
+enemyTexture.Create("data/enemy_anim.tga", GS_MIPMAP, GL_LINEAR, GL_LINEAR);
+
+GS_OGLSpriteEx enemy1, enemy2, enemy3;
+
+enemy1.Create(enemyTexture.GetID(), 
+              enemyTexture.GetWidth(), enemyTexture.GetHeight(),
+              8, 4, 32, 32);
+
+enemy2.Create(enemyTexture.GetID(),
+              enemyTexture.GetWidth(), enemyTexture.GetHeight(),
+              8, 4, 32, 32);
+
+enemy3.Create(enemyTexture.GetID(),
+              enemyTexture.GetWidth(), enemyTexture.GetHeight(),
+              8, 4, 32, 32);</code></pre>
+        </div>
+
+        <div class="endpoint" id="destroy">
+            <h3>Destroy()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_sprite_ex.cpp</code></p>
+            <p>Destroys the sprite and releases all associated resources.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void Destroy()</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Returns immediately if not initialized</li>
+                <li>Calls base class <code>GS_OGLSprite::Destroy()</code></li>
+                <li>Frees frame rectangle array</li>
+                <li>Resets all frame-related variables to 0/NULL</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>None (void)</li>
+            </ul>
+
+            <p><strong>Note:</strong> Called automatically by destructor.</p>
+        </div>
+    </section>
+
+    <!-- Rendering Methods -->
+    <section class="api-section">
+        <h2>Rendering Methods</h2>
+
+        <div class="endpoint" id="render">
+            <h3>Render()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_sprite_ex.cpp</code></p>
+            <p>Renders the currently selected animation frame.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL Render(HWND hWnd = NULL)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>hWnd</code> - Optional window handle (ignored, for compatibility)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Returns FALSE if sprite not created</li>
+                <li>Sets source rectangle to current frame's texture coordinates</li>
+                <li>Calls base class <code>GS_OGLSprite::Render()</code></li>
+                <li>Renders quad with current frame's texture region</li>
+                <li>Applies position, rotation, scale, and color modulation</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Frame rendered successfully</li>
+                <li><code>FALSE</code> - Rendering failed</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Simple rendering
+sprite.Render();
+
+// With automatic frame advancement
+static float timer = 0.0f;
+timer += deltaTime;
+
+if (timer >= 1.0f / 12.0f)  // 12 FPS
+{
+    sprite.AddFrame(1);
+    timer = 0.0f;
+}
+
+sprite.Render();</code></pre>
+        </div>
+    </section>
+
+    <!-- Frame Management Methods -->
+    <section class="api-section">
+        <h2>Frame Management Methods</h2>
+
+        <div class="endpoint" id="getframe">
+            <h3>GetFrame()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_sprite_ex.cpp</code></p>
+            <p>Returns the index of the currently selected frame.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>int GetFrame()</pre>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>int</code> - Current frame index (0-based)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>int currentFrame = sprite.GetFrame();</pre>
+        </div>
+
+        <div class="endpoint" id="setframe">
+            <h3>SetFrame()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_sprite_ex.cpp</code></p>
+            <p>Sets the current animation frame to a specific index.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void SetFrame(int nFrame)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>nFrame</code> - Frame index to display (automatically clamped to valid range)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Clamps index to valid range [0, totalFrames-1]</li>
+                <li>If index < 0, sets to 0</li>
+                <li>If index >= totalFrames, sets to totalFrames-1</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Jump to specific frame
+sprite.SetFrame(5);  // Display 6th frame
+
+// Reset to first frame
+sprite.SetFrame(0);
+
+// Jump to last frame (clamped automatically)
+sprite.SetFrame(999);</code></pre>
+        </div>
+
+        <div class="endpoint" id="addframe">
+            <h3>AddFrame()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_sprite_ex.cpp</code></p>
+            <p>Advances or reverses the current frame by a specified amount.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void AddFrame(int nFramesToAdd)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>nFramesToAdd</code> - Number of frames to advance (positive) or reverse (negative)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Adds offset to current frame index</li>
+                <li>Automatically wraps around at boundaries:
+                    <ul>
+                        <li>If result >= totalFrames, wraps to 0</li>
+                        <li>If result < 0, wraps to totalFrames-1</li>
+                    </ul>
+                </li>
+                <li>Supports looping animations seamlessly</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Advance to next frame
+sprite.AddFrame(1);
+
+// Reverse to previous frame
+sprite.AddFrame(-1);
+
+// Skip forward 3 frames
+sprite.AddFrame(3);
+
+// Animation loop
+static float animSpeed = 12.0f;  // Frames per second
+static float accumulator = 0.0f;
+
+accumulator += GetFrameTime() / 1000.0f;
+
+while (accumulator >= 1.0f / animSpeed)
+{
+    sprite.AddFrame(1);
+    accumulator -= 1.0f / animSpeed;
+}</code></pre>
+        </div>
+
+        <div class="endpoint" id="gettotalframes">
+            <h3>GetTotalFrames()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_sprite_ex.cpp</code></p>
+            <p>Returns the total number of frames in the animation.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>int GetTotalFrames()</pre>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>int</code> - Total frame count</li>
+            </ul>
+        </div>
+
+        <div class="endpoint" id="settotalframes">
+            <h3>SetTotalFrames()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_sprite_ex.cpp</code></p>
+            <p>Sets the total number of frames (advanced use).</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void SetTotalFrames(int nTotalFrames)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>nTotalFrames</code> - New total frame count</li>
+            </ul>
+
+            <p><strong>Warning:</strong> Only use if you know what you're doing. Normally set via Create().</p>
+        </div>
+    </section>
+
+    <!-- Frame Layout Methods -->
+    <section class="api-section">
+        <h2>Frame Layout Methods</h2>
+
+        <div class="endpoint" id="getframesperline">
+            <h3>GetFramesPerLine()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_sprite_ex.cpp</code></p>
+            <p>Returns the number of frames per row in the sprite sheet.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>int GetFramesPerLine()</pre>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>int</code> - Frames per row</li>
+            </ul>
+        </div>
+
+        <div class="endpoint" id="setframesperline">
+            <h3>SetFramesPerLine()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_sprite_ex.cpp</code></p>
+            <p>Sets frames per row (advanced use).</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void SetFramesPerLine(int nFramesPerLine)</pre>
+
+            <p><strong>Warning:</strong> Normally set via Create(). Changing this may break frame calculations.</p>
+        </div>
+
+        <div class="endpoint" id="getframewidth">
+            <h3>GetFrameWidth()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_sprite_ex.cpp</code></p>
+            <p>Returns the scaled width of a frame.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>GLfloat GetFrameWidth()</pre>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>GLfloat</code> - Frame width × horizontal scale factor</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>float width = sprite.GetFrameWidth();  // Accounts for scaling</pre>
+        </div>
+
+        <div class="endpoint" id="getframeheight">
+            <h3>GetFrameHeight()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_sprite_ex.cpp</code></p>
+            <p>Returns the scaled height of a frame.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>GLfloat GetFrameHeight()</pre>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>GLfloat</code> - Frame height × vertical scale factor</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Practical Examples -->
+    <section class="api-section">
+        <h2>Practical Examples</h2>
+        <div class="endpoint">
+            <h3>Walk Cycle Animation</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Create 8-frame walk cycle
+GS_OGLSpriteEx playerWalk;
+playerWalk.Create("data/player_walk.tga", 8, 4, 32, 32);
+
+// Animation state
+static float animTimer = 0.0f;
+static float animSpeed = 12.0f;  // 12 FPS
+
+// Update
+animTimer += GetFrameTime() / 1000.0f;
+
+if (animTimer >= 1.0f / animSpeed)
+{
+    playerWalk.AddFrame(1);
+    animTimer -= 1.0f / animSpeed;
+}
+
+// Position and render
+playerWalk.SetDestXY(playerX, playerY);
+playerWalk.Render();</code></pre>
+
+            <h3>Explosion Effect</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// 16-frame explosion (non-looping)
+class Explosion {
+    GS_OGLSpriteEx sprite;
+    float timer;
+    bool active;
+    
+public:
+    void Create() {
+        sprite.Create("data/explosion.tga", 16, 4, 64, 64);
+        active = false;
+    }
+    
+    void Trigger(int x, int y) {
+        sprite.SetDestXY(x - 32, y - 32);  // Center explosion
+        sprite.SetFrame(0);
+        timer = 0.0f;
+        active = true;
+    }
+    
+    void Update(float deltaTime) {
+        if (!active) return;
+        
+        timer += deltaTime;
+        
+        if (timer >= 1.0f / 24.0f)  // 24 FPS
+        {
+            sprite.AddFrame(1);
+            timer = 0.0f;
+            
+            // Deactivate after last frame
+            if (sprite.GetFrame() == 0)  // Wrapped around
+                active = false;
+        }
+    }
+    
+    void Render() {
+        if (active)
+            sprite.Render();
+    }
+};</code></pre>
+
+            <h3>Multi-Directional Character</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Sprite sheet with 4 directions × 4 frames each = 16 frames
+// Row 0: Walk Down (frames 0-3)
+// Row 1: Walk Left (frames 4-7)
+// Row 2: Walk Right (frames 8-11)
+// Row 3: Walk Up (frames 12-15)
+
+GS_OGLSpriteEx player;
+player.Create("data/player_all.tga", 16, 4, 32, 32);
+
+enum Direction { DOWN, LEFT, RIGHT, UP };
+Direction facing = DOWN;
+
+void UpdatePlayerAnimation()
+{
+    // Determine direction based on input
+    if (keyPressed == GSK_UP)    facing = UP;
+    if (keyPressed == GSK_DOWN)  facing = DOWN;
+    if (keyPressed == GSK_LEFT)  facing = LEFT;
+    if (keyPressed == GSK_RIGHT) facing = RIGHT;
+    
+    // Calculate base frame for this direction
+    int baseFrame = facing * 4;
+    
+    // Animate within direction's 4 frames
+    static float timer = 0.0f;
+    static int localFrame = 0;
+    
+    if (isMoving)
+    {
+        timer += GetFrameTime() / 1000.0f;
+        
+        if (timer >= 1.0f / 8.0f)  // 8 FPS
+        {
+            localFrame = (localFrame + 1) % 4;
+            player.SetFrame(baseFrame + localFrame);
+            timer = 0.0f;
+        }
+    }
+    else
+    {
+        // Standing still - show first frame of direction
+        player.SetFrame(baseFrame);
+        localFrame = 0;
+    }
+}</code></pre>
+
+            <h3>Looping Background Animation</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Animated water surface (seamless loop)
+GS_OGLSpriteEx water;
+water.Create("data/water.tga", 8, 4, 128, 128);
+
+// Slow, smooth animation
+static float waterTimer = 0.0f;
+
+waterTimer += GetFrameTime() / 1000.0f;
+
+if (waterTimer >= 1.0f / 6.0f)  // 6 FPS for smooth effect
+{
+    water.AddFrame(1);  // Automatically loops
+    waterTimer = 0.0f;
+}
+
+// Tile across screen
+for (int x = 0; x < SCREEN_WIDTH; x += 128)
+{
+    for (int y = 0; y < SCREEN_HEIGHT; y += 128)
+    {
+        water.SetDestXY(x, y);
+        water.Render();
+    }
+}</code></pre>
+
+            <h3>State-Based Animation</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>class AnimatedSprite {
+    GS_OGLSpriteEx sprite;
+    
+    struct AnimSequence {
+        int startFrame;
+        int endFrame;
+        float speed;
+        bool loop;
+    };
+    
+    std::map<std::string, AnimSequence> animations;
+    std::string currentAnim;
+    float timer;
+    
+public:
+    void AddAnimation(const char* name, int start, int end, 
+                      float fps, bool loop) {
+        animations[name] = {start, end, fps, loop};
+    }
+    
+    void PlayAnimation(const char* name) {
+        if (currentAnim == name) return;
+        
+        currentAnim = name;
+        sprite.SetFrame(animations[name].startFrame);
+        timer = 0.0f;
+    }
+    
+    void Update(float deltaTime) {
+        if (currentAnim.empty()) return;
+        
+        AnimSequence& anim = animations[currentAnim];
+        timer += deltaTime;
+        
+        if (timer >= 1.0f / anim.speed)
+        {
+            int current = sprite.GetFrame();
+            current++;
+            
+            if (current > anim.endFrame)
+            {
+                if (anim.loop)
+                    current = anim.startFrame;
+                else
+                    current = anim.endFrame;  // Stay on last frame
+            }
+            
+            sprite.SetFrame(current);
+            timer = 0.0f;
+        }
+    }
+};
+
+// Usage:
+AnimatedSprite enemy;
+enemy.AddAnimation("idle", 0, 3, 8.0f, true);
+enemy.AddAnimation("attack", 4, 11, 16.0f, false);
+enemy.AddAnimation("death", 12, 19, 12.0f, false);
+
+enemy.PlayAnimation("idle");</code></pre>
+
+            <h3>Best Practices</h3>
+            <ul>
+                <li><strong>Frame Timing:</strong> Use delta time for frame-rate independent animation</li>
+                <li><strong>Texture Organization:</strong> Keep related animations in same sprite sheet</li>
+                <li><strong>Power of 2 Textures:</strong> Use 256×256, 512×512, etc. for better GPU performance</li>
+                <li><strong>Frame Count:</strong> Use multiples of 4 for clean grid layouts</li>
+                <li><strong>Looping:</strong> Design first and last frames to blend seamlessly</li>
+                <li><strong>Memory:</strong> Share textures between sprites when possible</li>
+                <li><strong>State Management:</strong> Reset frame to 0 when changing animations</li>
+            </ul>
+
+            <div style="background-color: #fffbcc; padding: 15px; border-left: 4px solid #ffcc00; margin: 20px 0;">
+                <h4 style="margin-top: 0;">💡 Pro Tip</h4>
+                <p style="margin-bottom: 0;">For character sprites with multiple animations, organize your sprite sheet by rows where each row represents a different animation sequence. This makes it easy to calculate the correct frame range for each state.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Platform Notes -->
+    <section class="api-section">
+        <h2>Platform-Specific Notes</h2>
+        <div class="endpoint">
+            <h3>Cross-Platform Compatibility</h3>
+            <p>GS_OGLSpriteEx is completely cross-platform and works identically on all platforms:</p>
+            <ul>
+                <li><strong>Windows</strong> - Full support with native OpenGL</li>
+                <li><strong>Linux</strong> - Full support via SDL2 + OpenGL</li>
+                <li><strong>macOS</strong> - Full support via SDL2 + OpenGL</li>
+            </ul>
+
+            <p>There are no platform-specific implementations or behavior differences.</p>
+
+            <h3>Performance Characteristics</h3>
+            <ul>
+                <li><strong>Frame Lookup:</strong> O(1) - pre-computed rectangle array</li>
+                <li><strong>Memory Overhead:</strong> Array of RECT structures (16 bytes × frame count)</li>
+                <li><strong>Rendering Speed:</strong> Same as GS_OGLSprite (single quad per draw)</li>
+                <li><strong>Texture Sharing:</strong> Multiple sprites can share same texture efficiently</li>
+            </ul>
+
+            <h3>Optimization Tips</h3>
+            <ul>
+                <li><strong>Batch Rendering:</strong> Render all sprites using same texture consecutively</li>
+                <li><strong>Texture Size:</strong> Keep sprite sheets reasonably small (< 2048×2048)</li>
+                <li><strong>Filtering:</strong> Use nearest-neighbor for pixel art, linear for smooth sprites</li>
+                <li><strong>Mipmaps:</strong> Enable for sprites that scale frequently</li>
+                <li><strong>Frame Updates:</strong> Only call AddFrame() when actually animating</li>
+            </ul>
+
+            <h3>Common Pitfalls</h3>
+            <div style="background-color: #fff3cd; padding: 15px; border-left: 4px solid #ffc107; margin: 20px 0;">
+                <h4 style="margin-top: 0;">⚠️ Watch Out For</h4>
+                <ul style="margin-bottom: 0;">
+                    <li><strong>Frame Calculation Errors:</strong> Ensure texture size matches frame layout exactly</li>
+                    <li><strong>Wrapping Behavior:</strong> AddFrame() wraps around - use SetFrame() for absolute positioning</li>
+                    <li><strong>Texture Lifetime:</strong> External textures must outlive all sprites using them</li>
+                    <li><strong>Animation Speed:</strong> Too fast frame rates can look choppy - aim for 8-24 FPS for most animations</li>
+                    <li><strong>Memory Leaks:</strong> Always call Destroy() or let destructor handle cleanup</li>
+                </ul>
+            </div>
+
+            <div style="background-color: #d4edda; padding: 15px; border-left: 4px solid #28a745; margin: 20px 0;">
+                <h4 style="margin-top: 0;">✅ Best Performance</h4>
+                <p style="margin-bottom: 0;">GS_OGLSpriteEx is optimized for smooth 2D animation. Pre-computed frame rectangles eliminate calculation overhead during rendering. For best results: organize sprite sheets logically, use appropriate animation speeds, and share textures when possible. The frame wrapping system makes looping animations trivial.</p>
+            </div>
+        </div>
+    </section>
+</body>
+
+</html>

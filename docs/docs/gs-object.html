@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GS_Object Class</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+
+<body class="endpoint-page">
+    <!-- GS_Object Methods Index -->
+    <section class="api-section">
+        <h2>GS_Object Base Class Reference</h2>
+        <p><strong>Files:</strong> <code>gs_object.h</code>, <code>gs_object.cpp</code></p>
+        
+        <div class="endpoint-index">
+            <h3>Constructor & Destructor</h3>
+            <ul>
+                <li><a href="#constructor">GS_Object() <span class="endpoint-desc">- Default constructor</span></a></li>
+                <li><a href="#destructor">~GS_Object() <span class="endpoint-desc">- Virtual destructor</span></a></li>
+            </ul>
+
+            <h3>Utility Macros</h3>
+            <ul>
+                <li><a href="#safe-delete">GS_SAFE_DELETE() <span class="endpoint-desc">- Safe pointer deletion macro</span></a></li>
+                <li><a href="#safe-delete-array">GS_SAFE_DELETE_ARRAY() <span class="endpoint-desc">- Safe array deletion macro</span></a></li>
+                <li><a href="#safe-release">GS_SAFE_RELEASE() <span class="endpoint-desc">- Safe COM/object release macro</span></a></li>
+            </ul>
+
+            <h3>Debug Configuration</h3>
+            <ul>
+                <li><a href="#debug-mode">GS_DEBUG_MODE <span class="endpoint-desc">- Debug output preprocessor define</span></a></li>
+            </ul>
+        </div>
+    </section>
+    
+    <!-- Class Overview -->
+    <section class="api-section">
+        <h2>Class Overview</h2>
+        <div class="endpoint">
+            <h3>About GS_Object</h3>
+            <p>The <code>GS_Object</code> class is the fundamental base class for the entire GameSystem library. It serves as the root of the class hierarchy, providing a common foundation for all GameSystem objects. While minimal in its current implementation, it establishes the framework's inheritance structure and provides essential utility macros used throughout the library.</p>
+
+            <p>All major GameSystem classes inherit from <code>GS_Object</code>, including:</p>
+            <ul>
+                <li><code>GS_Application</code> - Application framework</li>
+                <li><code>GS_OGLDisplay</code> - OpenGL display management</li>
+                <li><code>GS_OGLSprite</code> - Sprite rendering</li>
+                <li><code>GS_OGLFont</code> - Font rendering</li>
+                <li><code>GS_OGLMenu</code> - Menu system</li>
+                <li><code>GS_Keyboard</code> - Keyboard input</li>
+                <li><code>GS_Mouse</code> - Mouse input</li>
+                <li><code>GS_FmodSound</code> - Audio playback</li>
+                <li>And many others...</li>
+            </ul>
+
+            <h3>Key Features</h3>
+            <ul>
+                <li><strong>Base Class Foundation:</strong> Provides virtual destructor for proper inheritance cleanup</li>
+                <li><strong>Utility Macros:</strong> Safe pointer deletion and resource management macros</li>
+                <li><strong>Debug Configuration:</strong> Central location for debug mode settings</li>
+                <li><strong>Platform Abstraction:</strong> Includes platform-specific headers via <code>gs_platform.h</code></li>
+                <li><strong>Lightweight Design:</strong> Minimal overhead - no member variables or complex logic</li>
+            </ul>
+
+            <h3>Purpose in the Framework</h3>
+            <p>The <code>GS_Object</code> class serves several important purposes:</p>
+            
+            <ol>
+                <li><strong>Polymorphic Destruction:</strong> The virtual destructor ensures derived classes are properly destroyed when deleted through base class pointers</li>
+                <li><strong>Type System Root:</strong> Establishes a common type that all GameSystem objects share</li>
+                <li><strong>Utility Provider:</strong> Defines macros used throughout the framework for safe resource management</li>
+                <li><strong>Future Extensibility:</strong> Provides a foundation for adding common functionality to all objects if needed</li>
+            </ol>
+
+            <h3>Class Definition</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>class GS_Object
+{
+private:
+    // No private members (reserved for future use)
+
+protected:
+    // No protected members (reserved for future use)
+
+public:
+    GS_Object();
+    virtual ~GS_Object();
+};</code></pre>
+
+            <h3>Usage Pattern</h3>
+            <p>You typically don't create instances of <code>GS_Object</code> directly. Instead, you use it as a base class:</p>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// GameSystem classes inherit from GS_Object
+class GS_MyGameObject : public GS_Object
+{
+private:
+    GS_OGLSprite* m_pSprite;  // Will use GS_SAFE_DELETE
+
+public:
+    GS_MyGameObject() : GS_Object()
+    {
+        m_pSprite = new GS_OGLSprite();
+    }
+    
+    ~GS_MyGameObject()
+    {
+        GS_SAFE_DELETE(m_pSprite);  // Safe deletion macro
+    }
+};</code></pre>
+
+            <h3>Inheritance Benefits</h3>
+            <p>Inheriting from <code>GS_Object</code> provides:</p>
+            <ul>
+                <li><strong>Virtual Destructor:</strong> Proper cleanup when deleting through base pointers</li>
+                <li><strong>Common Type:</strong> All objects share a common ancestor</li>
+                <li><strong>Macro Access:</strong> Automatic access to utility macros</li>
+                <li><strong>Debug Configuration:</strong> Inherits debug mode settings</li>
+                <li><strong>Platform Compatibility:</strong> Includes platform abstraction layer</li>
+            </ul>
+
+            <h3>Member Variables</h3>
+            <p>The <code>GS_Object</code> class currently has no member variables. It's designed to be a minimal base class with zero overhead.</p>
+
+            <div style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; margin: 15px 0;">
+                <h4 style="margin-top: 0;">Design Decision</h4>
+                <p style="margin-bottom: 0;">The class is intentionally kept minimal to avoid imposing overhead on all derived classes. Future versions may add common functionality like reference counting, object naming, or debugging features, but currently it serves primarily as a foundation for the type hierarchy and utility macro distribution.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Constructor & Destructor -->
+    <section class="api-section">
+        <h2>Constructor & Destructor</h2>
+
+        <div class="endpoint" id="constructor">
+            <h3>GS_Object()</h3>
+            <p><strong>File:</strong> <code>gs_object.cpp</code></p>
+            <p>Default constructor for the base object class.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>GS_Object()</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Empty constructor body</li>
+                <li>No member variables to initialize</li>
+                <li>Called automatically when derived classes are constructed</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Constructor is called implicitly through inheritance
+class MyGame : public GS_Object
+{
+public:
+    MyGame() : GS_Object()  // Explicitly call base constructor
+    {
+        // Your initialization
+    }
+};</code></pre>
+
+            <p><strong>Note:</strong> You rarely need to call this constructor directly. It's invoked automatically as part of derived class construction.</p>
+        </div>
+
+        <div class="endpoint" id="destructor">
+            <h3>~GS_Object()</h3>
+            <p><strong>File:</strong> <code>gs_object.cpp</code></p>
+            <p>Virtual destructor for the base object class.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>virtual ~GS_Object()</pre>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Empty destructor body</li>
+                <li>Declared as <code>virtual</code> to ensure proper polymorphic destruction</li>
+                <li>Allows derived classes to clean up resources correctly</li>
+            </ul>
+
+            <p><strong>Why Virtual?</strong></p>
+            <p>The virtual destructor is crucial for proper cleanup when using polymorphism:</p>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Without virtual destructor, this would leak memory:
+GS_Object* pObject = new GS_OGLSprite();
+delete pObject;  // Without virtual, only ~GS_Object() called
+
+// With virtual destructor, proper cleanup chain:
+// 1. ~GS_OGLSprite() called first
+// 2. ~GS_Object() called last
+// All resources properly released!</code></pre>
+
+            <p><strong>Inheritance Chain:</strong></p>
+            <p>When a derived object is destroyed, destructors are called in this order:</p>
+            <ol>
+                <li>Derived class destructor (e.g., <code>~GS_OGLSprite()</code>)</li>
+                <li>Base class destructor (<code>~GS_Object()</code>)</li>
+            </ol>
+
+            <div style="background-color: #fff3cd; padding: 15px; border-left: 4px solid #ffc107; margin: 20px 0;">
+                <h4 style="margin-top: 0;">⚠️ Important</h4>
+                <p style="margin-bottom: 0;">Always make the base class destructor virtual when designing class hierarchies. This ensures that derived class destructors are called when deleting through base class pointers, preventing resource leaks.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Utility Macros -->
+    <section class="api-section">
+        <h2>Utility Macros</h2>
+
+        <div class="endpoint" id="safe-delete">
+            <h3>GS_SAFE_DELETE()</h3>
+            <p><strong>File:</strong> <code>gs_object.h</code></p>
+            <p>Safely deletes a pointer and sets it to NULL, preventing double deletion and dangling pointers.</p>
+            
+            <p><strong>Definition:</strong></p>
+            <pre>#define GS_SAFE_DELETE(p) { if(p) { delete (p); (p)=NULL; } }</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>p</code> - Pointer to delete</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Checks if pointer is non-NULL before deleting</li>
+                <li>Calls <code>delete</code> on the pointer</li>
+                <li>Sets the pointer to NULL after deletion</li>
+                <li>Safe to call multiple times on the same pointer</li>
+            </ul>
+
+            <p><strong>Why Use This Macro?</strong></p>
+            <p>It solves several common pointer management problems:</p>
+            <ol>
+                <li><strong>Double Deletion Prevention:</strong> Sets pointer to NULL after deletion</li>
+                <li><strong>NULL Check:</strong> Won't crash if pointer is already NULL</li>
+                <li><strong>Dangling Pointer Prevention:</strong> Ensures pointer doesn't point to freed memory</li>
+            </ol>
+
+            <p><strong>Examples:</strong></p>
+
+            <h4>Basic Usage:</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>class MyClass
+{
+    GS_OGLSprite* m_pSprite;
+    
+public:
+    MyClass()
+    {
+        m_pSprite = new GS_OGLSprite();
+    }
+    
+    ~MyClass()
+    {
+        GS_SAFE_DELETE(m_pSprite);  // Safe deletion
+    }
+};</code></pre>
+
+            <h4>Multiple Deletions (Safe):</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>GS_OGLTexture* pTexture = new GS_OGLTexture();
+
+GS_SAFE_DELETE(pTexture);  // Deletes and sets to NULL
+GS_SAFE_DELETE(pTexture);  // Safe - does nothing (already NULL)
+GS_SAFE_DELETE(pTexture);  // Still safe</code></pre>
+
+            <h4>Cleanup Multiple Pointers:</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>void Cleanup()
+{
+    GS_SAFE_DELETE(m_pSprite);
+    GS_SAFE_DELETE(m_pFont);
+    GS_SAFE_DELETE(m_pTexture);
+    GS_SAFE_DELETE(m_pMenu);
+    // All pointers now safely NULL
+}</code></pre>
+
+            <p><strong>Common Use Cases:</strong></p>
+            <ul>
+                <li>Destructor cleanup of dynamically allocated objects</li>
+                <li>Resource reset methods</li>
+                <li>State change cleanup</li>
+                <li>Error handling cleanup paths</li>
+            </ul>
+        </div>
+
+        <div class="endpoint" id="safe-delete-array">
+            <h3>GS_SAFE_DELETE_ARRAY()</h3>
+            <p><strong>File:</strong> <code>gs_object.h</code></p>
+            <p>Safely deletes an array allocated with <code>new[]</code> and sets the pointer to NULL.</p>
+            
+            <p><strong>Definition:</strong></p>
+            <pre>#define GS_SAFE_DELETE_ARRAY(p) { if(p) { delete[] (p); (p)=NULL; } }</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>p</code> - Pointer to array to delete</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Checks if pointer is non-NULL</li>
+                <li>Calls <code>delete[]</code> (array deletion operator)</li>
+                <li>Sets pointer to NULL after deletion</li>
+                <li>Prevents double deletion and dangling pointers</li>
+            </ul>
+
+            <p><strong>Why Array-Specific?</strong></p>
+            <p>Arrays allocated with <code>new[]</code> must be deleted with <code>delete[]</code>:</p>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Correct usage:
+int* pArray = new int[100];
+delete[] pArray;  // Array deletion
+
+// Incorrect (undefined behavior):
+int* pArray = new int[100];
+delete pArray;    // WRONG - use delete[] for arrays!</code></pre>
+
+            <p><strong>Examples:</strong></p>
+
+            <h4>Array Cleanup:</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>class DataBuffer
+{
+    float* m_pData;
+    int m_nSize;
+    
+public:
+    DataBuffer(int size)
+    {
+        m_nSize = size;
+        m_pData = new float[size];
+    }
+    
+    ~DataBuffer()
+    {
+        GS_SAFE_DELETE_ARRAY(m_pData);  // Proper array deletion
+    }
+};</code></pre>
+
+            <h4>Dynamic String Buffer:</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>char* pBuffer = new char[256];
+strcpy(pBuffer, "Hello World");
+
+// Later...
+GS_SAFE_DELETE_ARRAY(pBuffer);  // Safe array deletion</code></pre>
+
+            <h4>Vertex Data:</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>struct Vertex { float x, y, z; };
+
+Vertex* pVertices = new Vertex[1000];
+// Use vertices...
+
+GS_SAFE_DELETE_ARRAY(pVertices);  // Clean up vertex array</code></pre>
+
+            <div style="background-color: #fff3cd; padding: 15px; border-left: 4px solid #ffc107; margin: 20px 0;">
+                <h4 style="margin-top: 0;">⚠️ Critical Rule</h4>
+                <p style="margin-bottom: 0;">Always match your allocation and deallocation operators:<br>
+                • <code>new</code> → <code>delete</code><br>
+                • <code>new[]</code> → <code>delete[]</code><br>
+                Mismatching these causes undefined behavior and potential crashes!</p>
+            </div>
+        </div>
+
+        <div class="endpoint" id="safe-release">
+            <h3>GS_SAFE_RELEASE()</h3>
+            <p><strong>File:</strong> <code>gs_object.h</code></p>
+            <p>Safely releases a COM-style object by calling its <code>Release()</code> method and setting the pointer to NULL.</p>
+            
+            <p><strong>Definition:</strong></p>
+            <pre>#define GS_SAFE_RELEASE(p) { if(p) { (p)->Release(); (p)=NULL; } }</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>p</code> - Pointer to object with a <code>Release()</code> method</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Checks if pointer is non-NULL</li>
+                <li>Calls the object's <code>Release()</code> method</li>
+                <li>Sets pointer to NULL after release</li>
+                <li>Follows COM reference counting pattern</li>
+            </ul>
+
+            <p><strong>Purpose:</strong></p>
+            <p>This macro is designed for objects that use reference counting (COM-style resource management):</p>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// COM-style interface
+interface ITexture
+{
+    virtual void AddRef() = 0;
+    virtual void Release() = 0;  // Decrements ref count, deletes if 0
+};
+
+// Usage
+ITexture* pTexture = CreateTexture();
+pTexture->AddRef();  // Increment reference count
+
+// Later...
+GS_SAFE_RELEASE(pTexture);  // Decrement and clean up</code></pre>
+
+            <p><strong>When to Use:</strong></p>
+            <ul>
+                <li><strong>DirectX Interfaces:</strong> D3D11, D3D9 objects (if used)</li>
+                <li><strong>COM Objects:</strong> Any object implementing <code>IUnknown</code></li>
+                <li><strong>Custom Reference-Counted Objects:</strong> Your own objects with <code>Release()</code></li>
+            </ul>
+
+            <p><strong>Example with DirectX (if applicable):</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// DirectX usage (example, not in current GameSystem)
+ID3D11Device* pDevice = nullptr;
+ID3D11DeviceContext* pContext = nullptr;
+
+// Create DirectX device
+D3D11CreateDevice(..., &pDevice, ..., &pContext);
+
+// Cleanup
+GS_SAFE_RELEASE(pContext);
+GS_SAFE_RELEASE(pDevice);</code></pre>
+
+            <p><strong>Note for GameSystem:</strong></p>
+            <p>While this macro is defined in <code>gs_object.h</code>, GameSystem primarily uses OpenGL (which doesn't use COM-style reference counting) and SDL2. This macro is included for:</p>
+            <ul>
+                <li>Future DirectX support</li>
+                <li>Custom reference-counted objects</li>
+                <li>Third-party library integration</li>
+                <li>Compatibility with Windows COM objects</li>
+            </ul>
+
+            <p><strong>Typical GameSystem Usage:</strong></p>
+            <p>In current GameSystem code, you'll more commonly use <code>GS_SAFE_DELETE</code> and <code>GS_SAFE_DELETE_ARRAY</code> since most objects are heap-allocated with <code>new</code>.</p>
+        </div>
+    </section>
+
+    <!-- Debug Configuration -->
+    <section class="api-section">
+        <h2>Debug Configuration</h2>
+
+        <div class="endpoint" id="debug-mode">
+            <h3>GS_DEBUG_MODE</h3>
+            <p><strong>File:</strong> <code>gs_object.h</code></p>
+            <p>Preprocessor define that enables debug output for error reporting and diagnostics.</p>
+            
+            <p><strong>Definition:</strong></p>
+            <pre>// #define GS_DEBUG_MODE  // Commented out by default</pre>
+
+            <p><strong>Purpose:</strong></p>
+            <p>Controls debug output behavior throughout the GameSystem library. When defined, error messages and debug information are output to the debugger console instead of displaying message boxes.</p>
+
+            <p><strong>Effect When Defined:</strong></p>
+            <ul>
+                <li><strong>Windows:</strong> Uses <code>OutputDebugString()</code> to send messages to Visual Studio Output window</li>
+                <li><strong>SDL2:</strong> Uses <code>fprintf(stderr, ...)</code> to print to terminal/console</li>
+                <li><strong>Non-Intrusive:</strong> Errors don't stop execution with modal dialogs</li>
+                <li><strong>Development-Friendly:</strong> Can see errors while game continues running</li>
+            </ul>
+
+            <p><strong>Effect When Not Defined (Default):</strong></p>
+            <ul>
+                <li>Errors display in message boxes</li>
+                <li>Execution pauses until user clicks OK</li>
+                <li>Better for release builds to notify users of issues</li>
+            </ul>
+
+            <p><strong>How to Enable:</strong></p>
+
+            <h4>Method 1: Edit gs_object.h</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Uncomment this line in gs_object.h
+#define GS_DEBUG_MODE</code></pre>
+
+            <h4>Method 2: Compiler Define</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Add to compiler flags
+g++ -DGS_DEBUG_MODE ...
+
+// Or in Visual Studio: Project Properties → C/C++ → Preprocessor → Preprocessor Definitions
+// Add: GS_DEBUG_MODE</code></pre>
+
+            <h4>Method 3: CMake Configuration</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code># In CMakeLists.txt
+add_definitions(-DGS_DEBUG_MODE)</code></pre>
+
+            <p><strong>Usage in Code:</strong></p>
+            <p>The define is checked in <code>GS_Error::Report()</code> to determine output method:</p>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>void GS_Error::Report(LPCTSTR pszFile, int nLine, LPCTSTR pszMessage)
+{
+#ifdef GS_DEBUG_MODE
+    // Output to debugger console
+    OutputDebugString(szBuffer);
+#else
+    // Show message box
+    MessageBox(NULL, szBuffer, "ERROR", MB_OK | MB_ICONERROR);
+#endif
+}</code></pre>
+
+            <p><strong>When to Use Debug Mode:</strong></p>
+            <table style="width: 100%; border-collapse: collapse; margin: 1em 0;">
+                <thead>
+                    <tr style="background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Scenario</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Recommended</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Reason</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Active Development</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><strong>Enabled</strong></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">See errors without interrupting workflow</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 10px; border: 1px solid #ddd;">Debugging Session</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><strong>Enabled</strong></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Errors appear in debugger output window</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Testing/QA</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Disabled</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Testers need clear error notifications</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 10px; border: 1px solid #ddd;">Release Build</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Disabled</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">End users need visible error messages</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div style="background-color: #fffbcc; padding: 15px; border-left: 4px solid #ffcc00; margin: 20px 0;">
+                <h4 style="margin-top: 0;">💡 Pro Tip</h4>
+                <p style="margin-bottom: 0;">Use conditional compilation in CMake to automatically enable debug mode for debug builds and disable it for release builds. This ensures appropriate error handling for each build configuration without manual changes.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Best Practices -->
+    <section class="api-section">
+        <h2>Best Practices</h2>
+        <div class="endpoint">
+            <h3>Inheriting from GS_Object</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>class MyGameObject : public GS_Object
+{
+private:
+    GS_OGLSprite* m_pSprite;
+    float* m_pVertexData;
+    
+public:
+    MyGameObject() : GS_Object()
+    {
+        m_pSprite = new GS_OGLSprite();
+        m_pVertexData = new float[100];
+    }
+    
+    ~MyGameObject()
+    {
+        // Use safe deletion macros
+        GS_SAFE_DELETE(m_pSprite);
+        GS_SAFE_DELETE_ARRAY(m_pVertexData);
+    }
+};</code></pre>
+
+            <h3>Resource Management Pattern</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>class ResourceManager : public GS_Object
+{
+private:
+    GS_OGLTexture* m_pTextures;
+    GS_List<GS_OGLSprite*> m_sprites;
+    
+public:
+    void Cleanup()
+    {
+        // Clean up list items
+        for (int i = 0; i < m_sprites.GetNumItems(); i++)
+        {
+            GS_SAFE_DELETE(m_sprites[i]);
+        }
+        m_sprites.RemoveAllItems();
+        
+        // Clean up array
+        GS_SAFE_DELETE_ARRAY(m_pTextures);
+    }
+    
+    ~ResourceManager()
+    {
+        Cleanup();
+    }
+};</code></pre>
+
+            <h3>Polymorphic Usage</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Store different types of objects
+GS_List<GS_Object*> objects;
+
+objects.AddItem(new GS_OGLSprite());
+objects.AddItem(new GS_OGLFont());
+objects.AddItem(new GS_Mouse());
+
+// Clean up (virtual destructor ensures proper cleanup)
+for (int i = 0; i < objects.GetNumItems(); i++)
+{
+    GS_SAFE_DELETE(objects[i]);  // Calls correct destructor
+}
+objects.RemoveAllItems();</code></pre>
+
+            <h3>Macro Usage Guidelines</h3>
+            <ul>
+                <li><strong>Always Use Macros:</strong> Use <code>GS_SAFE_DELETE</code> instead of raw <code>delete</code></li>
+                <li><strong>Match Operators:</strong> Use <code>GS_SAFE_DELETE_ARRAY</code> for arrays allocated with <code>new[]</code></li>
+                <li><strong>Initialize Pointers:</strong> Always initialize pointers to NULL in constructors</li>
+                <li><strong>Multiple Calls Safe:</strong> It's safe to call these macros multiple times</li>
+                <li><strong>Cleanup Methods:</strong> Create explicit cleanup methods for complex resource management</li>
+            </ul>
+
+            <h3>Common Patterns</h3>
+
+            <h4>Lazy Initialization</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>class LazyResource : public GS_Object
+{
+private:
+    GS_OGLTexture* m_pTexture;
+    
+public:
+    LazyResource() { m_pTexture = NULL; }
+    
+    GS_OGLTexture* GetTexture()
+    {
+        if (!m_pTexture)
+        {
+            m_pTexture = new GS_OGLTexture();
+            m_pTexture->Create("data/texture.tga");
+        }
+        return m_pTexture;
+    }
+    
+    ~LazyResource()
+    {
+        GS_SAFE_DELETE(m_pTexture);  // Safe even if never created
+    }
+};</code></pre>
+
+            <h4>Resource Reset</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>void ResetLevel()
+{
+    // Clean up current level resources
+    GS_SAFE_DELETE(m_pLevelMap);
+    GS_SAFE_DELETE(m_pBackground);
+    
+    // Clean up enemy list
+    for (int i = 0; i < m_enemies.GetNumItems(); i++)
+    {
+        GS_SAFE_DELETE(m_enemies[i]);
+    }
+    m_enemies.RemoveAllItems();
+    
+    // Load new level
+    LoadLevel(m_nextLevel);
+}</code></pre>
+
+            <div style="background-color: #d4edda; padding: 15px; border-left: 4px solid #28a745; margin: 20px 0;">
+                <h4 style="margin-top: 0;">✅ Best Practice</h4>
+                <p style="margin-bottom: 0;">Always use the safe deletion macros from <code>GS_Object</code>. They prevent common pointer errors and make your code more robust. Initialize all pointers to NULL in constructors and use the macros in destructors and cleanup methods.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Platform Notes -->
+    <section class="api-section">
+        <h2>Platform-Specific Notes</h2>
+        <div class="endpoint">
+            <h3>Cross-Platform Compatibility</h3>
+            <p>The <code>GS_Object</code> class is completely platform-agnostic. It works identically on:</p>
+            <ul>
+                <li><strong>Windows</strong> - Visual Studio, MinGW, MSVC</li>
+                <li><strong>Linux</strong> - GCC, Clang</li>
+                <li><strong>macOS</strong> - Clang, GCC</li>
+            </ul>
+
+            <h3>Platform Abstraction Inclusion</h3>
+            <p><code>gs_object.h</code> includes <code>gs_platform.h</code>, which provides platform-specific types and definitions:</p>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>#include "gs_platform.h"  // Platform abstraction layer
+
+// This provides:
+// - HWND, HDC (Windows types, or SDL2 equivalents)
+// - BOOL, TRUE, FALSE
+// - LPCTSTR, LPTSTR
+// - Other platform-specific definitions</code></pre>
+
+            <h3>Debug Output Differences</h3>
+            <table style="width: 100%; border-collapse: collapse; margin: 1em 0;">
+                <thead>
+                    <tr style="background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Platform</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Debug Output</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Where to View</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><strong>Windows</strong></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>OutputDebugString()</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Visual Studio Output window</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><strong>Linux</strong></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>fprintf(stderr, ...)</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Terminal/console</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><strong>macOS</strong></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>fprintf(stderr, ...)</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Terminal/console or Xcode console</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Compiler Considerations</h3>
+            <p>The macros and class work with all major C++ compilers:</p>
+            <ul>
+                <li><strong>MSVC:</strong> Full support, including C++98 through C++20</li>
+                <li><strong>GCC:</strong> Version 4.8+ recommended</li>
+                <li><strong>Clang:</strong> Version 3.5+ recommended</li>
+                <li><strong>MinGW:</strong> Fully compatible</li>
+            </ul>
+
+            <div style="background-color: #fffbcc; padding: 15px; border-left: 4px solid #ffcc00; margin: 20px 0;">
+                <h4 style="margin-top: 0;">💡 Pro Tip</h4>
+                <p style="margin-bottom: 0;">The <code>GS_Object</code> base class and its macros are designed to be as portable as possible. They rely only on standard C++ features, making them work reliably across all platforms and compilers supported by GameSystem.</p>
+            </div>
+        </div>
+    </section>
+</body>
+
+</html>

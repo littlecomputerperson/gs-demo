@@ -1,0 +1,1250 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GS_Application Class</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+
+<body class="endpoint-page">
+    <!-- GS_Application Methods Index -->
+    <section class="api-section">
+        <h2>GS_Application Class Reference</h2>
+        <p><strong>Files:</strong> <code>gs_app.h</code>, <code>gs_app.cpp</code> (Windows), <code>gs_app_sdl.cpp</code> (SDL2)</p>
+        
+        <div class="endpoint-index">
+            <h3>Core Methods</h3>
+            <ul>
+                <li><a href="#constructor">GS_Application() <span class="endpoint-desc">- Constructor</span></a></li>
+                <li><a href="#destructor">~GS_Application() <span class="endpoint-desc">- Destructor</span></a></li>
+                <li><a href="#create">Create() <span class="endpoint-desc">- Initialize application window</span></a></li>
+                <li><a href="#setmode">SetMode() <span class="endpoint-desc">- Change display mode</span></a></li>
+                <li><a href="#destroy">Destroy() <span class="endpoint-desc">- Clean up application resources</span></a></li>
+                <li><a href="#run">Run() <span class="endpoint-desc">- Main application loop</span></a></li>
+            </ul>
+
+            <h3>Virtual Methods (Override These)</h3>
+            <ul>
+                <li><a href="#gamesetup">GameSetup() <span class="endpoint-desc">- Configure before window creation</span></a></li>
+                <li><a href="#gameinit">GameInit() <span class="endpoint-desc">- Initialize game resources</span></a></li>
+                <li><a href="#gameloop">GameLoop() <span class="endpoint-desc">- Main game logic (called every frame)</span></a></li>
+                <li><a href="#gameshutdown">GameShutdown() <span class="endpoint-desc">- Clean up game resources</span></a></li>
+                <li><a href="#gamerelease">GameRelease() <span class="endpoint-desc">- Release resources when window loses focus</span></a></li>
+                <li><a href="#gamerestore">GameRestore() <span class="endpoint-desc">- Restore resources when window gains focus</span></a></li>
+                <li><a href="#onchangemode">OnChangeMode() <span class="endpoint-desc">- Handle display mode changes</span></a></li>
+                <li><a href="#msgproc">MsgProc() <span class="endpoint-desc">- Process window messages</span></a></li>
+            </ul>
+
+            <h3>Utility Methods</h3>
+            <ul>
+                <li><a href="#setframerate">SetFrameRate() <span class="endpoint-desc">- Set target frame rate</span></a></li>
+                <li><a href="#showframerate">ShowFrameRate() <span class="endpoint-desc">- Display average FPS</span></a></li>
+                <li><a href="#settitle">SetTitle() <span class="endpoint-desc">- Set window title</span></a></li>
+                <li><a href="#pause">Pause() <span class="endpoint-desc">- Pause/unpause application</span></a></li>
+                <li><a href="#quit">Quit() <span class="endpoint-desc">- Exit application</span></a></li>
+            </ul>
+
+            <h3>Accessor Methods</h3>
+            <ul>
+                <li><a href="#getinstance">GetInstance() <span class="endpoint-desc">- Get application instance handle</span></a></li>
+                <li><a href="#getwindow">GetWindow() <span class="endpoint-desc">- Get window handle</span></a></li>
+                <li><a href="#getdevice">GetDevice() <span class="endpoint-desc">- Get device context</span></a></li>
+                <li><a href="#getwidth">GetWidth() <span class="endpoint-desc">- Get display width</span></a></li>
+                <li><a href="#getheight">GetHeight() <span class="endpoint-desc">- Get display height</span></a></li>
+                <li><a href="#getcolordepth">GetColorDepth() <span class="endpoint-desc">- Get color depth</span></a></li>
+                <li><a href="#getframerate">GetFrameRate() <span class="endpoint-desc">- Get target frame rate</span></a></li>
+                <li><a href="#getcurrentframerate">GetCurrentFrameRate() <span class="endpoint-desc">- Get actual frame rate</span></a></li>
+                <li><a href="#getframetime">GetFrameTime() <span class="endpoint-desc">- Get last frame time</span></a></li>
+                <li><a href="#isactive">IsActive() <span class="endpoint-desc">- Check if window is active</span></a></li>
+                <li><a href="#isready">IsReady() <span class="endpoint-desc">- Check if initialized</span></a></li>
+                <li><a href="#ispaused">IsPaused() <span class="endpoint-desc">- Check if paused</span></a></li>
+                <li><a href="#iswindowed">IsWindowed() <span class="endpoint-desc">- Check if windowed mode</span></a></li>
+            </ul>
+        </div>
+    </section>
+    
+    <!-- Class Overview -->
+    <section class="api-section">
+        <h2>Class Overview</h2>
+        <div class="endpoint">
+            <h3>About GS_Application</h3>
+            <p>The <code>GS_Application</code> class is the core foundation of the GameSystem framework. It provides a complete application framework for creating games by managing the window, OpenGL context, message loop, frame timing, and platform abstraction.</p>
+
+            <p>Your game inherits from this class and overrides virtual methods to implement custom behavior:</p>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>class GS_Demo : public GS_Application
+{
+public:
+    BOOL GameInit() override;
+    BOOL GameLoop() override;
+    BOOL GameShutdown() override;
+    // ... other overrides
+};</code></pre>
+
+            <h3>Platform Implementations</h3>
+            <p>GS_Application has two platform-specific implementations that share the same interface:</p>
+            
+            <table style="width: 100%; border-collapse: collapse; margin: 1em 0;">
+                <thead>
+                    <tr style="background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">File</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Platform</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>gs_app.cpp</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Windows</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Native Windows API implementation with menu bar and accelerator support</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>gs_app_sdl.cpp</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Linux / macOS</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">SDL2 implementation for cross-platform compatibility</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p>The implementation is selected at compile-time using the <code>GS_PLATFORM_WINDOWS</code> preprocessor define. Both implementations provide the same API, ensuring your game code works identically on all platforms.</p>
+
+            <h3>Key Features</h3>
+            <ul>
+                <li><strong>Cross-Platform:</strong> Abstracts Windows API and SDL2 for seamless multi-platform support</li>
+                <li><strong>Frame Rate Management:</strong> Built-in frame timing and FPS control</li>
+                <li><strong>Window Management:</strong> Handles window creation, resizing, and fullscreen/windowed mode switching</li>
+                <li><strong>Message Handling:</strong> Processes keyboard, mouse, and system messages</li>
+                <li><strong>Focus Management:</strong> Automatically handles window activation/deactivation</li>
+                <li><strong>Virtual Method Pattern:</strong> Clean separation of framework and game logic</li>
+                <li><strong>Unified Interface:</strong> Same code works on Windows, Linux, and macOS</li>
+            </ul>
+
+            <h3>Platform Support</h3>
+            <table style="width: 100%; border-collapse: collapse; margin: 1em 0;">
+                <thead>
+                    <tr style="background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Platform</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Backend</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Features</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><strong>Windows</strong></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Native Windows API</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Menu bar, accelerator keys, native controls</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><strong>Linux</strong></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">SDL2</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">X11/Wayland support, keyboard controls</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><strong>macOS</strong></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">SDL2</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Intel and Apple Silicon support</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Member Variables</h3>
+            <p>All member variables are private and accessed through public methods:</p>
+            
+            <table style="width: 100%; border-collapse: collapse; margin: 1em 0;">
+                <thead>
+                    <tr style="background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Variable</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Type</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_hInstance</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">HINSTANCE (Windows)</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Application instance handle</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_hWnd</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">HWND (Windows)</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Window handle</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_hDC</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">HDC (Windows)</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Device context for rendering</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_pWindow</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">SDL_Window* (SDL2)</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">SDL window pointer</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_glContext</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">SDL_GLContext (SDL2)</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">OpenGL context</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_bIsActive</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">BOOL</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Whether window has focus</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_bIsReady</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">BOOL</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Whether application is initialized</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_bIsPaused</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">BOOL</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Whether game is paused</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_bIsWindowed</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">BOOL</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Windowed (TRUE) or fullscreen (FALSE)</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_nDisplayWidth</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">int</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Display width in pixels</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_nDisplayHeight</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">int</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Display height in pixels</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_nColorDepth</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">int</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Color depth (8, 16, 24, or 32 bits)</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_gsFrameTimer</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">GS_FrameTimer</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Frame timing and FPS calculation</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_fFrameRate</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">float</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Target frame rate (FPS)</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_fFrameTime</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">float</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Time for last frame (milliseconds)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- SDL2 Implementation Section -->
+    <section class="api-section">
+        <h2>SDL2 Implementation (gs_app_sdl.cpp)</h2>
+        <div class="endpoint">
+            <h3>Overview</h3>
+            <p>The <code>gs_app_sdl.cpp</code> file provides a complete SDL2-based implementation of <code>GS_Application</code> for Linux and macOS platforms. This implementation maintains API compatibility with the Windows version while using SDL2's cross-platform windowing and event systems.</p>
+
+            <h3>Platform Detection</h3>
+            <p>The SDL2 implementation is conditionally compiled using:</p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>#ifndef GS_PLATFORM_WINDOWS
+    // SDL2 implementation
+#endif</code></pre>
+
+            <h3>SDL2-Specific Features</h3>
+            
+            <h4>Window Creation</h4>
+            <p>SDL2 window creation differs from Windows:</p>
+            <ul>
+                <li>Uses <code>SDL_CreateWindow()</code> instead of Windows <code>CreateWindowEx()</code></li>
+                <li>Creates an OpenGL context with <code>SDL_GL_CreateContext()</code></li>
+                <li>Supports both windowed and fullscreen desktop modes</li>
+                <li>Automatically centers window on screen</li>
+            </ul>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// SDL2 window flags
+Uint32 flags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN;
+if (!m_bIsWindowed) {
+    flags |= SDL_WINDOW_FULLSCREEN;
+}
+
+m_pWindow = SDL_CreateWindow(
+    "Game System OpenGL",
+    SDL_WINDOWPOS_CENTERED,
+    SDL_WINDOWPOS_CENTERED,
+    m_nDisplayWidth,
+    m_nDisplayHeight,
+    flags
+);</code></pre>
+
+            <h4>Event Handling</h4>
+            <p>SDL2 uses an event-based system instead of Windows messages:</p>
+            
+            <table style="width: 100%; border-collapse: collapse; margin: 1em 0;">
+                <thead>
+                    <tr style="background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">SDL Event</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Windows Message</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Purpose</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>SDL_QUIT</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>WM_QUIT</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Application exit requested</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>SDL_WINDOWEVENT_FOCUS_LOST</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>WM_ACTIVATEAPP(FALSE)</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Window lost focus</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>SDL_WINDOWEVENT_FOCUS_GAINED</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>WM_ACTIVATEAPP(TRUE)</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Window gained focus</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>SDL_KEYDOWN</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>WM_KEYDOWN</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Key pressed</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>SDL_KEYUP</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>WM_KEYUP</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Key released</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4>Main Loop Differences</h4>
+            <p>The SDL2 <code>Run()</code> implementation:</p>
+            <ul>
+                <li>Uses <code>SDL_PollEvent()</code> instead of <code>PeekMessage()</code></li>
+                <li>Processes SDL events and converts them to Windows-compatible messages</li>
+                <li>Calls <code>GameRelease()</code>/<code>GameRestore()</code> on focus changes</li>
+                <li>Handles Alt+Enter for fullscreen toggle via SDL keyboard events</li>
+                <li>Uses <code>SDL_GL_SwapWindow()</code> instead of <code>SwapBuffers()</code></li>
+            </ul>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>INT GS_Application::Run()
+{
+    SDL_Event event;
+    bool running = true;
+
+    while (running) {
+        // Process all pending events
+        while (SDL_PollEvent(&event)) {
+            switch (event.type) {
+                case SDL_QUIT:
+                    running = false;
+                    break;
+                    
+                case SDL_WINDOWEVENT:
+                    // Handle focus changes
+                    if (event.window.event == SDL_WINDOWEVENT_FOCUS_LOST) {
+                        if (m_bIsActive && m_bIsReady) {
+                            GameRelease();
+                            m_bIsActive = FALSE;
+                        }
+                    }
+                    // ...
+                    break;
+            }
+        }
+
+        // Render frame
+        if (m_bIsActive && m_bIsReady) {
+            if ((m_fFrameTime = m_gsFrameTimer.GetFrameTime()) >= m_fWaitTime) {
+                m_gsFrameTimer.MarkFrame();
+                if (TRUE != GameLoop()) {
+                    running = false;
+                }
+                SDL_GL_SwapWindow(m_pWindow);
+            }
+        }
+    }
+
+    this->Destroy();
+    return 0;
+}</code></pre>
+
+            <h4>OpenGL Context Management</h4>
+            <p>SDL2 manages the OpenGL context differently:</p>
+            <ul>
+                <li><strong>Creation:</strong> <code>SDL_GL_CreateContext()</code> creates the GL context</li>
+                <li><strong>Attributes:</strong> Set via <code>SDL_GL_SetAttribute()</code> before window creation</li>
+                <li><strong>VSync:</strong> Controlled with <code>SDL_GL_SetSwapInterval(1)</code></li>
+                <li><strong>Buffer Swap:</strong> <code>SDL_GL_SwapWindow()</code> instead of <code>SwapBuffers()</code></li>
+                <li><strong>Cleanup:</strong> <code>SDL_GL_DeleteContext()</code> on destruction</li>
+            </ul>
+
+            <h4>Fullscreen Mode</h4>
+            <p>SDL2 fullscreen works differently than Windows:</p>
+            <ul>
+                <li>Uses <code>SDL_WINDOW_FULLSCREEN</code> or <code>SDL_WINDOW_FULLSCREEN_DESKTOP</code></li>
+                <li>Desktop fullscreen maintains current resolution (recommended)</li>
+                <li>True fullscreen changes display mode like Windows</li>
+                <li>No need for <code>ChangeDisplaySettings()</code> - SDL handles it</li>
+            </ul>
+
+            <h3>Platform Abstraction</h3>
+            <p>The SDL2 implementation provides platform-neutral types:</p>
+            
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Windows types → SDL2 equivalents
+HWND      → SDL_Window*
+HDC       → SDL_Window* (reused for compatibility)
+HINSTANCE → NULL (not applicable)
+
+// Accessor methods work identically:
+GetWindow()   // Returns SDL_Window*
+GetDevice()   // Returns SDL_Window* (used for SwapBuffers)
+GetInstance() // Returns NULL on SDL2 platforms</code></pre>
+
+            <h3>Initialization Sequence (SDL2)</h3>
+            <ol>
+                <li><code>SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS)</code> - Initialize SDL</li>
+                <li><code>SDL_GL_SetAttribute()</code> - Configure OpenGL context attributes</li>
+                <li><code>SDL_CreateWindow()</code> - Create game window</li>
+                <li><code>SDL_GL_CreateContext()</code> - Create OpenGL context</li>
+                <li><code>SDL_GL_SetSwapInterval(1)</code> - Enable VSync</li>
+                <li><code>GameInit()</code> - Initialize game resources</li>
+                <li>Enter main event loop</li>
+            </ol>
+
+            <h3>Shutdown Sequence (SDL2)</h3>
+            <ol>
+                <li><code>GameShutdown()</code> - Clean up game resources</li>
+                <li><code>SDL_GL_DeleteContext()</code> - Destroy OpenGL context</li>
+                <li><code>SDL_DestroyWindow()</code> - Destroy window</li>
+                <li><code>SDL_Quit()</code> - Shutdown SDL subsystems</li>
+            </ol>
+
+            <h3>Compatibility Notes</h3>
+            <div style="background-color: #fffbcc; padding: 15px; border-left: 4px solid #ffcc00; margin: 20px 0;">
+                <h4 style="margin-top: 0;">⚠️ Platform Differences</h4>
+                <ul style="margin-bottom: 0;">
+                    <li><strong>No Menu Bar:</strong> SDL2 doesn't support native menu bars (use in-game menus instead)</li>
+                    <li><strong>No Accelerators:</strong> Alt+X, Alt+Enter handled manually via keyboard events</li>
+                    <li><strong>Different Focus Behavior:</strong> SDL_WINDOWEVENT vs WM_ACTIVATEAPP</li>
+                    <li><strong>Message Box:</strong> Uses <code>SDL_ShowSimpleMessageBox()</code> instead of <code>MessageBox()</code></li>
+                    <li><strong>Cursor Management:</strong> Uses <code>SDL_ShowCursor()</code> and <code>SDL_SetCursor()</code></li>
+                </ul>
+            </div>
+
+            <h3>Testing Your Game on SDL2</h3>
+            <p>To ensure your game works correctly on SDL2 platforms:</p>
+            <ul>
+                <li>Test on both Windows and Linux/macOS to verify cross-platform behavior</li>
+                <li>Don't rely on Windows-specific features (menu bars, accelerators)</li>
+                <li>Use keyboard shortcuts that work with SDL2's event system</li>
+                <li>Test fullscreen mode transitions thoroughly</li>
+                <li>Verify focus loss/gain handling (alt-tab behavior)</li>
+                <li>Ensure frame timing works correctly on different platforms</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Constructor & Destructor -->
+    <section class="api-section">
+        <h2>Constructor & Destructor</h2>
+
+        <div class="endpoint" id="constructor">
+            <h3>GS_Application()</h3>
+            <p><strong>Files:</strong> <code>gs_app.cpp</code> (Windows), <code>gs_app_sdl.cpp</code> (SDL2)</p>
+            <p>Constructor that initializes all member variables to default values.</p>
+            
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Initialization:</strong></p>
+            <ul>
+                <li>Sets all pointers to NULL</li>
+                <li>Sets boolean flags to FALSE</li>
+                <li>Sets display dimensions to 0</li>
+                <li>Initializes default frame rate to <code>GS_DEFAULT_FPS</code> (60.0 FPS)</li>
+                <li>Calls <code>GameSetup()</code> for pre-initialization configuration</li>
+                <li>Sets global <code>g_pGSApp</code> pointer for message handling</li>
+            </ul>
+
+            <p><strong>Platform Differences:</strong></p>
+            <ul>
+                <li><strong>Windows:</strong> Initializes HINSTANCE, HWND, HDC, menu and accelerator handles</li>
+                <li><strong>SDL2:</strong> Initializes SDL_Window* and SDL_GLContext pointers</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>GS_Demo::GS_Demo() : GS_Application()
+{
+    // Your initialization here
+}</pre>
+        </div>
+
+        <div class="endpoint" id="destructor">
+            <h3>~GS_Application()</h3>
+            <p><strong>Files:</strong> <code>gs_app.cpp</code> (Windows), <code>gs_app_sdl.cpp</code> (SDL2)</p>
+            <p>Destructor that cleans up application resources.</p>
+            
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Checks if application is initialized (<code>m_bIsReady</code>)</li>
+                <li>Calls <code>Destroy()</code> if necessary to clean up resources</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>None (destructor)</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Core Methods -->
+    <section class="api-section">
+        <h2>Core Methods</h2>
+
+        <div class="endpoint" id="create">
+            <h3>Create()</h3>
+            <p><strong>Files:</strong> <code>gs_app.cpp</code> (Windows), <code>gs_app_sdl.cpp</code> (SDL2)</p>
+            <p>Creates and initializes the application window, sets up the display mode, and prepares the application for rendering.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL Create(int nWidth, int nHeight, int nDepth, BOOL bIsWindowed)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>nWidth</code> - Display width in pixels (must be > 0)</li>
+                <li><code>nHeight</code> - Display height in pixels (must be > 0)</li>
+                <li><code>nDepth</code> - Color depth in bits (8, 16, 24, or 32)</li>
+                <li><code>bIsWindowed</code> - TRUE for windowed mode, FALSE for fullscreen</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Uses provided dimensions or defaults to <code>GS_DEFAULT_WIDTH</code> × <code>GS_DEFAULT_HEIGHT</code></li>
+                <li>In fullscreen mode, uses current screen resolution instead of provided dimensions</li>
+                <li><strong>Windows:</strong> Registers window class, creates window with <code>CreateWindowEx()</code></li>
+                <li><strong>SDL2:</strong> Initializes SDL, sets GL attributes, creates window with <code>SDL_CreateWindow()</code></li>
+                <li>Creates OpenGL context</li>
+                <li>Calls <code>GameInit()</code> to initialize game resources</li>
+                <li>Starts frame timer</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Application created successfully</li>
+                <li><code>FALSE</code> - Creation failed (check error reports)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>if (!Create(800, 600, 32, TRUE))
+{
+    // Handle error
+}</pre>
+        </div>
+
+        <div class="endpoint" id="setmode">
+            <h3>SetMode()</h3>
+            <p><strong>Files:</strong> <code>gs_app.cpp</code> (Windows), <code>gs_app_sdl.cpp</code> (SDL2)</p>
+            <p>Changes the display mode by destroying and recreating the application with new settings.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL SetMode(int nWidth, int nHeight, int nDepth, BOOL bIsWindowed)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>nWidth</code> - New display width in pixels</li>
+                <li><code>nHeight</code> - New display height in pixels</li>
+                <li><code>nDepth</code> - New color depth in bits</li>
+                <li><code>bIsWindowed</code> - TRUE for windowed, FALSE for fullscreen</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>If not yet created, calls <code>Create()</code></li>
+                <li>Saves previous display settings</li>
+                <li>Destroys current application</li>
+                <li>Attempts to create with new settings</li>
+                <li>If failure, reverts to previous settings</li>
+                <li>Game resources are reloaded via <code>GameInit()</code></li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Mode change successful</li>
+                <li><code>FALSE</code> - Mode change failed (reverted to previous settings)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>// Toggle between windowed and fullscreen
+SetMode(1024, 768, 32, !IsWindowed());</pre>
+        </div>
+
+        <div class="endpoint" id="destroy">
+            <h3>Destroy()</h3>
+            <p><strong>Files:</strong> <code>gs_app.cpp</code> (Windows), <code>gs_app_sdl.cpp</code> (SDL2)</p>
+            <p>Destroys the application window and releases all associated resources.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void Destroy()</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Calls <code>GameShutdown()</code> for custom cleanup</li>
+                <li>Sets status flags to inactive/not ready</li>
+                <li>Hides the window</li>
+                <li><strong>Windows:</strong> Restores desktop settings (if fullscreen), releases DC, destroys window, unregisters class</li>
+                <li><strong>SDL2:</strong> Destroys GL context with <code>SDL_GL_DeleteContext()</code>, destroys window with <code>SDL_DestroyWindow()</code>, calls <code>SDL_Quit()</code></li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>None (void)</li>
+            </ul>
+
+            <p><strong>Note:</strong> This is called automatically by the destructor.</p>
+        </div>
+
+        <div class="endpoint" id="run">
+            <h3>Run()</h3>
+            <p><strong>Files:</strong> <code>gs_app.cpp</code> (Windows), <code>gs_app_sdl.cpp</code> (SDL2)</p>
+            <p>The main application loop that processes messages and runs the game.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>INT Run()</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Behavior (Windows):</strong></p>
+            <ul>
+                <li>Calculates wait time based on target frame rate</li>
+                <li>Processes window messages with <code>PeekMessage()</code>/<code>GetMessage()</code></li>
+                <li>Translates keyboard accelerators (if enabled)</li>
+                <li>During idle time, runs <code>GameLoop()</code> at the specified frame rate</li>
+                <li>Waits for minimum time between frames to maintain target FPS</li>
+                <li>Continues until WM_QUIT message is received</li>
+                <li>Calls <code>Destroy()</code> on exit</li>
+            </ul>
+
+            <p><strong>Behavior (SDL2):</strong></p>
+            <ul>
+                <li>Calculates wait time based on target frame rate</li>
+                <li>Processes SDL events with <code>SDL_PollEvent()</code></li>
+                <li>Converts SDL events to Windows-compatible messages for <code>MsgProc()</code></li>
+                <li>Handles window focus changes automatically</li>
+                <li>Runs <code>GameLoop()</code> when active and ready</li>
+                <li>Swaps buffers with <code>SDL_GL_SwapWindow()</code></li>
+                <li>Continues until SDL_QUIT event received</li>
+                <li>Calls <code>Destroy()</code> on exit</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>INT</code> - Exit code (0 for normal exit)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>int main()
+{
+    GS_Demo game;
+    if (game.Create(800, 600, 32, TRUE))
+    {
+        return game.Run();
+    }
+    return 1;
+}</pre>
+        </div>
+    </section>
+
+    <!-- Virtual Methods -->
+    <section class="api-section">
+        <h2>Virtual Methods (Override in Your Game)</h2>
+
+        <div class="endpoint" id="gamesetup">
+            <h3>GameSetup()</h3>
+            <p><strong>File:</strong> <code>gs_demo.cpp</code> (your implementation)</p>
+            <p>Called by the constructor before the window is created. Use this to configure initial settings.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL GameSetup()</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>When Called:</strong></p>
+            <ul>
+                <li>During constructor execution, before window creation</li>
+                <li>Before <code>Create()</code> is called</li>
+            </ul>
+
+            <p><strong>Common Uses:</strong></p>
+            <ul>
+                <li>Load settings from INI file</li>
+                <li>Set initial display mode preferences</li>
+                <li>Initialize non-graphical systems</li>
+                <li>Configure frame rate</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Setup successful</li>
+                <li><code>FALSE</code> - Setup failed</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>BOOL GS_Demo::GameSetup()
+{
+    LoadSettings();  // Load from INI
+    SetMode(m_nWidth, m_nHeight, m_nDepth, m_bWindowed);
+    SetFrameRate(60.0f);
+    return TRUE;
+}</pre>
+        </div>
+
+        <div class="endpoint" id="gameinit">
+            <h3>GameInit()</h3>
+            <p><strong>File:</strong> <code>gs_demo.cpp</code> (your implementation)</p>
+            <p>Called once after the window and OpenGL context are created. Initialize all game resources here.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>virtual BOOL GameInit()</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>When Called:</strong></p>
+            <ul>
+                <li>Once after window creation</li>
+                <li>After mode changes (window is recreated)</li>
+                <li>OpenGL context is active and ready</li>
+            </ul>
+
+            <p><strong>Common Uses:</strong></p>
+            <ul>
+                <li>Load textures, sprites, and graphics</li>
+                <li>Initialize audio system and load sounds</li>
+                <li>Create fonts</li>
+                <li>Set up OpenGL state</li>
+                <li>Load game data and levels</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Initialization successful</li>
+                <li><code>FALSE</code> - Initialization failed (application will exit)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>BOOL GS_Demo::GameInit()
+{
+    m_gsDisplay.Create(GetDevice(), GetWidth(), GetHeight(), GetColorDepth());
+    m_gsSound.Initialize(GetWindow());
+    m_sprite.Create("data/player.tga", TRUE);
+    return TRUE;
+}</pre>
+        </div>
+
+        <div class="endpoint" id="gameloop">
+            <h3>GameLoop()</h3>
+            <p><strong>File:</strong> <code>gs_demo.cpp</code> (your implementation)</p>
+            <p>Called every frame. This is where your main game logic runs.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>virtual BOOL GameLoop()</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>When Called:</strong></p>
+            <ul>
+                <li>Every frame when application is active and not paused</li>
+                <li>Respects target frame rate set by <code>SetFrameRate()</code></li>
+            </ul>
+
+            <p><strong>Typical Structure:</strong></p>
+            <ol>
+                <li>Process input (keyboard, mouse)</li>
+                <li>Update game logic (physics, AI, collisions)</li>
+                <li>Render frame (sprites, UI, effects)</li>
+                <li>Swap buffers to display</li>
+            </ol>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Continue running</li>
+                <li><code>FALSE</code> - Exit application</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>BOOL GS_Demo::GameLoop()
+{
+    // Input
+    if (m_gsKeyboard.IsKeyPressed(GSK_ESCAPE))
+        return FALSE;
+    
+    // Update
+    m_player.Update();
+    
+    // Render
+    glClear(GL_COLOR_BUFFER_BIT);
+    m_gsDisplay.BeginRender2D(GetWindow());
+    m_player.Render();
+    m_gsDisplay.EndRender2D();
+    SwapBuffers(GetDevice());
+    
+    return TRUE;
+}</pre>
+        </div>
+
+        <div class="endpoint" id="gameshutdown">
+            <h3>GameShutdown()</h3>
+            <p><strong>File:</strong> <code>gs_demo.cpp</code> (your implementation)</p>
+            <p>Called once before the application exits. Clean up all game resources here.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>virtual BOOL GameShutdown()</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>When Called:</strong></p>
+            <ul>
+                <li>Once when application is closing</li>
+                <li>Before window destruction</li>
+                <li>During mode changes (before recreation)</li>
+            </ul>
+
+            <p><strong>Common Uses:</strong></p>
+            <ul>
+                <li>Save game state and settings</li>
+                <li>Release textures and sprites</li>
+                <li>Shutdown audio system</li>
+                <li>Free allocated memory</li>
+                <li>Close file handles</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Shutdown successful</li>
+                <li><code>FALSE</code> - Shutdown failed</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>BOOL GS_Demo::GameShutdown()
+{
+    SaveSettings();
+    m_gsDisplay.Destroy();
+    m_gsSound.Shutdown();
+    return TRUE;
+}</pre>
+        </div>
+
+        <div class="endpoint" id="gamerelease">
+            <h3>GameRelease()</h3>
+            <p><strong>File:</strong> <code>gs_demo.cpp</code> (your implementation)</p>
+            <p>Called when the application window loses focus. Use this to pause the game and release temporary resources.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>virtual BOOL GameRelease()</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>When Called:</strong></p>
+            <ul>
+                <li>When window loses focus (user switches to another application)</li>
+                <li>Before minimizing (fullscreen mode)</li>
+            </ul>
+
+            <p><strong>Common Uses:</strong></p>
+            <ul>
+                <li>Pause the game</li>
+                <li>Pause or stop audio</li>
+                <li>Release GPU resources (if needed)</li>
+                <li>Clear the screen</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Release successful</li>
+                <li><code>FALSE</code> - Release failed</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>BOOL GS_Demo::GameRelease()
+{
+    if (!IsActive())
+    {
+        m_gsSound.Pause(TRUE);
+        Pause(TRUE);
+    }
+    return TRUE;
+}</pre>
+        </div>
+
+        <div class="endpoint" id="gamerestore">
+            <h3>GameRestore()</h3>
+            <p><strong>File:</strong> <code>gs_demo.cpp</code> (your implementation)</p>
+            <p>Called when the application window regains focus after losing it.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>virtual BOOL GameRestore()</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>When Called:</strong></p>
+            <ul>
+                <li>When window regains focus</li>
+                <li>After restoring from minimized state</li>
+                <li>Paired with <code>GameRelease()</code></li>
+            </ul>
+
+            <p><strong>Common Uses:</strong></p>
+            <ul>
+                <li>Resume audio</li>
+                <li>Restore GPU resources</li>
+                <li>Reset frame timer (prevents time jump)</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Restore successful</li>
+                <li><code>FALSE</code> - Restore failed</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>BOOL GS_Demo::GameRestore()
+{
+    if (IsActive())
+    {
+        m_gsSound.Pause(FALSE);
+    }
+    return TRUE;
+}</pre>
+        </div>
+
+        <div class="endpoint" id="onchangemode">
+            <h3>OnChangeMode()</h3>
+            <p><strong>File:</strong> <code>gs_demo.cpp</code> (your implementation)</p>
+            <p>Called when the user requests a display mode change (e.g., Alt+Enter to toggle fullscreen).</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>virtual void OnChangeMode()</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>When Called:</strong></p>
+            <ul>
+                <li>When user presses Alt+Enter (Windows with accelerators)</li>
+                <li>When user selects mode change from menu</li>
+            </ul>
+
+            <p><strong>Common Implementation:</strong></p>
+            <pre>void GS_Demo::OnChangeMode()
+{
+    SetMode(GetWidth(), GetHeight(), GetColorDepth(), !IsWindowed());
+    SaveSettings();  // Persist the change
+}</pre>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>None (void)</li>
+            </ul>
+        </div>
+
+        <div class="endpoint" id="msgproc">
+            <h3>MsgProc()</h3>
+            <p><strong>File:</strong> <code>gs_demo.cpp</code> (your implementation)</p>
+            <p>Processes Windows messages or SDL events. Override to handle custom input and window messages.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>virtual LRESULT MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>hWnd</code> - Window handle (or SDL_Window* cast to HWND)</li>
+                <li><code>uMsg</code> - Message identifier (WM_* constants)</li>
+                <li><code>wParam</code> - Message-specific parameter</li>
+                <li><code>lParam</code> - Message-specific parameter</li>
+            </ul>
+
+            <p><strong>Common Messages:</strong></p>
+            <ul>
+                <li><code>WM_KEYDOWN</code> / <code>WM_KEYUP</code> - Keyboard input</li>
+                <li><code>WM_CHAR</code> - Character input (for text)</li>
+                <li><code>WM_MOUSEMOVE</code> - Mouse movement</li>
+                <li><code>WM_LBUTTONDOWN</code> / <code>WM_LBUTTONUP</code> - Mouse buttons</li>
+                <li><code>WM_COMMAND</code> - Menu commands (Windows only)</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>LRESULT</code> - Message-specific return value</li>
+                <li>Call <code>GS_Application::MsgProc()</code> for default processing</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>LRESULT GS_Demo::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+    switch (uMsg)
+    {
+    case WM_KEYDOWN:
+        m_gsKeyboard.KeyDown(wParam);
+        m_gsKeyboard.AddKeyToBuffer(wParam);
+        break;
+    case WM_KEYUP:
+        m_gsKeyboard.KeyUp(wParam);
+        break;
+    case WM_MOUSEMOVE:
+        m_gsMouse.SetX(LOWORD(lParam));
+        m_gsMouse.SetY(GetHeight() - HIWORD(lParam));
+        break;
+    }
+    
+    return GS_Application::MsgProc(hWnd, uMsg, wParam, lParam);
+}</pre>
+        </div>
+    </section>
+
+    <!-- Utility Methods -->
+    <section class="api-section">
+        <h2>Utility Methods</h2>
+
+        <div class="endpoint" id="setframerate">
+            <h3>SetFrameRate()</h3>
+            <p><strong>File:</strong> <code>gs_app.cpp</code></p>
+            <p>Sets the target frame rate for the application.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void SetFrameRate(float fFrameRate)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>fFrameRate</code> - Target frames per second (0.0 for unlimited)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Sets <code>m_fFrameRate</code> to the specified value</li>
+                <li>Calculates wait time between frames</li>
+                <li>0.0 means no frame rate cap (run as fast as possible)</li>
+                <li>Positive values cap the frame rate (e.g., 60.0 for 60 FPS)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>SetFrameRate(60.0f);  // Cap at 60 FPS
+SetFrameRate(0.0f);   // Unlimited FPS</pre>
+        </div>
+
+        <div class="endpoint" id="showframerate">
+            <h3>ShowFrameRate()</h3>
+            <p><strong>File:</strong> <code>gs_app.cpp</code></p>
+            <p>Displays a message box with the average frame rate.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void ShowFrameRate()</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Calculates average FPS from frame timer</li>
+                <li>Shows modal message box with FPS information</li>
+                <li>Useful for debugging performance</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>// Call before exit to see performance stats
+ShowFrameRate();</pre>
+        </div>
+
+        <div class="endpoint" id="settitle">
+            <h3>SetTitle()</h3>
+            <p><strong>File:</strong> <code>gs_app.h</code> (inline)</p>
+            <p>Sets the window title text.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void SetTitle(LPCTSTR lpString)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>lpString</code> - Null-terminated string for window title</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>SetTitle("My Game - Level 1");
+SetTitle("Paused");</pre>
+        </div>
+
+        <div class="endpoint" id="pause">
+            <h3>Pause()</h3>
+            <p><strong>File:</strong> <code>gs_app.h</code> (inline)</p>
+            <p>Pauses or unpauses the application.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void Pause(BOOL bPause)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>bPause</code> - TRUE to pause, FALSE to unpause</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Sets <code>m_bIsPaused</code> flag</li>
+                <li>Does not automatically stop <code>GameLoop()</code> - you must check <code>IsPaused()</code></li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>Pause(TRUE);   // Pause game
+Pause(FALSE);  // Resume game
+
+// In GameLoop()
+if (IsPaused())
+    return TRUE;  // Skip game logic</pre>
+        </div>
+
+        <div class="endpoint" id="quit">
+            <h3>Quit()</h3>
+            <p><strong>File:</strong> <code>gs_app.h</code> (inline)</p>
+            <p>Exits the application gracefully.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void Quit()</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Posts WM_QUIT message (Windows) or SDL_QUIT event</li>
+                <li>Causes <code>Run()</code> loop to exit</li>
+                <li><code>GameShutdown()</code> will be called before exit</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>if (userWantsToQuit)
+    Quit();</pre>
+        </div>
+    </section>
+
+    <!-- Accessor Methods -->
+    <section class="api-section">
+        <h2>Accessor Methods</h2>
+
+        <div class="endpoint" id="getinstance">
+            <h3>GetInstance()</h3>
+            <p>Returns the application instance handle.</p>
+            <p><strong>Returns:</strong> <code>HINSTANCE</code> (Windows) or <code>NULL</code> (SDL)</p>
+        </div>
+
+        <div class="endpoint" id="getwindow">
+            <h3>GetWindow()</h3>
+            <p>Returns the window handle.</p>
+            <p><strong>Returns:</strong> <code>HWND</code> (Windows) or <code>SDL_Window*</code> (SDL)</p>
+            <p><strong>Usage:</strong> Pass to rendering functions like <code>BeginRender2D()</code></p>
+        </div>
+
+        <div class="endpoint" id="getdevice">
+            <h3>GetDevice()</h3>
+            <p>Returns the device context for rendering.</p>
+            <p><strong>Returns:</strong> <code>HDC</code> (Windows) or <code>SDL_Window*</code> (SDL)</p>
+            <p><strong>Usage:</strong> Pass to <code>SwapBuffers()</code></p>
+        </div>
+
+        <div class="endpoint" id="getwidth">
+            <h3>GetWidth()</h3>
+            <p>Returns the current display width in pixels.</p>
+            <p><strong>Returns:</strong> <code>int</code></p>
+        </div>
+
+        <div class="endpoint" id="getheight">
+            <h3>GetHeight()</h3>
+            <p>Returns the current display height in pixels.</p>
+            <p><strong>Returns:</strong> <code>int</code></p>
+        </div>
+
+        <div class="endpoint" id="getcolordepth">
+            <h3>GetColorDepth()</h3>
+            <p>Returns the current color depth in bits.</p>
+            <p><strong>Returns:</strong> <code>int</code> (8, 16, 24, or 32)</p>
+        </div>
+
+        <div class="endpoint" id="getframerate">
+            <h3>GetFrameRate()</h3>
+            <p>Returns the target frame rate.</p>
+            <p><strong>Returns:</strong> <code>float</code> - Target FPS (0.0 = unlimited)</p>
+        </div>
+
+        <div class="endpoint" id="getcurrentframerate">
+            <h3>GetCurrentFrameRate()</h3>
+            <p>Returns the actual measured frame rate.</p>
+            <p><strong>Returns:</strong> <code>float</code> - Actual FPS achieved</p>
+        </div>
+
+        <div class="endpoint" id="getframetime">
+            <h3>GetFrameTime()</h3>
+            <p>Returns the time taken for the last frame.</p>
+            <p><strong>Returns:</strong> <code>float</code> - Milliseconds for last frame</p>
+        </div>
+
+        <div class="endpoint" id="isactive">
+            <h3>IsActive()</h3>
+            <p>Checks if the window has focus.</p>
+            <p><strong>Returns:</strong> <code>BOOL</code> - TRUE if active, FALSE otherwise</p>
+        </div>
+
+        <div class="endpoint" id="isready">
+            <h3>IsReady()</h3>
+            <p>Checks if the application is initialized.</p>
+            <p><strong>Returns:</strong> <code>BOOL</code> - TRUE if ready, FALSE otherwise</p>
+        </div>
+
+        <div class="endpoint" id="ispaused">
+            <h3>IsPaused()</h3>
+            <p>Checks if the application is paused.</p>
+            <p><strong>Returns:</strong> <code>BOOL</code> - TRUE if paused, FALSE otherwise</p>
+        </div>
+
+        <div class="endpoint" id="iswindowed">
+            <h3>IsWindowed()</h3>
+            <p>Checks if running in windowed mode.</p>
+            <p><strong>Returns:</strong> <code>BOOL</code> - TRUE if windowed, FALSE if fullscreen</p>
+        </div>
+    </section>
+</body>
+
+</html>

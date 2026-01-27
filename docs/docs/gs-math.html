@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GS_Math Functions</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+
+<body class="endpoint-page">
+    <!-- GS_Math Functions Index -->
+    <section class="api-section">
+        <h2>GS_Math Functions Reference</h2>
+        <p><strong>File:</strong> <code>gs_math.h</code> (header-only inline functions)</p>
+        
+        <div class="endpoint-index">
+            <h3>Constants</h3>
+            <ul>
+                <li><a href="#gs_pi">GS_PI <span class="endpoint-desc">- Mathematical constant π (pi)</span></a></li>
+            </ul>
+
+            <h3>Angle Conversion Functions</h3>
+            <ul>
+                <li><a href="#rad2deg">GS_Rad2Deg() <span class="endpoint-desc">- Convert radians to degrees</span></a></li>
+                <li><a href="#deg2rad">GS_Deg2Rad() <span class="endpoint-desc">- Convert degrees to radians</span></a></li>
+            </ul>
+
+            <h3>Trigonometric Functions</h3>
+            <ul>
+                <li><a href="#sin">GS_Sin() <span class="endpoint-desc">- Sine function (degrees)</span></a></li>
+                <li><a href="#cos">GS_Cos() <span class="endpoint-desc">- Cosine function (degrees)</span></a></li>
+                <li><a href="#arctan">GS_ArcTan() <span class="endpoint-desc">- Arc tangent (returns degrees)</span></a></li>
+            </ul>
+
+            <h3>Utility Functions</h3>
+            <ul>
+                <li><a href="#abs">GS_Abs() <span class="endpoint-desc">- Absolute value</span></a></li>
+                <li><a href="#sqrt">GS_Sqrt() <span class="endpoint-desc">- Square root</span></a></li>
+            </ul>
+        </div>
+    </section>
+    
+    <!-- Overview -->
+    <section class="api-section">
+        <h2>Overview</h2>
+        <div class="endpoint">
+            <h3>About GS_Math</h3>
+            <p>The <code>gs_math.h</code> header provides a collection of mathematical utility functions commonly used in game development. All functions are implemented as inline functions for maximum performance, with no separate .cpp file required.</p>
+
+            <p>A key feature of GS_Math is that all trigonometric functions work with <strong>degrees</strong> instead of radians, which is more intuitive for game development where rotations and angles are typically expressed in degrees (0-360°).</p>
+
+            <h3>Key Features</h3>
+            <ul>
+                <li><strong>Degree-Based Trig:</strong> All angle functions use degrees, not radians</li>
+                <li><strong>Header-Only:</strong> All functions are inline for zero-overhead abstraction</li>
+                <li><strong>Game-Focused:</strong> Designed for common game math operations</li>
+                <li><strong>Simple API:</strong> Straightforward function names and parameters</li>
+                <li><strong>Standard Library Wrapper:</strong> Wraps C math.h functions with game-friendly interfaces</li>
+            </ul>
+
+            <h3>Why Degrees?</h3>
+            <p>Standard C/C++ math functions (sin, cos, atan2) use radians, but in game development, angles are almost always expressed in degrees:</p>
+            <ul>
+                <li>Rotation: 0° = right, 90° = up, 180° = left, 270° = down</li>
+                <li>Circle: 360° for a full rotation</li>
+                <li>Easier to understand and debug (e.g., 45° vs 0.785398 radians)</li>
+                <li>More intuitive when setting object rotations</li>
+            </ul>
+
+            <p>GS_Math handles the radian/degree conversion internally, so you can work exclusively with degrees.</p>
+
+            <h3>Usage Pattern</h3>
+            <p>Simply include <code>gs_math.h</code> and call the functions:</p>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>#include "gs_math.h"
+
+// Calculate rotation angle
+float angle = GS_ArcTan(targetY - playerY, targetX - playerX);
+
+// Move object in direction
+float speed = 5.0f;
+playerX += GS_Cos(angle) * speed;
+playerY += GS_Sin(angle) * speed;
+
+// Calculate distance
+float dx = targetX - playerX;
+float dy = targetY - playerY;
+float distance = GS_Sqrt(dx * dx + dy * dy);</code></pre>
+
+            <h3>Common Use Cases</h3>
+            <ul>
+                <li><strong>Object Rotation:</strong> Rotating sprites, projectiles, or characters</li>
+                <li><strong>Direction Vectors:</strong> Moving objects toward a target</li>
+                <li><strong>Circular Motion:</strong> Creating orbiting objects or circular patterns</li>
+                <li><strong>Distance Calculation:</strong> Measuring distance between game objects</li>
+                <li><strong>Angle Calculation:</strong> Finding the angle between two points</li>
+                <li><strong>Physics Simulation:</strong> Calculating trajectories and velocities</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Constants -->
+    <section class="api-section">
+        <h2>Constants</h2>
+
+        <div class="endpoint" id="gs_pi">
+            <h3>GS_PI</h3>
+            <p><strong>File:</strong> <code>gs_math.h</code></p>
+            <p>Mathematical constant π (pi) with high precision.</p>
+            
+            <p><strong>Definition:</strong></p>
+            <pre>#define GS_PI 3.141592654f</pre>
+
+            <p><strong>Value:</strong></p>
+            <ul>
+                <li><code>3.141592654</code> - Approximately π (pi)</li>
+            </ul>
+
+            <p><strong>Usage:</strong></p>
+            <pre>// Calculate circumference of a circle
+float radius = 10.0f;
+float circumference = 2.0f * GS_PI * radius;
+
+// Full rotation in radians
+float fullRotation = 2.0f * GS_PI;</pre>
+
+            <p><strong>Note:</strong> Typically you won't need to use this directly since GS_Math functions handle degree/radian conversion internally.</p>
+        </div>
+    </section>
+
+    <!-- Angle Conversion Functions -->
+    <section class="api-section">
+        <h2>Angle Conversion Functions</h2>
+
+        <div class="endpoint" id="rad2deg">
+            <h3>GS_Rad2Deg()</h3>
+            <p><strong>File:</strong> <code>gs_math.h</code> (inline)</p>
+            <p>Converts an angle from radians to degrees.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>inline float GS_Rad2Deg(float angle)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>angle</code> - Angle in radians</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Angle in degrees (0-360° range, though not normalized)</li>
+            </ul>
+
+            <p><strong>Formula:</strong></p>
+            <pre>degrees = radians × (180 / π)</pre>
+
+            <p><strong>Examples:</strong></p>
+            <pre>// Convert π radians to degrees
+float degrees = GS_Rad2Deg(GS_PI);  // Returns 180.0
+
+// Convert π/2 radians to degrees
+float deg90 = GS_Rad2Deg(GS_PI / 2.0f);  // Returns 90.0
+
+// Convert result from standard atan2()
+float radians = atan2(y, x);
+float degrees = GS_Rad2Deg(radians);</pre>
+
+            <p><strong>Common Conversions:</strong></p>
+            <table style="width: 100%; border-collapse: collapse; margin: 1em 0;">
+                <thead>
+                    <tr style="background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Radians</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Degrees</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;">0</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">0°</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Right (East)</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 10px; border: 1px solid #ddd;">π/2</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">90°</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Up (North)</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;">π</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">180°</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Left (West)</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 10px; border: 1px solid #ddd;">3π/2</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">270°</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Down (South)</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;">2π</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">360°</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Full rotation</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="endpoint" id="deg2rad">
+            <h3>GS_Deg2Rad()</h3>
+            <p><strong>File:</strong> <code>gs_math.h</code> (inline)</p>
+            <p>Converts an angle from degrees to radians.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>inline float GS_Deg2Rad(float angle)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>angle</code> - Angle in degrees</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Angle in radians</li>
+            </ul>
+
+            <p><strong>Formula:</strong></p>
+            <pre>radians = degrees × (π / 180)</pre>
+
+            <p><strong>Examples:</strong></p>
+            <pre>// Convert 180 degrees to radians
+float radians = GS_Deg2Rad(180.0f);  // Returns ~3.14159 (π)
+
+// Convert 90 degrees to radians
+float rad90 = GS_Deg2Rad(90.0f);  // Returns ~1.5708 (π/2)
+
+// Use with standard C math functions
+float angle = 45.0f;
+float sinValue = sin(GS_Deg2Rad(angle));</pre>
+
+            <p><strong>Note:</strong> You typically won't need this function since <code>GS_Sin()</code>, <code>GS_Cos()</code>, etc. handle the conversion automatically.</p>
+        </div>
+    </section>
+
+    <!-- Trigonometric Functions -->
+    <section class="api-section">
+        <h2>Trigonometric Functions</h2>
+
+        <div class="endpoint" id="sin">
+            <h3>GS_Sin()</h3>
+            <p><strong>File:</strong> <code>gs_math.h</code> (inline)</p>
+            <p>Calculates the sine of an angle specified in degrees.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>inline float GS_Sin(float angle)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>angle</code> - Angle in degrees</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Sine value in range [-1.0, 1.0]</li>
+            </ul>
+
+            <p><strong>Implementation:</strong></p>
+            <pre>return (float)sin((double)GS_Deg2Rad(angle));</pre>
+
+            <p><strong>Examples:</strong></p>
+            <pre>// Calculate vertical component of velocity
+float angle = 45.0f;  // 45 degrees
+float speed = 10.0f;
+float velocityY = GS_Sin(angle) * speed;  // ~7.07
+
+// Move object in a circular pattern
+float time = 0.0f;
+float radius = 100.0f;
+float y = GS_Sin(time * 60.0f) * radius;  // Oscillates -100 to +100
+
+// Common angles
+float sin0   = GS_Sin(0.0f);    // 0.0
+float sin90  = GS_Sin(90.0f);   // 1.0
+float sin180 = GS_Sin(180.0f);  // 0.0
+float sin270 = GS_Sin(270.0f);  // -1.0</pre>
+
+            <p><strong>Use Cases:</strong></p>
+            <ul>
+                <li>Calculate Y component of direction vector</li>
+                <li>Create vertical oscillating motion (wave patterns)</li>
+                <li>Circular or orbital movement</li>
+                <li>Projectile trajectories</li>
+            </ul>
+        </div>
+
+        <div class="endpoint" id="cos">
+            <h3>GS_Cos()</h3>
+            <p><strong>File:</strong> <code>gs_math.h</code> (inline)</p>
+            <p>Calculates the cosine of an angle specified in degrees.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>inline float GS_Cos(float angle)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>angle</code> - Angle in degrees</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Cosine value in range [-1.0, 1.0]</li>
+            </ul>
+
+            <p><strong>Implementation:</strong></p>
+            <pre>return (float)cos((double)GS_Deg2Rad(angle));</pre>
+
+            <p><strong>Examples:</strong></p>
+            <pre>// Calculate horizontal component of velocity
+float angle = 45.0f;  // 45 degrees
+float speed = 10.0f;
+float velocityX = GS_Cos(angle) * speed;  // ~7.07
+
+// Move object in direction of angle
+float angle = 30.0f;
+playerX += GS_Cos(angle) * moveSpeed;
+playerY += GS_Sin(angle) * moveSpeed;
+
+// Common angles
+float cos0   = GS_Cos(0.0f);    // 1.0
+float cos90  = GS_Cos(90.0f);   // 0.0
+float cos180 = GS_Cos(180.0f);  // -1.0
+float cos270 = GS_Cos(270.0f);  // 0.0</pre>
+
+            <p><strong>Use Cases:</strong></p>
+            <ul>
+                <li>Calculate X component of direction vector</li>
+                <li>Create horizontal oscillating motion</li>
+                <li>Circular or orbital movement</li>
+                <li>Character facing direction</li>
+            </ul>
+        </div>
+
+        <div class="endpoint" id="arctan">
+            <h3>GS_ArcTan()</h3>
+            <p><strong>File:</strong> <code>gs_math.h</code> (inline)</p>
+            <p>Calculates the arc tangent (inverse tangent) of a coordinate, returning an angle in degrees. This is the angle from the origin (0,0) to the point (x,y).</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>inline float GS_ArcTan(float y, float x)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>y</code> - Y coordinate or Y component of vector</li>
+                <li><code>x</code> - X coordinate or X component of vector</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Angle in degrees from -180° to +180°</li>
+                <li>0° = right (positive X axis)</li>
+                <li>90° = up (positive Y axis)</li>
+                <li>180° or -180° = left (negative X axis)</li>
+                <li>-90° = down (negative Y axis)</li>
+            </ul>
+
+            <p><strong>Implementation:</strong></p>
+            <pre>return GS_Rad2Deg((float)atan2((double)y, (double)x));</pre>
+
+            <p><strong>Examples:</strong></p>
+            <pre>// Calculate angle from player to target
+float playerX = 100.0f, playerY = 100.0f;
+float targetX = 200.0f, targetY = 150.0f;
+float angle = GS_ArcTan(targetY - playerY, targetX - playerX);
+// Returns angle to aim at target
+
+// Rotate sprite to face mouse cursor
+float dx = mouseX - spriteX;
+float dy = mouseY - spriteY;
+sprite.SetRotateZ(GS_ArcTan(dy, dx));
+
+// Calculate heading from velocity
+float velocityX = 5.0f;
+float velocityY = 3.0f;
+float heading = GS_ArcTan(velocityY, velocityX);
+
+// Common directions
+float right = GS_ArcTan(0.0f, 1.0f);    // 0°
+float up    = GS_ArcTan(1.0f, 0.0f);    // 90°
+float left  = GS_ArcTan(0.0f, -1.0f);   // 180° or -180°
+float down  = GS_ArcTan(-1.0f, 0.0f);   // -90°</code></pre>
+
+            <p><strong>Use Cases:</strong></p>
+            <ul>
+                <li>Calculate angle between two points</li>
+                <li>Aim projectiles at targets</li>
+                <li>Rotate sprites to face a direction</li>
+                <li>Convert velocity to heading angle</li>
+                <li>Enemy AI: face toward player</li>
+            </ul>
+
+            <div style="background-color: #fffbcc; padding: 15px; border-left: 4px solid #ffcc00; margin: 20px 0;">
+                <h4 style="margin-top: 0;">⚠️ Parameter Order</h4>
+                <p style="margin-bottom: 0;">Note that <code>GS_ArcTan(y, x)</code> takes Y first, then X, which matches the standard <code>atan2(y, x)</code> function. This is different from how you might typically think of coordinates (x, y).</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Utility Functions -->
+    <section class="api-section">
+        <h2>Utility Functions</h2>
+
+        <div class="endpoint" id="abs">
+            <h3>GS_Abs()</h3>
+            <p><strong>File:</strong> <code>gs_math.h</code> (inline)</p>
+            <p>Returns the absolute value of a number (the magnitude without sign).</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>inline float GS_Abs(float x)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>x</code> - Input value</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Absolute value of x (always >= 0)</li>
+            </ul>
+
+            <p><strong>Implementation:</strong></p>
+            <pre>return x >= 0.f ? x : -x;</pre>
+
+            <p><strong>Examples:</strong></p>
+            <pre>// Get magnitude
+float value = -5.0f;
+float magnitude = GS_Abs(value);  // Returns 5.0
+
+// Calculate distance on one axis
+float distance = GS_Abs(targetX - playerX);
+
+// Check if values are close
+float a = 10.0f;
+float b = 10.1f;
+float tolerance = 0.2f;
+if (GS_Abs(a - b) < tolerance)
+{
+    // Values are approximately equal
+}
+
+// Ensure positive value
+float speed = GS_Abs(velocity);  // Always positive
+
+// Common values
+float abs5  = GS_Abs(5.0f);   // 5.0
+float absN5 = GS_Abs(-5.0f);  // 5.0
+float abs0  = GS_Abs(0.0f);   // 0.0</pre>
+
+            <p><strong>Use Cases:</strong></p>
+            <ul>
+                <li>Distance calculation on single axis</li>
+                <li>Ensure positive values (speed, magnitude)</li>
+                <li>Comparison with tolerance</li>
+                <li>Physics calculations</li>
+            </ul>
+        </div>
+
+        <div class="endpoint" id="sqrt">
+            <h3>GS_Sqrt()</h3>
+            <p><strong>File:</strong> <code>gs_math.h</code> (inline)</p>
+            <p>Calculates the square root of a number.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>inline float GS_Sqrt(float x)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>x</code> - Input value (must be >= 0)</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Square root of x</li>
+                <li>Undefined behavior if x is negative</li>
+            </ul>
+
+            <p><strong>Implementation:</strong></p>
+            <pre>return (float)sqrt((double)x);</pre>
+
+            <p><strong>Examples:</strong></p>
+            <pre>// Calculate distance between two points (Pythagorean theorem)
+float dx = targetX - playerX;
+float dy = targetY - playerY;
+float distance = GS_Sqrt(dx * dx + dy * dy);
+
+// Normalize a vector
+float length = GS_Sqrt(vx * vx + vy * vy);
+if (length > 0.0f)
+{
+    float normalX = vx / length;
+    float normalY = vy / length;
+}
+
+// Calculate radius from area
+float area = 100.0f;
+float radius = GS_Sqrt(area / GS_PI);
+
+// Common values
+float sqrt4   = GS_Sqrt(4.0f);   // 2.0
+float sqrt9   = GS_Sqrt(9.0f);   // 3.0
+float sqrt100 = GS_Sqrt(100.0f); // 10.0</pre>
+
+            <p><strong>Use Cases:</strong></p>
+            <ul>
+                <li>Distance calculation (2D Euclidean distance)</li>
+                <li>Vector normalization (making unit vectors)</li>
+                <li>Collision detection (radius checks)</li>
+                <li>Physics simulations</li>
+            </ul>
+
+            <div style="background-color: #fff3cd; padding: 15px; border-left: 4px solid #ffc107; margin: 20px 0;">
+                <h4 style="margin-top: 0;">⚠️ Performance Note</h4>
+                <p style="margin-bottom: 0;">Square root is a relatively expensive operation. When comparing distances, consider comparing squared distances instead to avoid the sqrt() call:</p>
+                <pre style="margin-top: 10px;">// Slower (uses sqrt)
+if (GS_Sqrt(dx*dx + dy*dy) < radius) { /* collision */ }
+
+// Faster (no sqrt needed)
+if (dx*dx + dy*dy < radius*radius) { /* collision */ }</pre>
+            </div>
+        </div>
+    </section>
+
+    <!-- Practical Examples -->
+    <section class="api-section">
+        <h2>Practical Examples</h2>
+        <div class="endpoint">
+            <h3>Moving Object Toward Target</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Calculate angle to target
+float dx = targetX - playerX;
+float dy = targetY - playerY;
+float angle = GS_ArcTan(dy, dx);
+
+// Move toward target at constant speed
+float speed = 5.0f;
+playerX += GS_Cos(angle) * speed;
+playerY += GS_Sin(angle) * speed;</code></pre>
+
+            <h3>Circular Motion</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Orbit around a center point
+float centerX = 400.0f;
+float centerY = 300.0f;
+float radius = 100.0f;
+float angle = 0.0f;  // Current angle
+
+// Update each frame
+angle += 2.0f;  // Rotation speed in degrees per frame
+if (angle >= 360.0f) angle -= 360.0f;
+
+// Calculate position
+float orbitX = centerX + GS_Cos(angle) * radius;
+float orbitY = centerY + GS_Sin(angle) * radius;
+
+sprite.SetDestXY(orbitX, orbitY);</code></pre>
+
+            <h3>Distance-Based Collision Detection</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Check if two circular objects collide
+float dx = obj2X - obj1X;
+float dy = obj2Y - obj1Y;
+float distance = GS_Sqrt(dx * dx + dy * dy);
+
+float combinedRadius = obj1Radius + obj2Radius;
+
+if (distance < combinedRadius)
+{
+    // Objects are colliding
+    HandleCollision(obj1, obj2);
+}
+
+// Optimized version (avoids sqrt)
+float distanceSquared = dx * dx + dy * dy;
+float radiusSquared = combinedRadius * combinedRadius;
+
+if (distanceSquared < radiusSquared)
+{
+    // Collision detected (faster!)
+}</code></pre>
+
+            <h3>Sprite Rotation to Face Direction</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Rotate sprite to face movement direction
+float velocityX = 5.0f;
+float velocityY = 3.0f;
+
+// Calculate rotation angle from velocity
+float rotation = GS_ArcTan(velocityY, velocityX);
+
+// Apply rotation to sprite
+sprite.SetRotateZ(rotation);
+
+// Alternative: Face toward mouse
+float dx = mouseX - spriteX;
+float dy = mouseY - spriteY;
+sprite.SetRotateZ(GS_ArcTan(dy, dx));</code></pre>
+
+            <h3>Projectile Arc (Parabolic Motion)</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Launch projectile at angle with gravity
+float launchAngle = 45.0f;  // degrees
+float launchSpeed = 20.0f;
+float gravity = 0.5f;
+
+// Initial velocity components
+float velocityX = GS_Cos(launchAngle) * launchSpeed;
+float velocityY = GS_Sin(launchAngle) * launchSpeed;
+
+// Update each frame
+projectileX += velocityX;
+projectileY += velocityY;
+velocityY -= gravity;  // Gravity pulls down
+
+// Check if hit ground
+if (projectileY <= groundLevel)
+{
+    // Projectile landed
+}</code></pre>
+
+            <h3>Smooth Oscillation (Wave Motion)</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Create smooth up-down motion
+static float time = 0.0f;
+time += 2.0f;  // Speed of oscillation
+
+float baseY = 200.0f;
+float amplitude = 50.0f;  // Height of wave
+float offsetY = GS_Sin(time) * amplitude;
+
+sprite.SetDestY(baseY + offsetY);
+
+// Create figure-8 pattern (Lissajous curve)
+float x = GS_Cos(time) * 100.0f;
+float y = GS_Sin(time * 2.0f) * 50.0f;
+sprite.SetDestXY(centerX + x, centerY + y);</code></pre>
+
+            <h3>Vector Normalization</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Normalize a direction vector to unit length
+float dirX = targetX - sourceX;
+float dirY = targetY - sourceY;
+
+// Calculate length
+float length = GS_Sqrt(dirX * dirX + dirY * dirY);
+
+// Avoid division by zero
+if (length > 0.0f)
+{
+    // Normalize (make length = 1.0)
+    float normalX = dirX / length;
+    float normalY = dirY / length;
+    
+    // Use normalized direction
+    float speed = 10.0f;
+    velocityX = normalX * speed;
+    velocityY = normalY * speed;
+}</code></pre>
+
+            <h3>Angle Interpolation (Smooth Rotation)</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Smoothly rotate from current angle to target angle
+float currentAngle = 45.0f;
+float targetAngle = 120.0f;
+float turnSpeed = 2.0f;  // degrees per frame
+
+// Calculate angle difference
+float diff = targetAngle - currentAngle;
+
+// Normalize to -180 to +180 range
+while (diff > 180.0f)  diff -= 360.0f;
+while (diff < -180.0f) diff += 360.0f;
+
+// Rotate toward target
+if (GS_Abs(diff) < turnSpeed)
+{
+    currentAngle = targetAngle;  // Close enough
+}
+else if (diff > 0.0f)
+{
+    currentAngle += turnSpeed;  // Turn clockwise
+}
+else
+{
+    currentAngle -= turnSpeed;  // Turn counter-clockwise
+}
+
+// Wrap angle to 0-360 range
+if (currentAngle >= 360.0f) currentAngle -= 360.0f;
+if (currentAngle < 0.0f) currentAngle += 360.0f;</code></pre>
+
+            <h3>Tips and Best Practices</h3>
+            <ul>
+                <li><strong>Angle Ranges:</strong> <code>GS_ArcTan()</code> returns -180° to +180°; normalize to 0-360° if needed</li>
+                <li><strong>Performance:</strong> Avoid <code>GS_Sqrt()</code> when comparing distances (use squared distances)</li>
+                <li><strong>Division by Zero:</strong> Always check length before normalizing vectors</li>
+                <li><strong>Angle Wrapping:</strong> Handle 360° wraparound when interpolating angles</li>
+                <li><strong>Consistency:</strong> Stick with degrees throughout your game for clarity</li>
+                <li><strong>Precision:</strong> Use float for game calculations (double is overkill and slower)</li>
+            </ul>
+        </div>
+    </section>
+</body>
+
+</html>

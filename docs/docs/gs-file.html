@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GS_File Class</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+
+<body class="endpoint-page">
+    <!-- GS_File Methods Index -->
+    <section class="api-section">
+        <h2>GS_File Class Reference</h2>
+        <p><strong>Files:</strong> <code>gs_file.h</code>, <code>gs_file.cpp</code></p>
+        
+        <div class="endpoint-index">
+            <h3>Constructor & Destructor</h3>
+            <ul>
+                <li><a href="#constructor">GS_File() <span class="endpoint-desc">- Constructor</span></a></li>
+                <li><a href="#destructor">~GS_File() <span class="endpoint-desc">- Destructor</span></a></li>
+            </ul>
+
+            <h3>File Operations</h3>
+            <ul>
+                <li><a href="#open">Open() <span class="endpoint-desc">- Open a file for reading or writing</span></a></li>
+                <li><a href="#close">Close() <span class="endpoint-desc">- Close the currently open file</span></a></li>
+                <li><a href="#exists">Exists() <span class="endpoint-desc">- Check if a file exists</span></a></li>
+            </ul>
+
+            <h3>Directory Management</h3>
+            <ul>
+                <li><a href="#setdirectory">SetDirectory() <span class="endpoint-desc">- Set working directory path</span></a></li>
+                <li><a href="#getfullname">GetFullName() <span class="endpoint-desc">- Get full pathname of a file</span></a></li>
+            </ul>
+
+            <h3>File State Methods</h3>
+            <ul>
+                <li><a href="#isopen">IsOpen() <span class="endpoint-desc">- Check if file is open</span></a></li>
+                <li><a href="#isendoffile">IsEndOfFile() <span class="endpoint-desc">- Check if at end of file</span></a></li>
+                <li><a href="#getmode">GetMode() <span class="endpoint-desc">- Get file open mode</span></a></li>
+                <li><a href="#getlength">GetLength() <span class="endpoint-desc">- Get file size in bytes</span></a></li>
+                <li><a href="#getposition">GetPosition() <span class="endpoint-desc">- Get current file position</span></a></li>
+                <li><a href="#setposition">SetPosition() <span class="endpoint-desc">- Set file position</span></a></li>
+            </ul>
+
+            <h3>Read Methods</h3>
+            <ul>
+                <li><a href="#getbyte">GetByte() <span class="endpoint-desc">- Read a single byte</span></a></li>
+                <li><a href="#read">Read() <span class="endpoint-desc">- Read binary data</span></a></li>
+                <li><a href="#readstring">ReadString() <span class="endpoint-desc">- Read a line of text</span></a></li>
+            </ul>
+
+            <h3>Write Methods</h3>
+            <ul>
+                <li><a href="#putbyte">PutByte() <span class="endpoint-desc">- Write a single byte</span></a></li>
+                <li><a href="#write">Write() <span class="endpoint-desc">- Write binary data</span></a></li>
+                <li><a href="#writestring">WriteString() <span class="endpoint-desc">- Write formatted text</span></a></li>
+            </ul>
+        </div>
+    </section>
+    
+    <!-- Class Overview -->
+    <section class="api-section">
+        <h2>Class Overview</h2>
+        <div class="endpoint">
+            <h3>About GS_File</h3>
+            <p>The <code>GS_File</code> class provides a cross-platform file I/O system for reading and writing files in GameSystem applications. It abstracts platform-specific file operations (Windows API vs. standard C file functions) behind a unified interface, making file operations portable across Windows, Linux, and macOS.</p>
+
+            <p>The class supports both binary and text file operations with convenient methods for:</p>
+            <ul>
+                <li>Reading and writing binary data blocks</li>
+                <li>Reading and writing individual bytes</li>
+                <li>Reading text lines from files</li>
+                <li>Writing formatted text strings</li>
+                <li>Managing file positions and seeking</li>
+                <li>Working with directory paths</li>
+            </ul>
+
+            <h3>Key Features</h3>
+            <ul>
+                <li><strong>Cross-Platform:</strong> Works identically on Windows, Linux, and macOS</li>
+                <li><strong>Dual Mode:</strong> Support for both read and write operations</li>
+                <li><strong>Binary & Text:</strong> Handle both binary data and text files</li>
+                <li><strong>Path Normalization:</strong> Automatic path separator conversion for each platform</li>
+                <li><strong>Directory Management:</strong> Set working directories for relative paths</li>
+                <li><strong>File Positioning:</strong> Seek to any position in the file</li>
+                <li><strong>Error Handling:</strong> Clear return values and error codes</li>
+                <li><strong>Automatic Cleanup:</strong> Files are closed automatically on destruction</li>
+            </ul>
+
+            <h3>File Modes</h3>
+            <p>The class supports two file access modes defined by the <code>FILE_MODE_FLAGS</code> enumeration:</p>
+
+            <table style="width: 100%; border-collapse: collapse; margin: 1em 0;">
+                <thead>
+                    <tr style="background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Mode</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Value</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>FILE_READ</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">0</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Open an existing file for reading only</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>FILE_WRITE</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">1</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Create a new file for writing (overwrites if exists)</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Error Codes</h3>
+            <p>Read and write operations return specific error codes on failure:</p>
+
+            <table style="width: 100%; border-collapse: collapse; margin: 1em 0;">
+                <thead>
+                    <tr style="background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Constant</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Value</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Usage</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>FILE_READ_FAILED</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">0xFFFFFFFF</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Returned by read operations when they fail</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>FILE_WRITE_FAILED</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">0xFFFFFFFF</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Returned by write operations when they fail</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Member Variables</h3>
+            <p>All member variables are private:</p>
+
+            <table style="width: 100%; border-collapse: collapse; margin: 1em 0;">
+                <thead>
+                    <tr style="background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Variable</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Type</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_FileHandle</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">HANDLE (Windows) / FILE* (SDL2)</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Platform-specific file handle</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_FileMode</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">FILE_MODE_FLAGS</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Current file access mode (read/write)</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_szDirectoryName</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">char[_MAX_PATH]</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Working directory path</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_bIsOpened</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">BOOL</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Whether a file is currently open</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Platform Compatibility</h3>
+            <p>The <code>GS_File</code> class provides seamless cross-platform file I/O:</p>
+            <ul>
+                <li><strong>Windows:</strong> Uses Windows API (<code>CreateFile</code>, <code>ReadFile</code>, <code>WriteFile</code>, <code>SetFilePointer</code>)</li>
+                <li><strong>Linux/macOS:</strong> Uses standard C functions (<code>fopen</code>, <code>fread</code>, <code>fwrite</code>, <code>fseek</code>)</li>
+                <li><strong>Path Normalization:</strong> Automatically converts <code>\</code> to <code>/</code> on non-Windows platforms</li>
+                <li><strong>Consistent API:</strong> Same method calls work identically on all platforms</li>
+            </ul>
+
+            <h3>Usage Pattern</h3>
+            <p>Typical workflow for reading a file:</p>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>GS_File file;
+if (file.Open("data/config.txt", FILE_READ))
+{
+    while (!file.IsEndOfFile())
+    {
+        char buffer[256];
+        if (file.ReadString(buffer, 256) != FILE_READ_FAILED)
+        {
+            // Process the line
+        }
+    }
+    file.Close();
+}</code></pre>
+
+            <p>Typical workflow for writing a file:</p>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>GS_File file;
+if (file.Open("data/output.txt", FILE_WRITE))
+{
+    file.WriteString("Hello, World!\n");
+    file.WriteString("Score: %d\n", playerScore);
+    file.Close();
+}</code></pre>
+        </div>
+    </section>
+
+    <!-- Constructor & Destructor -->
+    <section class="api-section">
+        <h2>Constructor & Destructor</h2>
+
+        <div class="endpoint" id="constructor">
+            <h3>GS_File()</h3>
+            <p><strong>File:</strong> <code>gs_file.cpp</code></p>
+            <p>Constructor that initializes the file object to a closed state with no directory set.</p>
+            
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Initialization:</strong></p>
+            <ul>
+                <li>Sets file handle to invalid/null</li>
+                <li>Sets mode to <code>FILE_READ</code></li>
+                <li>Clears directory name buffer</li>
+                <li>Sets opened flag to FALSE</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>GS_File configFile;
+GS_File saveFile;</pre>
+        </div>
+
+        <div class="endpoint" id="destructor">
+            <h3>~GS_File()</h3>
+            <p><strong>File:</strong> <code>gs_file.cpp</code></p>
+            <p>Destructor that automatically closes any open file.</p>
+            
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Calls <code>Close()</code> to ensure file is properly closed</li>
+                <li>Releases system file handles</li>
+            </ul>
+
+            <p><strong>Note:</strong> Files are automatically closed when the object goes out of scope, but you can call <code>Close()</code> explicitly if needed.</p>
+        </div>
+    </section>
+
+    <!-- File Operations -->
+    <section class="api-section">
+        <h2>File Operations</h2>
+
+        <div class="endpoint" id="open">
+            <h3>Open()</h3>
+            <p><strong>File:</strong> <code>gs_file.cpp</code></p>
+            <p>Opens a file for reading or writing. If a file is already open, it is closed first.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL Open(const char* pszFilename, FILE_MODE_FLAGS FileMode = FILE_READ)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>pszFilename</code> - Name of the file to open (relative or absolute path)</li>
+                <li><code>FileMode</code> - Access mode: <code>FILE_READ</code> (default) or <code>FILE_WRITE</code></li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Closes any currently open file</li>
+                <li>Combines directory path with filename if directory is set</li>
+                <li>Normalizes path separators on non-Windows platforms</li>
+                <li><strong>FILE_READ:</strong> Opens existing file for reading (fails if file doesn't exist)</li>
+                <li><strong>FILE_WRITE:</strong> Creates new file for writing (overwrites if exists)</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - File opened successfully</li>
+                <li><code>FALSE</code> - File could not be opened (doesn't exist, no permission, etc.)</li>
+            </ul>
+
+            <p><strong>Examples:</strong></p>
+            <pre>// Read from a file
+GS_File file;
+if (file.Open("data/level1.dat", FILE_READ))
+{
+    // Read operations...
+    file.Close();
+}
+
+// Write to a file
+GS_File output;
+if (output.Open("saves/player.sav", FILE_WRITE))
+{
+    // Write operations...
+    output.Close();
+}</pre>
+        </div>
+
+        <div class="endpoint" id="close">
+            <h3>Close()</h3>
+            <p><strong>File:</strong> <code>gs_file.cpp</code></p>
+            <p>Closes the currently open file and releases system resources.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void Close()</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Closes the file handle if a file is open</li>
+                <li>Resets file handle to invalid state</li>
+                <li>Sets opened flag to FALSE</li>
+                <li>Safe to call even if no file is open</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>None (void)</li>
+            </ul>
+
+            <p><strong>Note:</strong> Files are automatically closed by the destructor, but explicit closure allows reusing the object for another file.</p>
+        </div>
+
+        <div class="endpoint" id="exists">
+            <h3>Exists()</h3>
+            <p><strong>File:</strong> <code>gs_file.cpp</code></p>
+            <p>Checks if a file exists without keeping it open.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL Exists(const char* pszFilename)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>pszFilename</code> - Name of the file to check</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Creates temporary file object</li>
+                <li>Attempts to open the file for reading</li>
+                <li>Immediately closes the file if successful</li>
+                <li>Returns result without affecting current file state</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - File exists and can be opened</li>
+                <li><code>FALSE</code> - File does not exist or cannot be accessed</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>GS_File file;
+if (file.Exists("data/config.ini"))
+{
+    // File exists, safe to load
+    file.Open("data/config.ini", FILE_READ);
+}
+else
+{
+    // Create default config
+    file.Open("data/config.ini", FILE_WRITE);
+}</pre>
+        </div>
+    </section>
+
+    <!-- Directory Management -->
+    <section class="api-section">
+        <h2>Directory Management</h2>
+
+        <div class="endpoint" id="setdirectory">
+            <h3>SetDirectory()</h3>
+            <p><strong>File:</strong> <code>gs_file.cpp</code></p>
+            <p>Sets a working directory path that will be prepended to all relative filenames.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL SetDirectory(const char* pszDirectoryName)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>pszDirectoryName</code> - Directory path (should end with a path separator)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Stores the directory path internally</li>
+                <li>Path is prepended to filenames in <code>Open()</code> and <code>Exists()</code></li>
+                <li>Use empty string to clear the directory</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Directory set successfully</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>GS_File file;
+file.SetDirectory("data/levels/");
+file.Open("level1.dat");  // Opens "data/levels/level1.dat"
+
+file.SetDirectory("");     // Clear directory
+file.Open("config.ini");   // Opens "config.ini" in current directory</pre>
+        </div>
+
+        <div class="endpoint" id="getfullname">
+            <h3>GetFullName()</h3>
+            <p><strong>File:</strong> <code>gs_file.cpp</code></p>
+            <p>Constructs the full pathname by combining the directory with a filename.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL GetFullName(const char* pszFilename, char* pszFullname)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>pszFilename</code> - Input filename (relative or absolute)</li>
+                <li><code>pszFullname</code> - Output buffer for full pathname (must be at least <code>_MAX_PATH</code> size)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Concatenates directory path and filename</li>
+                <li>On non-Windows platforms, normalizes path separators (<code>\</code> → <code>/</code>)</li>
+                <li>If no directory is set, returns just the filename</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Full pathname constructed successfully</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>GS_File file;
+file.SetDirectory("data/");
+
+char fullPath[_MAX_PATH];
+file.GetFullName("player.sav", fullPath);
+// fullPath contains "data/player.sav"</pre>
+        </div>
+    </section>
+
+    <!-- File State Methods -->
+    <section class="api-section">
+        <h2>File State Methods</h2>
+
+        <div class="endpoint" id="isopen">
+            <h3>IsOpen()</h3>
+            <p>Returns whether a file is currently open.</p>
+            <p><strong>Signature:</strong> <code>BOOL IsOpen()</code></p>
+            <p><strong>Returns:</strong> <code>TRUE</code> if file is open, <code>FALSE</code> otherwise</p>
+        </div>
+
+        <div class="endpoint" id="isendoffile">
+            <h3>IsEndOfFile()</h3>
+            <p>Checks if the file position is at the end of the file.</p>
+            <p><strong>Signature:</strong> <code>BOOL IsEndOfFile()</code></p>
+            <p><strong>Returns:</strong> <code>TRUE</code> if at end of file or file not open, <code>FALSE</code> otherwise</p>
+            <p><strong>Implementation:</strong> Compares current position to file length</p>
+        </div>
+
+        <div class="endpoint" id="getmode">
+            <h3>GetMode()</h3>
+            <p>Returns the mode the file was opened with.</p>
+            <p><strong>Signature:</strong> <code>FILE_MODE_FLAGS GetMode()</code></p>
+            <p><strong>Returns:</strong> <code>FILE_READ</code> or <code>FILE_WRITE</code></p>
+        </div>
+
+        <div class="endpoint" id="getlength">
+            <h3>GetLength()</h3>
+            <p><strong>File:</strong> <code>gs_file.cpp</code></p>
+            <p>Returns the total size of the file in bytes.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>unsigned long GetLength()</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Saves current file position</li>
+                <li>Seeks to end of file</li>
+                <li>Records position (file length)</li>
+                <li>Restores original position</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>File size in bytes</li>
+                <li><code>0</code> if file is not open or error occurs</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>GS_File file;
+if (file.Open("data/level.dat", FILE_READ))
+{
+    unsigned long fileSize = file.GetLength();
+    char* buffer = new char[fileSize];
+    file.Read(buffer, fileSize);
+    delete[] buffer;
+}</pre>
+        </div>
+
+        <div class="endpoint" id="getposition">
+            <h3>GetPosition()</h3>
+            <p>Returns the current read/write position within the file.</p>
+            <p><strong>Signature:</strong> <code>unsigned long GetPosition()</code></p>
+            <p><strong>Returns:</strong> Current file position in bytes from start of file, or <code>0</code> if file not open</p>
+        </div>
+
+        <div class="endpoint" id="setposition">
+            <h3>SetPosition()</h3>
+            <p><strong>File:</strong> <code>gs_file.cpp</code></p>
+            <p>Moves the file pointer to a specific position.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL SetPosition(unsigned long lPosition)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>lPosition</code> - Byte offset from start of file</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Seeks to the specified position</li>
+                <li>Subsequent reads/writes occur from this position</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Position set successfully</li>
+                <li><code>FALSE</code> - File not open or seek failed</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>// Skip file header
+file.SetPosition(128);  // Start reading at byte 128
+
+// Read from middle of file
+file.SetPosition(file.GetLength() / 2);</pre>
+        </div>
+    </section>
+
+    <!-- Read Methods -->
+    <section class="api-section">
+        <h2>Read Methods</h2>
+
+        <div class="endpoint" id="getbyte">
+            <h3>GetByte()</h3>
+            <p><strong>File:</strong> <code>gs_file.cpp</code></p>
+            <p>Reads a single byte from the file.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>unsigned long GetByte()</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Reads one byte at current position</li>
+                <li>Advances file position by 1</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>The byte value (0-255) cast to unsigned long</li>
+                <li><code>FILE_READ_FAILED</code> if file not open or read fails</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>unsigned long headerByte = file.GetByte();
+if (headerByte != FILE_READ_FAILED && headerByte == 0x42)
+{
+    // Valid header
+}</pre>
+        </div>
+
+        <div class="endpoint" id="read">
+            <h3>Read()</h3>
+            <p><strong>File:</strong> <code>gs_file.cpp</code></p>
+            <p>Reads a block of binary data from the file.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>unsigned long Read(void* pBuffer, unsigned long lByteCount)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>pBuffer</code> - Pointer to buffer to receive data</li>
+                <li><code>lByteCount</code> - Number of bytes to read</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Reads up to <code>lByteCount</code> bytes</li>
+                <li>May read fewer bytes if end of file is reached</li>
+                <li>Advances file position by number of bytes read</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Number of bytes actually read</li>
+                <li><code>FILE_READ_FAILED</code> if file not open or error occurs</li>
+                <li><code>0</code> if buffer is null or byte count is 0</li>
+            </ul>
+
+            <p><strong>Examples:</strong></p>
+            <pre>// Read structure
+struct GameData {
+    int level;
+    float score;
+    char name[32];
+};
+
+GameData data;
+if (file.Read(&data, sizeof(GameData)) == sizeof(GameData))
+{
+    // Data read successfully
+}
+
+// Read into byte array
+unsigned char buffer[1024];
+unsigned long bytesRead = file.Read(buffer, 1024);</pre>
+        </div>
+
+        <div class="endpoint" id="readstring">
+            <h3>ReadString()</h3>
+            <p><strong>File:</strong> <code>gs_file.cpp</code></p>
+            <p>Reads a line of text from the file (up to newline character).</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>unsigned long ReadString(char* pBuffer, int nMaxLength)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>pBuffer</code> - Buffer to store the string</li>
+                <li><code>nMaxLength</code> - Maximum characters to read (including null terminator)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Reads characters until newline (ASCII 10) or max length</li>
+                <li>Replaces newline with null terminator</li>
+                <li>Returns length of string read (excluding newline)</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Length of string read (characters, not including newline)</li>
+                <li><code>FILE_READ_FAILED</code> if file not open, read fails, or max length reached without newline</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>GS_File file;
+if (file.Open("config.txt", FILE_READ))
+{
+    while (!file.IsEndOfFile())
+    {
+        char line[256];
+        if (file.ReadString(line, 256) != FILE_READ_FAILED)
+        {
+            printf("Line: %s\n", line);
+        }
+    }
+}</pre>
+        </div>
+    </section>
+
+    <!-- Write Methods -->
+    <section class="api-section">
+        <h2>Write Methods</h2>
+
+        <div class="endpoint" id="putbyte">
+            <h3>PutByte()</h3>
+            <p><strong>File:</strong> <code>gs_file.cpp</code></p>
+            <p>Writes a single byte to the file.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL PutByte(unsigned short sByte)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>sByte</code> - Byte value to write (0-255)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Writes one byte at current position</li>
+                <li>Advances file position by 1</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Byte written successfully</li>
+                <li><code>FALSE</code> - File not open or write failed</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>file.PutByte(0xFF);  // Write magic number
+file.PutByte(version);  // Write version byte</pre>
+        </div>
+
+        <div class="endpoint" id="write">
+            <h3>Write()</h3>
+            <p><strong>File:</strong> <code>gs_file.cpp</code></p>
+            <p>Writes a block of binary data to the file.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>unsigned long Write(void* pBuffer, unsigned long lByteCount)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>pBuffer</code> - Pointer to data to write</li>
+                <li><code>lByteCount</code> - Number of bytes to write</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Writes <code>lByteCount</code> bytes from buffer</li>
+                <li>Advances file position by number of bytes written</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Number of bytes actually written</li>
+                <li><code>FILE_WRITE_FAILED</code> if file not open or error occurs</li>
+                <li><code>0</code> if buffer is null or byte count is 0</li>
+            </ul>
+
+            <p><strong>Examples:</strong></p>
+            <pre>// Write structure
+struct SaveData {
+    int level;
+    int score;
+    char playerName[32];
+};
+
+SaveData save = { 5, 10000, "Player1" };
+file.Write(&save, sizeof(SaveData));
+
+// Write byte array
+unsigned char data[256];
+file.Write(data, 256);</pre>
+        </div>
+
+        <div class="endpoint" id="writestring">
+            <h3>WriteString()</h3>
+            <p><strong>File:</strong> <code>gs_file.cpp</code></p>
+            <p>Writes a formatted text string to the file (printf-style formatting).</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>unsigned long __cdecl WriteString(const char* pFormat,...)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>pFormat</code> - Printf-style format string</li>
+                <li><code>...</code> - Variable arguments matching format specifiers</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Formats string using printf-style formatting</li>
+                <li>Maximum formatted length is 1000 characters</li>
+                <li>Writes formatted string to file (no newline added automatically)</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Number of bytes (characters) written</li>
+                <li><code>FILE_WRITE_FAILED</code> if file not open or write failed</li>
+                <li><code>0</code> if format produces empty string</li>
+            </ul>
+
+            <p><strong>Examples:</strong></p>
+            <pre>// Write configuration file
+file.WriteString("[Settings]\n");
+file.WriteString("Width=%d\n", screenWidth);
+file.WriteString("Height=%d\n", screenHeight);
+file.WriteString("Fullscreen=%s\n", isFullscreen ? "true" : "false");
+
+// Write game state
+file.WriteString("Player: %s\n", playerName);
+file.WriteString("Score: %ld\n", score);
+file.WriteString("Level: %d\n", level);
+
+// Write CSV data
+file.WriteString("%d,%d,%.2f\n", x, y, value);</pre>
+        </div>
+    </section>
+
+    <!-- Best Practices -->
+    <section class="api-section">
+        <h2>Best Practices</h2>
+        <div class="endpoint">
+            <h3>Error Handling</h3>
+            <pre>GS_File file;
+if (!file.Open("data/level.dat", FILE_READ))
+{
+    GS_Error::Report(__FILE__, __LINE__, "Failed to open level file!");
+    return FALSE;
+}
+
+unsigned long bytesRead = file.Read(buffer, bufferSize);
+if (bytesRead == FILE_READ_FAILED)
+{
+    GS_Error::Report(__FILE__, __LINE__, "Failed to read from file!");
+    file.Close();
+    return FALSE;
+}</pre>
+
+            <h3>Resource Management</h3>
+            <pre>// Automatic cleanup with scope
+{
+    GS_File file;
+    file.Open("temp.dat", FILE_WRITE);
+    file.Write(data, size);
+}  // File automatically closed when object goes out of scope
+
+// Explicit closure for reuse
+GS_File file;
+file.Open("file1.txt", FILE_READ);
+// ... read operations ...
+file.Close();
+
+file.Open("file2.txt", FILE_READ);
+// ... read operations ...
+file.Close();</pre>
+
+            <h3>Working with Directories</h3>
+            <pre>GS_File file;
+file.SetDirectory("data/levels/");
+
+// Open multiple files from same directory
+file.Open("level1.dat", FILE_READ);
+// ... process ...
+file.Close();
+
+file.Open("level2.dat", FILE_READ);
+// ... process ...
+file.Close();</pre>
+
+            <h3>Binary Data</h3>
+            <pre>// Writing binary data
+struct Header {
+    char magic[4];
+    int version;
+    int dataSize;
+};
+
+Header header = { "DATA", 1, 1024 };
+file.Write(&header, sizeof(Header));
+file.Write(binaryData, header.dataSize);
+
+// Reading binary data
+Header readHeader;
+if (file.Read(&readHeader, sizeof(Header)) == sizeof(Header))
+{
+    if (memcmp(readHeader.magic, "DATA", 4) == 0)
+    {
+        // Valid file format
+        file.Read(binaryData, readHeader.dataSize);
+    }
+}</pre>
+
+            <h3>Text Files</h3>
+            <pre>// Writing text configuration
+file.Open("config.ini", FILE_WRITE);
+file.WriteString("[Graphics]\n");
+file.WriteString("Resolution=%dx%d\n", width, height);
+file.WriteString("VSync=%d\n", vsync);
+file.WriteString("\n[Audio]\n");
+file.WriteString("Volume=%d\n", volume);
+file.Close();
+
+// Reading text line by line
+file.Open("config.ini", FILE_READ);
+while (!file.IsEndOfFile())
+{
+    char line[256];
+    if (file.ReadString(line, 256) != FILE_READ_FAILED)
+    {
+        ParseConfigLine(line);
+    }
+}
+file.Close();</pre>
+
+            <h3>Common Patterns</h3>
+            <ul>
+                <li><strong>Always check return values:</strong> Use error codes to detect failures</li>
+                <li><strong>Close files explicitly:</strong> Don't rely solely on destructor for critical operations</li>
+                <li><strong>Check file existence:</strong> Use <code>Exists()</code> before opening</li>
+                <li><strong>Buffer safety:</strong> Ensure buffers are large enough for read operations</li>
+                <li><strong>Binary vs. Text:</strong> Use <code>Read()/Write()</code> for binary, <code>ReadString()/WriteString()</code> for text</li>
+            </ul>
+        </div>
+    </section>
+</body>
+
+</html>

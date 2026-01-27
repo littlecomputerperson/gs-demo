@@ -1,0 +1,1240 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GS_OGLDisplay Class</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+
+<body class="endpoint-page">
+    <!-- GS_OGLDisplay Methods Index -->
+    <section class="api-section">
+        <h2>GS_OGLDisplay Class Reference</h2>
+        <p><strong>Files:</strong> <code>gs_ogl_display.h</code>, <code>gs_ogl_display.cpp</code></p>
+        
+        <div class="endpoint-index">
+            <h3>Constructor & Destructor</h3>
+            <ul>
+                <li><a href="#constructor">GS_OGLDisplay() <span class="endpoint-desc">- Constructor</span></a></li>
+                <li><a href="#destructor">~GS_OGLDisplay() <span class="endpoint-desc">- Destructor</span></a></li>
+            </ul>
+
+            <h3>Initialization Methods</h3>
+            <ul>
+                <li><a href="#create">Create() <span class="endpoint-desc">- Create OpenGL rendering context</span></a></li>
+                <li><a href="#destroy">Destroy() <span class="endpoint-desc">- Destroy OpenGL context</span></a></li>
+                <li><a href="#setviewport">SetViewport() <span class="endpoint-desc">- Configure viewport and perspective</span></a></li>
+            </ul>
+
+            <h3>Display Configuration Methods</h3>
+            <ul>
+                <li><a href="#enablealiasing">EnableAliasing() <span class="endpoint-desc">- Enable/disable anti-aliasing</span></a></li>
+                <li><a href="#enablevsync">EnableVSync() <span class="endpoint-desc">- Enable/disable vertical sync</span></a></li>
+                <li><a href="#enabledepthtesting">EnableDepthTesting() <span class="endpoint-desc">- Enable/disable depth testing</span></a></li>
+                <li><a href="#enableblending">EnableBlending() <span class="endpoint-desc">- Enable/disable alpha blending</span></a></li>
+                <li><a href="#enablelighting">EnableLighting() <span class="endpoint-desc">- Enable/disable OpenGL lighting</span></a></li>
+            </ul>
+
+            <h3>Lighting Configuration Methods</h3>
+            <ul>
+                <li><a href="#setlightambient">SetLightAmbient() <span class="endpoint-desc">- Set ambient light color</span></a></li>
+                <li><a href="#setlightdiffuse">SetLightDiffuse() <span class="endpoint-desc">- Set diffuse light color</span></a></li>
+                <li><a href="#setlightspecular">SetLightSpecular() <span class="endpoint-desc">- Set specular light color</span></a></li>
+                <li><a href="#setlightposition">SetLightPosition() <span class="endpoint-desc">- Set light position</span></a></li>
+            </ul>
+
+            <h3>Rendering Methods</h3>
+            <ul>
+                <li><a href="#beginrender">BeginRender() <span class="endpoint-desc">- Begin 3D rendering frame</span></a></li>
+                <li><a href="#endrender">EndRender() <span class="endpoint-desc">- End frame and swap buffers</span></a></li>
+                <li><a href="#beginrender2d">BeginRender2D() <span class="endpoint-desc">- Begin 2D orthographic rendering</span></a></li>
+                <li><a href="#endrender2d">EndRender2D() <span class="endpoint-desc">- End 2D rendering mode</span></a></li>
+            </ul>
+
+            <h3>State Query Methods</h3>
+            <ul>
+                <li><a href="#isready">IsReady() <span class="endpoint-desc">- Check if display is initialized</span></a></li>
+                <li><a href="#isaliasingenabled">IsAliasingEnabled() <span class="endpoint-desc">- Check anti-aliasing state</span></a></li>
+                <li><a href="#isvsyncentabled">IsVSyncEnabled() <span class="endpoint-desc">- Check VSync state</span></a></li>
+                <li><a href="#isblendingenabled">IsBlendingEnabled() <span class="endpoint-desc">- Check blending state</span></a></li>
+                <li><a href="#islightingenabled">IsLightingEnabled() <span class="endpoint-desc">- Check lighting state</span></a></li>
+                <li><a href="#isdepthtestingenabled">IsDepthTestingEnabled() <span class="endpoint-desc">- Check depth testing state</span></a></li>
+            </ul>
+
+            <h3>Static Scaling Methods</h3>
+            <ul>
+                <li><a href="#getscalefactorx">GetScaleFactorX() <span class="endpoint-desc">- Get X scale factor</span></a></li>
+                <li><a href="#setscalefactorx">SetScaleFactorX() <span class="endpoint-desc">- Set X scale factor</span></a></li>
+                <li><a href="#getscalefactory">GetScaleFactorY() <span class="endpoint-desc">- Get Y scale factor</span></a></li>
+                <li><a href="#setscalefactory">SetScaleFactorY() <span class="endpoint-desc">- Set Y scale factor</span></a></li>
+                <li><a href="#setscalefactorxy">SetScaleFactorXY() <span class="endpoint-desc">- Set both scale factors</span></a></li>
+                <li><a href="#getrendermodx">GetRenderModX() <span class="endpoint-desc">- Get X render offset</span></a></li>
+                <li><a href="#setrendermodx">SetRenderModX() <span class="endpoint-desc">- Set X render offset</span></a></li>
+                <li><a href="#getrendermody">GetRenderModY() <span class="endpoint-desc">- Get Y render offset</span></a></li>
+                <li><a href="#setrendermody">SetRenderModY() <span class="endpoint-desc">- Set Y render offset</span></a></li>
+                <li><a href="#setrendermodxy">SetRenderModXY() <span class="endpoint-desc">- Set both render offsets</span></a></li>
+            </ul>
+        </div>
+    </section>
+    
+    <!-- Class Overview -->
+    <section class="api-section">
+        <h2>Class Overview</h2>
+        <div class="endpoint">
+            <h3>About GS_OGLDisplay</h3>
+            <p>The <code>GS_OGLDisplay</code> class manages the OpenGL rendering context and provides high-level control over the graphics pipeline. It handles context creation, viewport setup, rendering state management, and provides utilities for both 2D and 3D rendering modes.</p>
+
+            <p>This class is the foundation of GameSystem's graphics system, abstracting OpenGL initialization and providing a clean interface for configuring rendering features like anti-aliasing, VSync, depth testing, alpha blending, and lighting.</p>
+
+            <h3>Key Features</h3>
+            <ul>
+                <li><strong>OpenGL Context Management:</strong> Create and destroy rendering contexts on Windows and SDL2 platforms</li>
+                <li><strong>Viewport Configuration:</strong> Set up perspective projection for 3D and orthographic projection for 2D</li>
+                <li><strong>Anti-Aliasing:</strong> Enable smooth line and polygon rendering</li>
+                <li><strong>VSync Control:</strong> Synchronize rendering with monitor refresh rate</li>
+                <li><strong>Alpha Blending:</strong> Support transparency in textures and sprites</li>
+                <li><strong>Depth Testing:</strong> Proper 3D object occlusion</li>
+                <li><strong>Lighting System:</strong> Configurable ambient, diffuse, and specular lighting</li>
+                <li><strong>2D/3D Mode Switching:</strong> Easy transition between rendering modes</li>
+                <li><strong>Resolution Scaling:</strong> Support for upscaling and downscaling with aspect ratio preservation</li>
+            </ul>
+
+            <h3>Rendering Modes</h3>
+            <p>GS_OGLDisplay supports two primary rendering modes:</p>
+
+            <h4>3D Mode (Perspective Projection)</h4>
+            <ul>
+                <li>Used for 3D scenes with depth</li>
+                <li>Perspective projection with configurable field of view</li>
+                <li>Depth testing enabled</li>
+                <li>Supports lighting and camera positioning</li>
+                <li>Activated with <code>BeginRender()</code> / <code>EndRender()</code></li>
+            </ul>
+
+            <h4>2D Mode (Orthographic Projection)</h4>
+            <ul>
+                <li>Used for sprites, fonts, menus, and UI</li>
+                <li>Orthographic projection matching screen dimensions</li>
+                <li>Depth testing typically disabled</li>
+                <li>Coordinate system: (0,0) at bottom-left, Y increases upward</li>
+                <li>Activated with <code>BeginRender2D()</code> / <code>EndRender2D()</code></li>
+            </ul>
+
+            <h3>Resolution Scaling</h3>
+            <p>The class provides static methods for resolution-independent rendering:</p>
+            <ul>
+                <li><strong>Scale Factors:</strong> Multiply sprite coordinates to support different resolutions</li>
+                <li><strong>Render Modifiers:</strong> Offset coordinates for letterboxing/pillarboxing</li>
+                <li><strong>Aspect Ratio Preservation:</strong> Maintain correct proportions when upscaling/downscaling</li>
+            </ul>
+
+            <div style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; margin: 15px 0;">
+                <h4 style="margin-top: 0;">Internal Resolution System</h4>
+                <p>GameSystem uses an internal resolution (typically 960x540) that gets scaled to the actual window size. This allows games to render at a fixed resolution while supporting multiple display sizes:</p>
+                <pre style="margin: 10px 0;">// Game renders at 960x540 internally
+// Window runs at 1920x1080 (or any size)
+// Scale factors: 2.0x, 2.0x
+// Sprites automatically scaled to fit</pre>
+                <p style="margin-bottom: 0;">This approach simplifies game logic by working with consistent coordinates regardless of actual window size.</p>
+            </div>
+
+            <h3>Member Variables</h3>
+            <p>All member variables are private:</p>
+
+            <table style="width: 100%; border-collapse: collapse; margin: 1em 0;">
+                <thead>
+                    <tr style="background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Variable</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Type</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_hRC</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">HGLRC / SDL_GLContext</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">OpenGL rendering context handle</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_PixelFormat</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">GLuint</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">OpenGL pixel format identifier</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_bIsAliasingEnabled</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">BOOL</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Anti-aliasing state flag</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_bIsVSyncEnabled</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">BOOL</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Vertical sync state flag</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_bIsDepthTestEnabled</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">BOOL</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Depth testing state (for 2D mode switching)</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_bIsLightingEnabled</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">BOOL</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Lighting state (for 2D mode switching)</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_bIsReady</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">BOOL</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Initialization state flag</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Global Variables (Scaling System)</h3>
+            <p>External global variables used for resolution scaling:</p>
+
+            <table style="width: 100%; border-collapse: collapse; margin: 1em 0;">
+                <thead>
+                    <tr style="background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Variable</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Type</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>g_fScaleFactorX</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">float</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Horizontal scale multiplier</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>g_fScaleFactorY</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">float</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Vertical scale multiplier</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>g_fRenderModX</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">float</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Horizontal offset for letterboxing</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>g_fRenderModY</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">float</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Vertical offset for pillarboxing</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Usage Pattern</h3>
+            <p>Typical workflow for using GS_OGLDisplay:</p>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// In GameInit()
+m_gsDisplay.Create(GetDevice(), GetWidth(), GetHeight(), GetColorDepth());
+m_gsDisplay.EnableVSync(TRUE);
+m_gsDisplay.EnableBlending(TRUE);
+
+// In GameLoop() - 2D Rendering
+glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+m_gsDisplay.BeginRender2D(GetWindow());
+
+// Render sprites, fonts, UI
+m_sprite.Render();
+m_font.Render();
+
+m_gsDisplay.EndRender2D();
+SwapBuffers(GetDevice());
+
+// In GameShutdown()
+m_gsDisplay.Destroy();</code></pre>
+        </div>
+    </section>
+
+    <!-- Constructor & Destructor -->
+    <section class="api-section">
+        <h2>Constructor & Destructor</h2>
+
+        <div class="endpoint" id="constructor">
+            <h3>GS_OGLDisplay()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_display.cpp</code></p>
+            <p>Constructor that initializes all member variables to default values.</p>
+            
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Initialization:</strong></p>
+            <ul>
+                <li><code>m_hRC = NULL</code> - No rendering context</li>
+                <li><code>m_PixelFormat = 0</code> - No pixel format selected</li>
+                <li><code>m_bIsAliasingEnabled = FALSE</code> - Anti-aliasing disabled</li>
+                <li><code>m_bIsVSyncEnabled = FALSE</code> - VSync disabled</li>
+                <li><code>m_bIsDepthTestEnabled = FALSE</code> - Depth test state cleared</li>
+                <li><code>m_bIsLightingEnabled = FALSE</code> - Lighting state cleared</li>
+                <li><code>m_bIsReady = FALSE</code> - Display not initialized</li>
+                <li><code>g_fRenderModX/Y = 0.0f</code> - No render offset</li>
+                <li><code>g_fScaleFactorX/Y = 1.0f</code> - No scaling</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>GS_OGLDisplay m_gsDisplay;  // Ready for Create() call</pre>
+        </div>
+
+        <div class="endpoint" id="destructor">
+            <h3>~GS_OGLDisplay()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_display.cpp</code></p>
+            <p>Destructor that ensures the OpenGL context is properly destroyed.</p>
+            
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Calls <code>Destroy()</code> to clean up OpenGL context</li>
+                <li>Safe to call even if <code>Create()</code> was never called</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Initialization Methods -->
+    <section class="api-section">
+        <h2>Initialization Methods</h2>
+
+        <div class="endpoint" id="create">
+            <h3>Create()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_display.cpp</code></p>
+            <p>Creates the OpenGL rendering context and initializes default rendering states.</p>
+            
+            <p><strong>Signature (Windows):</strong></p>
+            <pre>BOOL Create(HDC& hDC, int nWidth, int nHeight, int nDepth)</pre>
+
+            <p><strong>Signature (SDL2):</strong></p>
+            <pre>BOOL Create(SDL_Window* pWindow, int nWidth, int nHeight, int nDepth)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>hDC</code> (Windows) - Device context handle from the window</li>
+                <li><code>pWindow</code> (SDL2) - SDL window pointer</li>
+                <li><code>nWidth</code> - Viewport width in pixels</li>
+                <li><code>nHeight</code> - Viewport height in pixels</li>
+                <li><code>nDepth</code> - Color depth in bits (32 recommended, ignored on SDL2)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>If already created, calls <code>Destroy()</code> first</li>
+                <li><strong>Windows:</strong> Sets up pixel format descriptor, chooses pixel format, creates GL context with <code>wglCreateContext()</code></li>
+                <li><strong>SDL2:</strong> Creates GL context with <code>SDL_GL_CreateContext()</code></li>
+                <li>Activates the rendering context</li>
+                <li>Calls <code>SetViewport()</code> to configure projection</li>
+                <li>Enables texture mapping (<code>GL_TEXTURE_2D</code>)</li>
+                <li>Disables face culling</li>
+                <li>Enables depth testing with <code>GL_LEQUAL</code></li>
+                <li>Sets smooth shading</li>
+                <li>Sets perspective correction hint to <code>GL_NICEST</code></li>
+                <li>Sets clear color to black (0, 0, 0, 0)</li>
+                <li>Sets clear depth to 1.0</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Context created successfully</li>
+                <li><code>FALSE</code> - Creation failed (invalid handle, pixel format failure, etc.)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>if (!m_gsDisplay.Create(GetDevice(), GetWidth(), GetHeight(), 32))
+{
+    GS_Error::Report(__FILE__, __LINE__, "Failed to create OpenGL display!");
+    return FALSE;
+}
+
+// Configure display settings
+m_gsDisplay.EnableVSync(TRUE);
+m_gsDisplay.EnableBlending(TRUE);</code></pre>
+        </div>
+
+        <div class="endpoint" id="destroy">
+            <h3>Destroy()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_display.cpp</code></p>
+            <p>Destroys the OpenGL rendering context and resets all state variables.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>GLvoid Destroy()</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Returns immediately if not initialized (<code>m_bIsReady == FALSE</code>)</li>
+                <li><strong>Windows:</strong> Deactivates context with <code>wglMakeCurrent(NULL, NULL)</code>, deletes context with <code>wglDeleteContext()</code></li>
+                <li><strong>SDL2:</strong> Deletes context with <code>SDL_GL_DeleteContext()</code></li>
+                <li>Resets all member variables to default values</li>
+                <li>Sets <code>m_bIsReady = FALSE</code></li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>None (void)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>m_gsDisplay.Destroy();  // Called in GameShutdown()</pre>
+
+            <p><strong>Note:</strong> This is called automatically by the destructor, so explicit calls are optional unless you need to recreate the display context.</p>
+        </div>
+
+        <div class="endpoint" id="setviewport">
+            <h3>SetViewport()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_display.cpp</code></p>
+            <p>Configures the OpenGL viewport and sets up perspective projection for 3D rendering.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>GLvoid SetViewport(GLsizei glWidth, GLsizei glHeight, GLdouble glView)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>glWidth</code> - Viewport width in pixels</li>
+                <li><code>glHeight</code> - Viewport height in pixels</li>
+                <li><code>glView</code> - Field of view angle in degrees (typically 45.0)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Returns immediately if display not ready</li>
+                <li>Prevents divide-by-zero by ensuring height ≥ 1</li>
+                <li>Sets viewport with <code>glViewport(0, 0, width, height)</code></li>
+                <li>Switches to projection matrix mode</li>
+                <li>Loads identity matrix</li>
+                <li>Sets up perspective with <code>gluPerspective()</code>:
+                    <ul>
+                        <li>Field of view: <code>glView</code> degrees</li>
+                        <li>Aspect ratio: <code>width / height</code></li>
+                        <li>Near clipping plane: 0.1</li>
+                        <li>Far clipping plane: 100.0</li>
+                    </ul>
+                </li>
+                <li>Switches to modelview matrix mode</li>
+                <li>Loads identity matrix</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>None (void)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Set viewport with 45-degree field of view
+m_gsDisplay.SetViewport(800, 600, 45.0);
+
+// Wider field of view for more peripheral vision
+m_gsDisplay.SetViewport(1920, 1080, 90.0);</code></pre>
+
+            <p><strong>Note:</strong> This method is called automatically by <code>Create()</code>. You typically only call it manually if you need to change the viewport or field of view after initialization.</p>
+        </div>
+    </section>
+
+    <!-- Display Configuration Methods -->
+    <section class="api-section">
+        <h2>Display Configuration Methods</h2>
+
+        <div class="endpoint" id="enablealiasing">
+            <h3>EnableAliasing()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_display.cpp</code></p>
+            <p>Enables or disables anti-aliasing for smoother line and polygon rendering.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>GLvoid EnableAliasing(BOOL bEnable = TRUE, GLenum glType = GL_NICEST)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>bEnable</code> - TRUE to enable, FALSE to disable (default: TRUE)</li>
+                <li><code>glType</code> - Quality hint: <code>GL_NICEST</code> (best quality), <code>GL_FASTEST</code> (best performance), or <code>GL_DONT_CARE</code> (default: GL_NICEST)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>If enabled, sets line smooth hint to <code>glType</code></li>
+                <li>If enabled, sets polygon smooth hint to <code>glType</code></li>
+                <li>If disabled, sets both hints to <code>GL_FASTEST</code></li>
+                <li>Updates <code>m_bIsAliasingEnabled</code> flag</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>None (void)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Enable with highest quality
+m_gsDisplay.EnableAliasing(TRUE, GL_NICEST);
+
+// Disable for better performance
+m_gsDisplay.EnableAliasing(FALSE);
+
+// Enable with balanced quality
+m_gsDisplay.EnableAliasing(TRUE, GL_DONT_CARE);</code></pre>
+
+            <p><strong>Performance Impact:</strong> Anti-aliasing can reduce frame rate, especially on older hardware. Consider making this a user-configurable option.</p>
+        </div>
+
+        <div class="endpoint" id="enablevsync">
+            <h3>EnableVSync()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_display.cpp</code></p>
+            <p>Enables or disables vertical synchronization to eliminate screen tearing.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>GLvoid EnableVSync(BOOL bEnable = TRUE)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>bEnable</code> - TRUE to enable VSync, FALSE to disable (default: TRUE)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li><strong>Windows:</strong> Uses <code>wglGetProcAddress("wglSwapIntervalEXT")</code> to get extension function</li>
+                <li><strong>Windows:</strong> Calls <code>wglSwapIntervalEXT(1)</code> to enable or <code>wglSwapIntervalEXT(0)</code> to disable</li>
+                <li><strong>SDL2:</strong> Calls <code>SDL_GL_SetSwapInterval(1)</code> to enable or <code>SDL_GL_SetSwapInterval(0)</code> to disable</li>
+                <li>Updates <code>m_bIsVSyncEnabled</code> flag</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>None (void)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Enable VSync to prevent tearing
+m_gsDisplay.EnableVSync(TRUE);
+
+// Disable for higher frame rates
+m_gsDisplay.EnableVSync(FALSE);
+
+// Toggle VSync based on setting
+m_gsDisplay.EnableVSync(m_settings.bEnableVSync);</code></pre>
+
+            <p><strong>Note:</strong> VSync caps frame rate to the monitor's refresh rate (typically 60 FPS). Disabling VSync allows unlimited frame rate but may cause screen tearing.</p>
+        </div>
+
+        <div class="endpoint" id="enabledepthtesting">
+            <h3>EnableDepthTesting()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_display.cpp</code></p>
+            <p>Enables or disables depth testing for proper 3D object occlusion.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>GLvoid EnableDepthTesting(BOOL bEnable = TRUE, GLenum glType = GL_LEQUAL)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>bEnable</code> - TRUE to enable depth testing, FALSE to disable (default: TRUE)</li>
+                <li><code>glType</code> - Depth comparison function: <code>GL_NEVER</code>, <code>GL_LESS</code>, <code>GL_EQUAL</code>, <code>GL_LEQUAL</code>, <code>GL_GREATER</code>, <code>GL_NOTEQUAL</code>, <code>GL_GEQUAL</code>, <code>GL_ALWAYS</code> (default: GL_LEQUAL)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>If enabled, calls <code>glEnable(GL_DEPTH_TEST)</code></li>
+                <li>If enabled, sets depth function with <code>glDepthFunc(glType)</code></li>
+                <li>If disabled, calls <code>glDisable(GL_DEPTH_TEST)</code></li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>None (void)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Enable for 3D rendering
+m_gsDisplay.EnableDepthTesting(TRUE, GL_LEQUAL);
+
+// Disable for 2D sprites (done automatically by BeginRender2D)
+m_gsDisplay.EnableDepthTesting(FALSE);</code></pre>
+
+            <p><strong>Note:</strong> Depth testing is automatically managed by <code>BeginRender2D()</code> and <code>EndRender2D()</code>. Manual control is rarely needed.</p>
+        </div>
+
+        <div class="endpoint" id="enableblending">
+            <h3>EnableBlending()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_display.cpp</code></p>
+            <p>Enables or disables alpha blending for transparency effects.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>GLvoid EnableBlending(BOOL bEnable = TRUE, GLenum glSourceFactor = GL_SRC_ALPHA, 
+                   GLenum glDestFactor = GL_ONE_MINUS_SRC_ALPHA)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>bEnable</code> - TRUE to enable blending, FALSE to disable (default: TRUE)</li>
+                <li><code>glSourceFactor</code> - Source blend factor (default: GL_SRC_ALPHA)</li>
+                <li><code>glDestFactor</code> - Destination blend factor (default: GL_ONE_MINUS_SRC_ALPHA)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>If enabled, calls <code>glBlendFunc(glSourceFactor, glDestFactor)</code></li>
+                <li>If enabled, calls <code>glEnable(GL_BLEND)</code></li>
+                <li>If disabled, calls <code>glDisable(GL_BLEND)</code></li>
+            </ul>
+
+            <p><strong>Common Blend Modes:</strong></p>
+            <table style="width: 100%; border-collapse: collapse; margin: 1em 0;">
+                <thead>
+                    <tr style="background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Source Factor</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Dest Factor</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Effect</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>GL_SRC_ALPHA</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>GL_ONE_MINUS_SRC_ALPHA</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Standard alpha transparency</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>GL_SRC_ALPHA</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>GL_ONE</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Additive blending (light effects)</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>GL_ZERO</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>GL_SRC_COLOR</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Multiplicative blending (darken)</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>None (void)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Standard alpha transparency
+m_gsDisplay.EnableBlending(TRUE);
+
+// Additive blending for glowing effects
+m_gsDisplay.EnableBlending(TRUE, GL_SRC_ALPHA, GL_ONE);
+
+// Disable blending
+m_gsDisplay.EnableBlending(FALSE);</code></pre>
+
+            <p><strong>Note:</strong> Blending must be enabled for transparent textures (TGA with alpha channel) to render correctly.</p>
+        </div>
+
+        <div class="endpoint" id="enablelighting">
+            <h3>EnableLighting()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_display.cpp</code></p>
+            <p>Enables or disables OpenGL lighting system.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>GLvoid EnableLighting(BOOL bEnable = TRUE, GLenum glLightNum = GL_LIGHT1)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>bEnable</code> - TRUE to enable lighting, FALSE to disable (default: TRUE)</li>
+                <li><code>glLightNum</code> - Light source to use: <code>GL_LIGHT0</code> through <code>GL_LIGHT7</code> (default: GL_LIGHT1)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>If enabled, calls <code>glEnable(GL_LIGHTING)</code></li>
+                <li>If enabled, calls <code>glEnable(glLightNum)</code> to activate specific light</li>
+                <li>If disabled, calls <code>glDisable(GL_LIGHTING)</code></li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>None (void)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Enable lighting with light 1
+m_gsDisplay.EnableLighting(TRUE, GL_LIGHT1);
+
+// Configure light properties
+m_gsDisplay.SetLightAmbient(0.2f, 0.2f, 0.2f, 1.0f);
+m_gsDisplay.SetLightDiffuse(1.0f, 1.0f, 1.0f, 1.0f);
+m_gsDisplay.SetLightPosition(5.0f, 5.0f, 5.0f);
+
+// Disable lighting for 2D rendering
+m_gsDisplay.EnableLighting(FALSE);</code></pre>
+
+            <p><strong>Note:</strong> Lighting is automatically disabled during 2D rendering mode (<code>BeginRender2D()</code>) and restored afterward.</p>
+        </div>
+    </section>
+
+    <!-- Lighting Configuration Methods -->
+    <section class="api-section">
+        <h2>Lighting Configuration Methods</h2>
+
+        <div class="endpoint" id="setlightambient">
+            <h3>SetLightAmbient()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_display.cpp</code></p>
+            <p>Sets the ambient light color component.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>GLvoid SetLightAmbient(GLfloat fRed, GLfloat fGreen, GLfloat fBlue, 
+                        GLfloat fAlpha, GLenum glLightNum = GL_LIGHT1)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>fRed</code> - Red component (0.0 - 1.0)</li>
+                <li><code>fGreen</code> - Green component (0.0 - 1.0)</li>
+                <li><code>fBlue</code> - Blue component (0.0 - 1.0)</li>
+                <li><code>fAlpha</code> - Alpha component (0.0 - 1.0)</li>
+                <li><code>glLightNum</code> - Light source (default: GL_LIGHT1)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Creates RGBA array from parameters</li>
+                <li>Calls <code>glLightfv(glLightNum, GL_AMBIENT, array)</code></li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>// Dim ambient light
+m_gsDisplay.SetLightAmbient(0.2f, 0.2f, 0.2f, 1.0f);</pre>
+        </div>
+
+        <div class="endpoint" id="setlightdiffuse">
+            <h3>SetLightDiffuse()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_display.cpp</code></p>
+            <p>Sets the diffuse light color component.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>GLvoid SetLightDiffuse(GLfloat fRed, GLfloat fGreen, GLfloat fBlue, 
+                        GLfloat fAlpha, GLenum glLightNum = GL_LIGHT1)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>fRed</code> - Red component (0.0 - 1.0)</li>
+                <li><code>fGreen</code> - Green component (0.0 - 1.0)</li>
+                <li><code>fBlue</code> - Blue component (0.0 - 1.0)</li>
+                <li><code>fAlpha</code> - Alpha component (0.0 - 1.0)</li>
+                <li><code>glLightNum</code> - Light source (default: GL_LIGHT1)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>// White directional light
+m_gsDisplay.SetLightDiffuse(1.0f, 1.0f, 1.0f, 1.0f);</pre>
+        </div>
+
+        <div class="endpoint" id="setlightspecular">
+            <h3>SetLightSpecular()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_display.cpp</code></p>
+            <p>Sets the specular light color component (highlights).</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>GLvoid SetLightSpecular(GLfloat fRed, GLfloat fGreen, GLfloat fBlue, 
+                         GLfloat fAlpha, GLenum glLightNum = GL_LIGHT1)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>fRed</code> - Red component (0.0 - 1.0)</li>
+                <li><code>fGreen</code> - Green component (0.0 - 1.0)</li>
+                <li><code>fBlue</code> - Blue component (0.0 - 1.0)</li>
+                <li><code>fAlpha</code> - Alpha component (0.0 - 1.0)</li>
+                <li><code>glLightNum</code> - Light source (default: GL_LIGHT1)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>// White specular highlights
+m_gsDisplay.SetLightSpecular(1.0f, 1.0f, 1.0f, 1.0f);</pre>
+        </div>
+
+        <div class="endpoint" id="setlightposition">
+            <h3>SetLightPosition()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_display.cpp</code></p>
+            <p>Sets the light source position in 3D space.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>GLvoid SetLightPosition(GLfloat fCoordX, GLfloat fCoordY, GLfloat fCoordZ, 
+                         GLfloat fSource = 1.0f, GLenum glLightNum = GL_LIGHT1)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>fCoordX</code> - X coordinate</li>
+                <li><code>fCoordY</code> - Y coordinate</li>
+                <li><code>fCoordZ</code> - Z coordinate</li>
+                <li><code>fSource</code> - Source type: 0.0 = directional light, 1.0 = positional light (default: 1.0)</li>
+                <li><code>glLightNum</code> - Light source (default: GL_LIGHT1)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Positional light at (5, 5, 5)
+m_gsDisplay.SetLightPosition(5.0f, 5.0f, 5.0f, 1.0f);
+
+// Directional light from above
+m_gsDisplay.SetLightPosition(0.0f, 1.0f, 0.0f, 0.0f);</code></pre>
+        </div>
+    </section>
+
+    <!-- Rendering Methods -->
+    <section class="api-section">
+        <h2>Rendering Methods</h2>
+
+        <div class="endpoint" id="beginrender">
+            <h3>BeginRender()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_display.cpp</code></p>
+            <p>Begins a rendering frame for 3D perspective rendering.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>GLvoid BeginRender()</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Returns immediately if display not ready</li>
+                <li>Clears color and depth buffers with <code>glClear()</code></li>
+                <li>Loads identity matrix</li>
+                <li>Sets up camera with <code>gluLookAt()</code>:
+                    <ul>
+                        <li>Eye position: (0, 0, 5)</li>
+                        <li>Look-at point: (0, 0, 0)</li>
+                        <li>Up vector: (0, 1, 0)</li>
+                    </ul>
+                </li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>None (void)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>m_gsDisplay.BeginRender();
+
+// Render 3D objects here
+// glTranslatef(), glRotatef(), etc.
+
+m_gsDisplay.EndRender(GetDevice());</code></pre>
+        </div>
+
+        <div class="endpoint" id="endrender">
+            <h3>EndRender()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_display.cpp</code></p>
+            <p>Ends the rendering frame and swaps buffers to display the result.</p>
+            
+            <p><strong>Signature (Windows):</strong></p>
+            <pre>GLvoid EndRender(HDC& hDC)</pre>
+
+            <p><strong>Signature (SDL2):</strong></p>
+            <pre>GLvoid EndRender(SDL_Window* pWindow)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>hDC</code> (Windows) - Device context handle</li>
+                <li><code>pWindow</code> (SDL2) - SDL window pointer</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Returns immediately if display not ready</li>
+                <li><strong>Windows:</strong> Calls <code>SwapBuffers(hDC)</code></li>
+                <li><strong>SDL2:</strong> Calls <code>SDL_GL_SwapWindow(pWindow)</code></li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>None (void)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>m_gsDisplay.EndRender(GetDevice());</pre>
+        </div>
+
+        <div class="endpoint" id="beginrender2d">
+            <h3>BeginRender2D()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_display.cpp</code></p>
+            <p>Begins 2D orthographic rendering mode for sprites, fonts, and UI.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL BeginRender2D(HWND& hWnd)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>hWnd</code> - Window handle (HWND on Windows, SDL_Window* on SDL2)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Returns FALSE if display not ready or invalid window handle</li>
+                <li>Gets client rectangle dimensions</li>
+                <li>Saves current depth testing state, then disables it</li>
+                <li>Saves current lighting state, then disables it</li>
+                <li>Switches to projection matrix and pushes current matrix</li>
+                <li>Loads identity matrix</li>
+                <li>Sets up orthographic projection with <code>glOrtho()</code>:
+                    <ul>
+                        <li>Left: 0</li>
+                        <li>Right: client width</li>
+                        <li>Bottom: 0 (bottom of screen)</li>
+                        <li>Top: client height</li>
+                        <li>Near/Far: Based on larger dimension for rotation capability</li>
+                    </ul>
+                </li>
+                <li>Switches to modelview matrix and pushes current matrix</li>
+            </ul>
+
+            <p><strong>Coordinate System:</strong></p>
+            <ul>
+                <li>Origin (0,0) at bottom-left corner</li>
+                <li>X increases rightward</li>
+                <li>Y increases upward (OpenGL convention)</li>
+                <li>Matches sprite rendering coordinate system</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - 2D mode activated successfully</li>
+                <li><code>FALSE</code> - Failed (display not ready or invalid window)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+m_gsDisplay.BeginRender2D(GetWindow());
+
+// Render 2D content
+m_backgroundSprite.Render();
+m_playerSprite.Render();
+m_font.Render();
+
+m_gsDisplay.EndRender2D();
+SwapBuffers(GetDevice());</code></pre>
+        </div>
+
+        <div class="endpoint" id="endrender2d">
+            <h3>EndRender2D()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_display.cpp</code></p>
+            <p>Ends 2D rendering mode and restores previous rendering state.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL EndRender2D()</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Switches to projection matrix</li>
+                <li>Pops saved projection matrix (restores perspective)</li>
+                <li>Switches to modelview matrix</li>
+                <li>Pops saved modelview matrix</li>
+                <li>Restores depth testing state if it was enabled</li>
+                <li>Restores lighting state if it was enabled</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Always returns TRUE</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>m_gsDisplay.EndRender2D();</pre>
+
+            <p><strong>Note:</strong> Always pair <code>BeginRender2D()</code> with <code>EndRender2D()</code> to properly restore rendering state.</p>
+        </div>
+    </section>
+
+    <!-- State Query Methods -->
+    <section class="api-section">
+        <h2>State Query Methods</h2>
+
+        <div class="endpoint" id="isready">
+            <h3>IsReady()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_display.h</code> (inline)</p>
+            <p>Checks if the OpenGL display has been successfully initialized.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL IsReady()</pre>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Display is initialized and ready for rendering</li>
+                <li><code>FALSE</code> - Display not initialized or creation failed</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>if (!m_gsDisplay.IsReady())
+{
+    GS_Error::Report(__FILE__, __LINE__, "Display not initialized!");
+    return FALSE;
+}</code></pre>
+        </div>
+
+        <div class="endpoint" id="isaliasingenabled">
+            <h3>IsAliasingEnabled()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_display.h</code> (inline)</p>
+            <p>Checks if anti-aliasing is enabled.</p>
+            
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Anti-aliasing enabled</li>
+                <li><code>FALSE</code> - Anti-aliasing disabled</li>
+            </ul>
+        </div>
+
+        <div class="endpoint" id="isvsyncentabled">
+            <h3>IsVSyncEnabled()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_display.h</code> (inline)</p>
+            <p>Checks if vertical sync is enabled.</p>
+            
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - VSync enabled</li>
+                <li><code>FALSE</code> - VSync disabled</li>
+            </ul>
+        </div>
+
+        <div class="endpoint" id="isblendingenabled">
+            <h3>IsBlendingEnabled()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_display.h</code> (inline)</p>
+            <p>Checks if alpha blending is currently enabled.</p>
+            
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Blending enabled</li>
+                <li><code>FALSE</code> - Blending disabled</li>
+            </ul>
+
+            <p><strong>Implementation:</strong></p>
+            <pre>return glIsEnabled(GL_BLEND);</pre>
+        </div>
+
+        <div class="endpoint" id="islightingenabled">
+            <h3>IsLightingEnabled()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_display.h</code> (inline)</p>
+            <p>Checks if OpenGL lighting is currently enabled.</p>
+            
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Lighting enabled</li>
+                <li><code>FALSE</code> - Lighting disabled</li>
+            </ul>
+
+            <p><strong>Implementation:</strong></p>
+            <pre>return glIsEnabled(GL_LIGHTING);</pre>
+        </div>
+
+        <div class="endpoint" id="isdepthtestingenabled">
+            <h3>IsDepthTestingEnabled()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_display.h</code> (inline)</p>
+            <p>Checks if depth testing is currently enabled.</p>
+            
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Depth testing enabled</li>
+                <li><code>FALSE</code> - Depth testing disabled</li>
+            </ul>
+
+            <p><strong>Implementation:</strong></p>
+            <pre>return glIsEnabled(GL_DEPTH_TEST);</pre>
+        </div>
+    </section>
+
+    <!-- Static Scaling Methods -->
+    <section class="api-section">
+        <h2>Static Scaling Methods</h2>
+        <div class="endpoint">
+            <h3>Resolution Scaling Overview</h3>
+            <p>These static methods control the global scaling system that allows games to render at a fixed internal resolution while supporting multiple window sizes. The scaling system automatically adjusts sprite coordinates and sizes.</p>
+
+            <div style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; margin: 15px 0;">
+                <h4 style="margin-top: 0;">How Scaling Works</h4>
+                <pre style="margin: 10px 0;">Internal Resolution: 960x540
+Window Resolution:   1920x1080
+Scale Factor:        2.0x, 2.0x
+Render Offset:       0, 0
+
+Sprite at (100, 100) renders at:
+X = (100 * 2.0) + 0 = 200
+Y = (100 * 2.0) + 0 = 200</pre>
+            </div>
+        </div>
+
+        <div class="endpoint" id="getscalefactorx">
+            <h3>GetScaleFactorX()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_display.h</code> (inline static)</p>
+            <p>Gets the horizontal scale factor.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>static float GetScaleFactorX()</pre>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Horizontal scale multiplier (default: 1.0)</li>
+            </ul>
+        </div>
+
+        <div class="endpoint" id="setscalefactorx">
+            <h3>SetScaleFactorX()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_display.h</code> (inline static)</p>
+            <p>Sets the horizontal scale factor.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>static void SetScaleFactorX(float fScaleFactorX)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>fScaleFactorX</code> - Horizontal scale multiplier</li>
+            </ul>
+        </div>
+
+        <div class="endpoint" id="getscalefactory">
+            <h3>GetScaleFactorY()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_display.h</code> (inline static)</p>
+            <p>Gets the vertical scale factor.</p>
+            
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Vertical scale multiplier (default: 1.0)</li>
+            </ul>
+        </div>
+
+        <div class="endpoint" id="setscalefactory">
+            <h3>SetScaleFactorY()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_display.h</code> (inline static)</p>
+            <p>Sets the vertical scale factor.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>static void SetScaleFactorY(float fScaleFactorY)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>fScaleFactorY</code> - Vertical scale multiplier</li>
+            </ul>
+        </div>
+
+        <div class="endpoint" id="setscalefactorxy">
+            <h3>SetScaleFactorXY()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_display.h</code> (inline static)</p>
+            <p>Sets both horizontal and vertical scale factors.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>static void SetScaleFactorXY(float fScaleFactorX, float fScaleFactorY)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>fScaleFactorX</code> - Horizontal scale multiplier</li>
+                <li><code>fScaleFactorY</code> - Vertical scale multiplier</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Scale to 2x
+GS_OGLDisplay::SetScaleFactorXY(2.0f, 2.0f);
+
+// Non-uniform scaling
+GS_OGLDisplay::SetScaleFactorXY(1.5f, 1.5f);</code></pre>
+        </div>
+
+        <div class="endpoint" id="getrendermodx">
+            <h3>GetRenderModX()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_display.h</code> (inline static)</p>
+            <p>Gets the horizontal render offset for letterboxing.</p>
+            
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Horizontal pixel offset (default: 0.0)</li>
+            </ul>
+        </div>
+
+        <div class="endpoint" id="setrendermodx">
+            <h3>SetRenderModX()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_display.h</code> (inline static)</p>
+            <p>Sets the horizontal render offset.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>static void SetRenderModX(float fRenderModX)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>fRenderModX</code> - Horizontal pixel offset</li>
+            </ul>
+        </div>
+
+        <div class="endpoint" id="getrendermody">
+            <h3>GetRenderModY()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_display.h</code> (inline static)</p>
+            <p>Gets the vertical render offset for pillarboxing.</p>
+            
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Vertical pixel offset (default: 0.0)</li>
+            </ul>
+        </div>
+
+        <div class="endpoint" id="setrendermody">
+            <h3>SetRenderModY()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_display.h</code> (inline static)</p>
+            <p>Sets the vertical render offset.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>static void SetRenderModY(float fRenderModY)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>fRenderModY</code> - Vertical pixel offset</li>
+            </ul>
+        </div>
+
+        <div class="endpoint" id="setrendermodxy">
+            <h3>SetRenderModXY()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_display.h</code> (inline static)</p>
+            <p>Sets both horizontal and vertical render offsets.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>static void SetRenderModXY(float fRenderModX, float fRenderModY)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>fRenderModX</code> - Horizontal pixel offset</li>
+                <li><code>fRenderModY</code> - Vertical pixel offset</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Center content with black bars
+GS_OGLDisplay::SetRenderModXY(100.0f, 50.0f);</code></pre>
+        </div>
+    </section>
+
+    <!-- Platform Notes -->
+    <section class="api-section">
+        <h2>Platform-Specific Notes</h2>
+        <div class="endpoint">
+            <h3>Windows Implementation</h3>
+            <ul>
+                <li>Uses <code>HGLRC</code> for rendering context</li>
+                <li>Uses <code>ChoosePixelFormat()</code> and <code>SetPixelFormat()</code></li>
+                <li>Creates context with <code>wglCreateContext()</code></li>
+                <li>VSync via <code>wglSwapIntervalEXT</code> extension</li>
+                <li>Buffer swap via <code>SwapBuffers(HDC)</code></li>
+            </ul>
+
+            <h3>SDL2 Implementation</h3>
+            <ul>
+                <li>Uses <code>SDL_GLContext</code> for rendering context</li>
+                <li>Pixel format handled automatically by SDL</li>
+                <li>Creates context with <code>SDL_GL_CreateContext()</code></li>
+                <li>VSync via <code>SDL_GL_SetSwapInterval()</code></li>
+                <li>Buffer swap via <code>SDL_GL_SwapWindow()</code></li>
+            </ul>
+
+            <h3>Cross-Platform Compatibility</h3>
+            <p>The class provides identical functionality on all platforms through conditional compilation. The only visible difference is the handle type passed to methods (HDC vs SDL_Window*).</p>
+
+            <div style="background-color: #fffbcc; padding: 15px; border-left: 4px solid #ffcc00; margin: 20px 0;">
+                <h4 style="margin-top: 0;">💡 Pro Tip</h4>
+                <p style="margin-bottom: 0;">Always check <code>IsReady()</code> before calling rendering methods. The display may fail to initialize on systems without OpenGL support or with insufficient graphics capabilities.</p>
+            </div>
+        </div>
+    </section>
+</body>
+
+</html>

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About GameSystem</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+
+<body class="endpoint-page">
+    <!-- About section -->
+    <section class="api-section">
+        <h2>GameSystem Documentation v1.2.2</h2>
+        <div class="endpoint">
+            <h3>Overview</h3>
+            <p>GameSystem (GS) is a cross-platform game development framework built with OpenGL and SDL2, designed for creating 2D and 3D games. This comprehensive library provides a complete foundation for game development with built-in state management, rendering systems, audio playback, input handling, and resource management.</p>
+
+            <p>The framework follows an object-oriented design pattern with platform abstraction layers, allowing developers to write games once and deploy them across Windows, Linux, and macOS with minimal platform-specific code changes.</p>
+
+            <h3>What is GameSystem?</h3>
+            <p>GameSystem is a C++ game development library that abstracts the complexity of OpenGL rendering, SDL2 window management, and cross-platform compatibility. It provides:</p>
+            <ul>
+                <li>A complete application framework with state-based game flow</li>
+                <li>2D sprite rendering with effects (rotation, scaling, transparency, animation)</li>
+                <li>Tile-based map system for level design</li>
+                <li>Bitmap font rendering system</li>
+                <li>Collision detection utilities</li>
+                <li>Particle effect systems</li>
+                <li>Menu and UI components</li>
+                <li>Audio playback for music and sound effects</li>
+                <li>Input handling for keyboard and mouse</li>
+                <li>Configuration persistence via INI files</li>
+                <li>Frame timing and FPS management</li>
+            </ul>
+
+            <h3>Tech Stack</h3>
+            <div style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; margin: 15px 0;">
+                <h4 style="margin-top: 0;">Core Technologies</h4>
+                <ul style="margin-bottom: 0;">
+                    <li><strong>C++</strong> - C++98/C++11 compatible codebase</li>
+                    <li><strong>OpenGL 2.1</strong> - Fixed-function pipeline graphics rendering</li>
+                    <li><strong>SDL2</strong> - Cross-platform window management, event handling, and input</li>
+                    <li><strong>SDL2_mixer</strong> - Audio playback for music (MP3) and sound effects (WAV)</li>
+                    <li><strong>CMake 3.10+</strong> - Cross-platform build configuration</li>
+                    <li><strong>GCC/Clang/MSVC</strong> - Compiler support across all platforms</li>
+                </ul>
+            </div>
+
+            <h3>Platform Support</h3>
+            <p>GameSystem is fully cross-platform with native support for:</p>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin: 20px 0;">
+                <div style="border: 1px solid #ddd; padding: 15px; border-radius: 5px;">
+                    <h4>🪟 Windows</h4>
+                    <ul style="font-size: 0.9em;">
+                        <li>Windows 7, 8, 10, 11</li>
+                        <li>Visual Studio 2017+</li>
+                        <li>MinGW-w64 / MSYS2</li>
+                        <li>Native menu bar support</li>
+                        <li>Accelerator key bindings</li>
+                    </ul>
+                </div>
+                <div style="border: 1px solid #ddd; padding: 15px; border-radius: 5px;">
+                    <h4>🐧 Linux</h4>
+                    <ul style="font-size: 0.9em;">
+                        <li>Ubuntu, Debian, Fedora</li>
+                        <li>Arch Linux, openSUSE</li>
+                        <li>X11 and Wayland support</li>
+                        <li>GCC and Clang compilers</li>
+                        <li>Package manager integration</li>
+                    </ul>
+                </div>
+                <div style="border: 1px solid #ddd; padding: 15px; border-radius: 5px;">
+                    <h4>🍎 macOS</h4>
+                    <ul style="font-size: 0.9em;">
+                        <li>macOS 10.12+</li>
+                        <li>Xcode and command-line tools</li>
+                        <li>Homebrew package support</li>
+                        <li>Apple Silicon (ARM) compatible</li>
+                        <li>Intel x86_64 support</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>Framework Features</h3>
+            <ul>
+                <li><strong>State Machine Architecture:</strong> Built-in game state management (intro, menu, gameplay, pause, game over)</li>
+                <li><strong>Platform Abstraction:</strong> Unified codebase with seamless Windows API and SDL2 compatibility</li>
+                <li><strong>OpenGL Rendering:</strong> Object-oriented C++ wrappers around OpenGL for sprites, textures, and fonts</li>
+                <li><strong>2D Sprite System:</strong> Basic and animated sprite support with transforms and effects</li>
+                <li><strong>Tile Map Engine:</strong> Grid-based level design with texture mapping</li>
+                <li><strong>Audio Integration:</strong> Music streaming and sound effect playback via SDL2_mixer</li>
+                <li><strong>Input Management:</strong> Buffered and real-time keyboard/mouse input handling</li>
+                <li><strong>Collision Detection:</strong> 2D bounding box and pixel-perfect collision utilities</li>
+                <li><strong>Menu System:</strong> Interactive menu components with keyboard and mouse navigation</li>
+                <li><strong>Particle Effects:</strong> Built-in particle system for visual effects</li>
+                <li><strong>Settings Persistence:</strong> INI file-based configuration storage</li>
+                <li><strong>Frame Rate Control:</strong> VSync support and frame timing utilities</li>
+                <li><strong>Resource Management:</strong> Automatic texture and sprite cleanup</li>
+                <li><strong>Aspect Ratio Scaling:</strong> Resolution-independent rendering with letterboxing</li>
+            </ul>
+
+            <h3>Documentation Sections</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin: 20px 0;">
+                <!-- Core Framework -->
+                <div style="border: 1px solid #ddd; padding: 15px; border-radius: 5px; background-color: #f9f9f9;">
+                    <h4 style="margin-top: 0; color: #007acc;">Core Framework</h4>
+                    <ul style="list-style: none; padding: 0; margin: 0;">
+                        <li style="margin-bottom: 8px;">📖 <a href="getting-started.html" style="color: #007acc; text-decoration: none;">Getting Started</a></li>
+                        <li style="margin-bottom: 8px;">🚪 <a href="gs-main.html" style="color: #007acc; text-decoration: none;">Entry Point</a></li>
+                        <li style="margin-bottom: 8px;">🎮 <a href="gs-app.html" style="color: #007acc; text-decoration: none;">GS_Application</a></li>
+                        <li style="margin-bottom: 8px;">🖥️ <a href="gs-platform.html" style="color: #007acc; text-decoration: none;">Platform Abstraction</a></li>
+                        <li style="margin-bottom: 8px;">📦 <a href="gs-resource.html" style="color: #007acc; text-decoration: none;">Resource Handling</a></li>
+                        <li style="margin-bottom: 8px;">🔧 <a href="gs-object.html" style="color: #007acc; text-decoration: none;">GS_Object</a></li>
+                    </ul>
+                </div>
+
+                <!-- Utilities & System -->
+                <div style="border: 1px solid #ddd; padding: 15px; border-radius: 5px; background-color: #f9f9f9;">
+                    <h4 style="margin-top: 0; color: #007acc;">Utilities & System</h4>
+                    <ul style="list-style: none; padding: 0; margin: 0;">
+                        <li style="margin-bottom: 8px;">⚠️ <a href="gs-error.html" style="color: #007acc; text-decoration: none;">GS_Error</a></li>
+                        <li style="margin-bottom: 8px;">📁 <a href="gs-file.html" style="color: #007acc; text-decoration: none;">GS_File</a></li>
+                        <li style="margin-bottom: 8px;">📝 <a href="gs-ini-file.html" style="color: #007acc; text-decoration: none;">GS_IniFile</a></li>
+                        <li style="margin-bottom: 8px;">⏱️ <a href="gs-timer.html" style="color: #007acc; text-decoration: none;">GS_Timer</a></li>
+                        <li style="margin-bottom: 8px;">🔢 <a href="gs-math.html" style="color: #007acc; text-decoration: none;">GS_Math</a></li>
+                        <li style="margin-bottom: 8px;">📋 <a href="gs-list.html" style="color: #007acc; text-decoration: none;">GS_List</a></li>
+                    </ul>
+                </div>
+
+                <!-- Input Handling -->
+                <div style="border: 1px solid #ddd; padding: 15px; border-radius: 5px; background-color: #f9f9f9;">
+                    <h4 style="margin-top: 0; color: #007acc;">Input Handling</h4>
+                    <ul style="list-style: none; padding: 0; margin: 0;">
+                        <li style="margin-bottom: 8px;">⌨️ <a href="gs-keyboard.html" style="color: #007acc; text-decoration: none;">GS_Keyboard</a></li>
+                        <li style="margin-bottom: 8px;">🖱️ <a href="gs-mouse.html" style="color: #007acc; text-decoration: none;">GS_Mouse</a></li>
+                    </ul>
+                </div>
+
+                <!-- Audio System -->
+                <div style="border: 1px solid #ddd; padding: 15px; border-radius: 5px; background-color: #f9f9f9;">
+                    <h4 style="margin-top: 0; color: #007acc;">Audio System</h4>
+                    <ul style="list-style: none; padding: 0; margin: 0;">
+                        <li style="margin-bottom: 8px;">🎵 <a href="gs-fmod-sound.html" style="color: #007acc; text-decoration: none;">GS_FmodSound</a></li>
+                        <li style="margin-bottom: 8px;">🔊 <a href="gs-sdl-mixer-sound.html" style="color: #007acc; text-decoration: none;">GS_SDLMixerSound</a></li>
+                    </ul>
+                </div>
+
+                <!-- OpenGL Rendering -->
+                <div style="border: 1px solid #ddd; padding: 15px; border-radius: 5px; background-color: #f9f9f9;">
+                    <h4 style="margin-top: 0; color: #007acc;">OpenGL Display</h4>
+                    <ul style="list-style: none; padding: 0; margin: 0;">
+                        <li style="margin-bottom: 8px;">🖼️ <a href="gs-ogl-display.html" style="color: #007acc; text-decoration: none;">GS_OGLDisplay</a></li>
+                        <li style="margin-bottom: 8px;">🎨 <a href="gs-ogl-color.html" style="color: #007acc; text-decoration: none;">GS_OGLColor</a></li>
+                        <li style="margin-bottom: 8px;">🖼️ <a href="gs-ogl-texture.html" style="color: #007acc; text-decoration: none;">GS_OGLTexture</a></li>
+                        <li style="margin-bottom: 8px;">📷 <a href="gs-ogl-image.html" style="color: #007acc; text-decoration: none;">GS_OGLImage</a></li>
+                    </ul>
+                </div>
+
+                <!-- Sprites & Objects -->
+                <div style="border: 1px solid #ddd; padding: 15px; border-radius: 5px; background-color: #f9f9f9;">
+                    <h4 style="margin-top: 0; color: #007acc;">Sprites & Objects</h4>
+                    <ul style="list-style: none; padding: 0; margin: 0;">
+                        <li style="margin-bottom: 8px;">👾 <a href="gs-ogl-sprite.html" style="color: #007acc; text-decoration: none;">GS_OGLSprite</a></li>
+                        <li style="margin-bottom: 8px;">🎬 <a href="gs-ogl-sprite-ex.html" style="color: #007acc; text-decoration: none;">GS_OGLSpriteEx</a></li>
+                        <li style="margin-bottom: 8px;">✨ <a href="gs-ogl-particle.html" style="color: #007acc; text-decoration: none;">GS_OGLParticle</a></li>
+                        <li style="margin-bottom: 8px;">💥 <a href="gs-ogl-collide.html" style="color: #007acc; text-decoration: none;">GS_OGLCollide</a></li>
+                    </ul>
+                </div>
+
+                <!-- UI Components -->
+                <div style="border: 1px solid #ddd; padding: 15px; border-radius: 5px; background-color: #f9f9f9;">
+                    <h4 style="margin-top: 0; color: #007acc;">UI Components</h4>
+                    <ul style="list-style: none; padding: 0; margin: 0;">
+                        <li style="margin-bottom: 8px;">🔤 <a href="gs-ogl-font.html" style="color: #007acc; text-decoration: none;">GS_OGLFont</a></li>
+                        <li style="margin-bottom: 8px;">📋 <a href="gs-ogl-menu.html" style="color: #007acc; text-decoration: none;">GS_OGLMenu</a></li>
+                    </ul>
+                </div>
+
+                <!-- Level Design -->
+                <div style="border: 1px solid #ddd; padding: 15px; border-radius: 5px; background-color: #f9f9f9;">
+                    <h4 style="margin-top: 0; color: #007acc;">Level Design</h4>
+                    <ul style="list-style: none; padding: 0; margin: 0;">
+                        <li style="margin-bottom: 8px;">🗺️ <a href="gs-ogl-map.html" style="color: #007acc; text-decoration: none;">GS_OGLMap</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>Design Philosophy</h3>
+            <p>GameSystem emphasizes:</p>
+            <ul>
+                <li><strong>Simplicity:</strong> Easy-to-understand object-oriented design</li>
+                <li><strong>Portability:</strong> Write once, run on Windows, Linux, and macOS</li>
+                <li><strong>Performance:</strong> Direct OpenGL access with minimal overhead</li>
+                <li><strong>Flexibility:</strong> Extend the framework to suit your game's needs</li>
+                <li><strong>Completeness:</strong> All essential game systems included out of the box</li>
+            </ul>
+        </div>
+    </section>
+</body>
+
+</html>

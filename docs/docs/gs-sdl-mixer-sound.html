@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GS_SDLMixerSound Class</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+
+<body class="endpoint-page">
+    <!-- GS_SDLMixerSound Methods Index -->
+    <section class="api-section">
+        <h2>GS_SDLMixerSound Class Reference</h2>
+        <p><strong>Files:</strong> <code>gs_sdl_mixer_sound.h</code>, <code>gs_sdl_mixer_sound.cpp</code></p>
+        <p><strong>Inherits from:</strong> <code>GS_Object</code></p>
+        <p><strong>Alias:</strong> <code>typedef GS_SDLMixerSound GS_FmodSound</code> (for compatibility)</p>
+        
+        <div class="endpoint-index">
+            <h3>Constructor & Destructor</h3>
+            <ul>
+                <li><a href="#constructor">GS_SDLMixerSound() <span class="endpoint-desc">- Constructor</span></a></li>
+                <li><a href="#destructor">~GS_SDLMixerSound() <span class="endpoint-desc">- Destructor</span></a></li>
+            </ul>
+
+            <h3>Initialization Methods</h3>
+            <ul>
+                <li><a href="#initialize">Initialize() <span class="endpoint-desc">- Initialize SDL_mixer audio system</span></a></li>
+                <li><a href="#shutdown">Shutdown() <span class="endpoint-desc">- Cleanup and free resources</span></a></li>
+            </ul>
+
+            <h3>Music Methods</h3>
+            <ul>
+                <li><a href="#addmusic">AddMusic() <span class="endpoint-desc">- Load music file</span></a></li>
+                <li><a href="#playmusic">PlayMusic() <span class="endpoint-desc">- Play loaded music</span></a></li>
+                <li><a href="#stopmusic">StopMusic() <span class="endpoint-desc">- Stop specific music track</span></a></li>
+                <li><a href="#stopallmusic">StopAllMusic() <span class="endpoint-desc">- Stop all music playback</span></a></li>
+                <li><a href="#ismusicplaying">IsMusicPlaying() <span class="endpoint-desc">- Check if music is playing</span></a></li>
+                <li><a href="#setmusicvolume">SetMusicVolume() <span class="endpoint-desc">- Set music volume</span></a></li>
+                <li><a href="#getmusicvolume">GetMusicVolume() <span class="endpoint-desc">- Get current music volume</span></a></li>
+            </ul>
+
+            <h3>Stream Methods</h3>
+            <ul>
+                <li><a href="#addstream">AddStream() <span class="endpoint-desc">- Load audio stream (music)</span></a></li>
+                <li><a href="#playstream">PlayStream() <span class="endpoint-desc">- Play audio stream</span></a></li>
+                <li><a href="#stopstream">StopStream() <span class="endpoint-desc">- Stop stream playback</span></a></li>
+                <li><a href="#isstreamplaying">IsStreamPlaying() <span class="endpoint-desc">- Check if stream is playing</span></a></li>
+                <li><a href="#setstreamvolume">SetStreamVolume() <span class="endpoint-desc">- Set stream volume</span></a></li>
+                <li><a href="#getstreamvolume">GetStreamVolume() <span class="endpoint-desc">- Get stream volume</span></a></li>
+                <li><a href="#pausestream">PauseStream() <span class="endpoint-desc">- Pause/resume stream</span></a></li>
+            </ul>
+
+            <h3>Sample Methods</h3>
+            <ul>
+                <li><a href="#addsample">AddSample() <span class="endpoint-desc">- Load sound effect</span></a></li>
+                <li><a href="#playsample">PlaySample() <span class="endpoint-desc">- Play sound effect</span></a></li>
+                <li><a href="#setsamplemaster">SetSampleMaster() <span class="endpoint-desc">- Set master volume for all samples</span></a></li>
+                <li><a href="#getsamplemaster">GetSampleMaster() <span class="endpoint-desc">- Get sample master volume</span></a></li>
+                <li><a href="#setsamplevolume">SetSampleVolume() <span class="endpoint-desc">- Set individual sample volume</span></a></li>
+                <li><a href="#setsamplepanning">SetSamplePanning() <span class="endpoint-desc">- Set sample panning</span></a></li>
+            </ul>
+
+            <h3>Global Control Methods</h3>
+            <ul>
+                <li><a href="#pause">Pause() <span class="endpoint-desc">- Pause/resume all audio</span></a></li>
+                <li><a href="#setmastervolume">SetMasterVolume() <span class="endpoint-desc">- Set master volume</span></a></li>
+                <li><a href="#getmastervolume">GetMasterVolume() <span class="endpoint-desc">- Get master volume</span></a></li>
+                <li><a href="#isready">IsReady() <span class="endpoint-desc">- Check initialization status</span></a></li>
+                <li><a href="#ispaused">IsPaused() <span class="endpoint-desc">- Check pause status</span></a></li>
+            </ul>
+        </div>
+    </section>
+    
+    <!-- Class Overview -->
+    <section class="api-section">
+        <h2>Class Overview</h2>
+        <div class="endpoint">
+            <h3>About GS_SDLMixerSound</h3>
+            <p>The <code>GS_SDLMixerSound</code> class provides a complete audio playback system using SDL2_mixer, supporting both music streaming and sound effects. It serves as a drop-in replacement for the legacy <code>GS_FmodSound</code> class on platforms where FMOD is not available or desired.</p>
+
+            <p>SDL_mixer is a lightweight, cross-platform audio mixing library that handles multiple audio formats and provides simple, efficient playback capabilities. This class wraps SDL_mixer's functionality in an object-oriented interface compatible with the GameSystem framework.</p>
+
+            <h3>Key Features</h3>
+            <ul>
+                <li><strong>Cross-Platform:</strong> Works identically on Windows, Linux, and macOS</li>
+                <li><strong>Multiple Formats:</strong> Supports MP3, OGG, WAV, FLAC, and more</li>
+                <li><strong>Music Streaming:</strong> Efficient playback of large music files</li>
+                <li><strong>Sound Effects:</strong> Low-latency sample playback for game sounds</li>
+                <li><strong>Volume Control:</strong> Individual and master volume management</li>
+                <li><strong>64 Channels:</strong> Play up to 64 simultaneous sound effects</li>
+                <li><strong>Pause/Resume:</strong> Global pause control for all audio</li>
+                <li><strong>FMOD Compatibility:</strong> API-compatible with GS_FmodSound</li>
+                <li><strong>Automatic Cleanup:</strong> Resources freed on destruction</li>
+            </ul>
+
+            <h3>SDL_mixer Integration</h3>
+            <p>This class provides a thin wrapper around SDL_mixer with the following mappings:</p>
+
+            <div style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; margin: 15px 0;">
+                <h4 style="margin-top: 0;">Audio Type Mapping</h4>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr style="background-color: #e9ecef;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">GameSystem Type</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">SDL_mixer Type</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Purpose</th>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Music</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>Mix_Music*</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Background music tracks</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 10px; border: 1px solid #ddd;">Stream</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>Mix_Music*</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Streaming audio (same as music)</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Sample</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>Mix_Chunk*</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Sound effects and short sounds</td>
+                    </tr>
+                </table>
+            </div>
+
+            <h3>Supported Audio Formats</h3>
+            <table style="width: 100%; border-collapse: collapse; margin: 1em 0;">
+                <thead>
+                    <tr style="background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Format</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Music/Streams</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Samples</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><strong>MP3</strong></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">✓ Yes</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">✗ No</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Best for music (small file size)</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><strong>OGG Vorbis</strong></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">✓ Yes</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">✗ No</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Open format, good compression</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><strong>WAV</strong></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">✓ Yes</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">✓ Yes</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Uncompressed, best for sound effects</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><strong>FLAC</strong></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">✓ Yes</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">✗ No</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Lossless compression</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><strong>MOD/XM/IT</strong></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">✓ Yes</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">✗ No</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Tracker music formats</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><strong>MIDI</strong></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">⚠️ Limited</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">✗ No</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><strong style="color: #dc3545;">Not supported on macOS/iOS</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div style="background-color: #f8d7da; padding: 15px; border-left: 4px solid #dc3545; margin: 20px 0;">
+                <h4 style="margin-top: 0; color: #721c24;">🚫 Apple Platform MIDI Limitation</h4>
+                <p><strong>MIDI files (.mid, .midi) are not supported on macOS and iOS</strong> due to missing native MIDI synthesis support in SDL_mixer on Apple platforms.</p>
+                
+                <p><strong>Why this happens:</strong></p>
+                <ul>
+                    <li>SDL_mixer relies on platform-native MIDI synthesizers</li>
+                    <li>Apple deprecated QuickTime MIDI synthesis in macOS 10.15+</li>
+                    <li>No built-in replacement synthesizer is available</li>
+                    <li>Installing FluidSynth or TiMidity++ may help, but adds complexity</li>
+                </ul>
+
+                <p><strong>Recommended Solutions:</strong></p>
+                <ol style="margin-bottom: 0;">
+                    <li><strong>Convert to OGG Vorbis:</strong> Best quality-to-size ratio, fully supported</li>
+                    <li><strong>Convert to MP3:</strong> Smaller files, widely compatible</li>
+                    <li><strong>Use WAV:</strong> Uncompressed, guaranteed to work (larger files)</li>
+                    <li><strong>Use FLAC:</strong> Lossless compression, good for high-quality music</li>
+                </ol>
+
+                <p style="margin-top: 15px; margin-bottom: 0;"><strong>Implementation Note:</strong> The class automatically detects and rejects MIDI files on Apple platforms with a clear error message, preventing silent failures or crashes.</p>
+            </div>
+
+            <h3>Member Variables</h3>
+            <p>All member variables are private:</p>
+
+            <table style="width: 100%; border-collapse: collapse; margin: 1em 0;">
+                <thead>
+                    <tr style="background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Variable</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Type</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_bIsReady</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">BOOL</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">TRUE if SDL_mixer initialized</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_bIsPaused</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">BOOL</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">TRUE if audio is paused</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_gsMusicList</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">GS_List&lt;Mix_Music*&gt;</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">List of loaded music tracks</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_gsStreamList</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">GS_List&lt;Mix_Music*&gt;</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">List of loaded audio streams</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_gsSampleList</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">GS_List&lt;Mix_Chunk*&gt;</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">List of loaded sound samples</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_nMasterVolume</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">int</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Master volume (0-255)</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_nCurrentMusic</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">int</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Index of currently playing music (-1 = none)</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_nCurrentStream</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">int</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Index of currently playing stream (-1 = none)</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Usage Pattern</h3>
+            <p>Typical workflow for using GS_SDLMixerSound:</p>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Initialize audio system
+GS_SDLMixerSound sound;
+if (!sound.Initialize(GetWindow()))
+{
+    GS_Error::Report(__FILE__, __LINE__, "Failed to initialize audio!");
+    return FALSE;
+}
+
+// Load music and sound effects
+sound.AddStream("data/title_music.mp3");
+sound.AddStream("data/game_music.mp3");
+sound.AddSample("data/jump.wav");
+sound.AddSample("data/coin.wav");
+
+// Set volumes
+sound.SetMasterVolume(255);  // Maximum volume
+
+// Play music
+sound.PlayStream(0, 200);  // Play title music at volume 200
+
+// Play sound effect
+sound.PlaySample(0);  // Play jump sound
+
+// Cleanup happens automatically when object is destroyed</code></pre>
+
+            <h3>Differences from GS_FmodSound</h3>
+            <p>While GS_SDLMixerSound provides API compatibility with GS_FmodSound, there are some differences:</p>
+
+            <div style="background-color: #fff3cd; padding: 15px; border-left: 4px solid #ffc107; margin: 20px 0;">
+                <h4 style="margin-top: 0;">⚠️ API Differences</h4>
+                <ul style="margin-bottom: 0;">
+                    <li><strong>Speed Control:</strong> SDL_mixer doesn't support playback speed changes (fSpeed parameter ignored)</li>
+                    <li><strong>Panning:</strong> Sample panning is more complex in SDL_mixer (basic support only)</li>
+                    <li><strong>Music vs Streams:</strong> Both use <code>Mix_Music*</code> internally (only one can play at a time)</li>
+                    <li><strong>Channel Limit:</strong> 64 channels for samples (configurable)</li>
+                    <li><strong>Volume Range:</strong> SDL_mixer uses 0-128, automatically converted to 0-255</li>
+                </ul>
+            </div>
+
+            <h3>FMOD Compatibility Layer</h3>
+            <p>For seamless migration from FMOD to SDL_mixer, a typedef is provided:</p>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>typedef GS_SDLMixerSound GS_FmodSound;</code></pre>
+
+            <p>This allows existing code using <code>GS_FmodSound</code> to work without modification when <code>GS_USE_SDL_MIXER</code> is defined.</p>
+        </div>
+    </section>
+
+    <!-- Constructor & Destructor -->
+    <section class="api-section">
+        <h2>Constructor & Destructor</h2>
+
+        <div class="endpoint" id="constructor">
+            <h3>GS_SDLMixerSound()</h3>
+            <p><strong>File:</strong> <code>gs_sdl_mixer_sound.cpp</code></p>
+            <p>Constructor that initializes all member variables to default values.</p>
+            
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Initialization:</strong></p>
+            <ul>
+                <li><code>m_bIsReady = FALSE</code> - Not initialized</li>
+                <li><code>m_bIsPaused = FALSE</code> - Not paused</li>
+                <li><code>m_nMasterVolume = 128</code> - Half volume</li>
+                <li><code>m_nCurrentMusic = -1</code> - No music playing</li>
+                <li><code>m_nCurrentStream = -1</code> - No stream playing</li>
+                <li>All lists empty</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>GS_SDLMixerSound sound;  // Ready for Initialize() call</pre>
+        </div>
+
+        <div class="endpoint" id="destructor">
+            <h3>~GS_SDLMixerSound()</h3>
+            <p><strong>File:</strong> <code>gs_sdl_mixer_sound.cpp</code></p>
+            <p>Destructor that ensures proper cleanup of audio resources.</p>
+            
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Calls <code>Shutdown()</code> if audio system is initialized</li>
+                <li>Frees all loaded music, streams, and samples</li>
+                <li>Closes SDL_mixer</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Initialization Methods -->
+    <section class="api-section">
+        <h2>Initialization Methods</h2>
+
+        <div class="endpoint" id="initialize">
+            <h3>Initialize()</h3>
+            <p><strong>File:</strong> <code>gs_sdl_mixer_sound.cpp</code></p>
+            <p>Initializes the SDL_mixer audio system.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL Initialize(HWND hWnd, BOOL bNoSound = FALSE)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>hWnd</code> - Window handle (unused, for API compatibility)</li>
+                <li><code>bNoSound</code> - If TRUE, skip audio initialization (silent mode)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Shuts down existing audio system if already initialized</li>
+                <li>Returns TRUE immediately if <code>bNoSound</code> is TRUE</li>
+                <li>Initializes SDL audio subsystem if not already initialized</li>
+                <li>Opens audio device: 44.1kHz, stereo, 2048 byte buffer</li>
+                <li>Allocates 64 mixing channels for sound effects</li>
+                <li>Sets <code>m_bIsReady = TRUE</code> on success</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Initialization successful</li>
+                <li><code>FALSE</code> - Initialization failed</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>GS_SDLMixerSound sound;
+if (!sound.Initialize(GetWindow()))
+{
+    GS_Error::Report(__FILE__, __LINE__, "Failed to initialize audio!");
+    return FALSE;
+}</code></pre>
+        </div>
+
+        <div class="endpoint" id="shutdown">
+            <h3>Shutdown()</h3>
+            <p><strong>File:</strong> <code>gs_sdl_mixer_sound.cpp</code></p>
+            <p>Shuts down the audio system and frees all resources.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL Shutdown()</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Returns FALSE if not initialized</li>
+                <li>Frees all loaded music with <code>Mix_FreeMusic()</code></li>
+                <li>Frees all loaded streams with <code>Mix_FreeMusic()</code></li>
+                <li>Frees all loaded samples with <code>Mix_FreeChunk()</code></li>
+                <li>Clears all lists</li>
+                <li>Closes audio device with <code>Mix_CloseAudio()</code></li>
+                <li>Sets <code>m_bIsReady = FALSE</code></li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Shutdown successful</li>
+                <li><code>FALSE</code> - Not initialized</li>
+            </ul>
+
+            <p><strong>Note:</strong> Called automatically by destructor.</p>
+        </div>
+    </section>
+
+    <!-- Music Methods (condensed for brevity) -->
+    <section class="api-section">
+        <h2>Music Methods</h2>
+        
+        <div class="endpoint" id="addmusic">
+            <h3>AddMusic()</h3>
+            <pre>BOOL AddMusic(const char* pszFilename)</pre>
+            <p>Loads a music file and adds it to the music list.</p>
+
+            <div style="background-color: #fff3cd; padding: 15px; border-left: 4px solid #ffc107; margin: 15px 0;">
+                <p style="margin: 0;"><strong>⚠️ Apple Platform Warning:</strong> MIDI files (.mid, .midi) will be rejected on macOS and iOS with an error message. Use OGG, MP3, or WAV instead.</p>
+            </div>
+
+            <p><strong>Supported Formats:</strong></p>
+            <ul>
+                <li>MP3 - MPEG audio layer 3</li>
+                <li>OGG - Ogg Vorbis compressed audio</li>
+                <li>WAV - Waveform audio file</li>
+                <li>FLAC - Free Lossless Audio Codec</li>
+                <li>MOD/XM/IT - Tracker music formats</li>
+                <li>MIDI - <strong style="color: #dc3545;">Not supported on Apple platforms</strong></li>
+            </ul>
+
+            <p><strong>Returns:</strong> TRUE on success, FALSE on failure.</p>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Good - Cross-platform compatible
+m_gsSound.AddMusic("data/title_music.ogg");
+m_gsSound.AddMusic("data/game_music.mp3");
+
+// Bad - Will fail on macOS/iOS
+m_gsSound.AddMusic("data/theme.mid");  // Error on Apple platforms!</code></pre>
+        </div>
+
+        <div class="endpoint" id="playmusic">
+            <h3>PlayMusic()</h3>
+            <pre>BOOL PlayMusic(int nIndex, int nVolume = -1, float fSpeed = -1.0f, BOOL bLoop = FALSE)</pre>
+            <p>Plays a loaded music track.</p>
+            <p><strong>Note:</strong> fSpeed parameter ignored (SDL_mixer limitation).</p>
+        </div>
+
+        <div class="endpoint" id="stopmusic">
+            <h3>StopMusic()</h3>
+            <pre>BOOL StopMusic(int nIndex)</pre>
+            <p>Stops music playback (nIndex parameter ignored).</p>
+        </div>
+
+        <div class="endpoint" id="stopallmusic">
+            <h3>StopAllMusic()</h3>
+            <pre>void StopAllMusic()</pre>
+            <p>Stops all music playback.</p>
+        </div>
+
+        <div class="endpoint" id="ismusicplaying">
+            <h3>IsMusicPlaying()</h3>
+            <pre>BOOL IsMusicPlaying(int nIndex)</pre>
+            <p>Checks if any music is currently playing.</p>
+        </div>
+
+        <div class="endpoint" id="setmusicvolume">
+            <h3>SetMusicVolume()</h3>
+            <pre>void SetMusicVolume(int nVolume)</pre>
+            <p>Sets music volume (0-255).</p>
+        </div>
+
+        <div class="endpoint" id="getmusicvolume">
+            <h3>GetMusicVolume()</h3>
+            <pre>int GetMusicVolume()</pre>
+            <p>Returns current music volume (0-255).</p>
+        </div>
+    </section>
+
+    <!-- Stream Methods -->
+    <section class="api-section">
+        <h2>Stream Methods</h2>
+        <p><strong>Note:</strong> In SDL_mixer, streams and music both use <code>Mix_Music*</code>. Only one can play at a time.</p>
+
+        <div class="endpoint" id="addstream">
+            <h3>AddStream()</h3>
+            <pre>BOOL AddStream(const char* pszFilename)</pre>
+            <p>Loads an audio stream file (MP3, OGG, etc.).</p>
+
+            <div style="background-color: #fff3cd; padding: 15px; border-left: 4px solid #ffc107; margin: 15px 0;">
+                <p style="margin: 0;"><strong>⚠️ Apple Platform Warning:</strong> MIDI files (.mid, .midi) are not supported on macOS and iOS. Use OGG or MP3 format instead.</p>
+            </div>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>sound.AddStream("data/title_music.mp3");
+sound.AddStream("data/game_music.mp3");</code></pre>
+        </div>
+
+        <div class="endpoint" id="playstream">
+            <h3>PlayStream()</h3>
+            <pre>int PlayStream(int nIndex, int nVolume = -1)</pre>
+            <p>Plays a loaded stream. Loops infinitely.</p>
+            <p><strong>Returns:</strong> 0 on success, -1 on failure.</p>
+        </div>
+
+        <div class="endpoint" id="stopstream">
+            <h3>StopStream()</h3>
+            <pre>BOOL StopStream()</pre>
+            <p>Stops stream playback.</p>
+        </div>
+
+        <div class="endpoint" id="isstreamplaying">
+            <h3>IsStreamPlaying()</h3>
+            <pre>BOOL IsStreamPlaying()</pre>
+            <p>Checks if a stream is currently playing.</p>
+        </div>
+
+        <div class="endpoint" id="setstreamvolume">
+            <h3>SetStreamVolume()</h3>
+            <pre>BOOL SetStreamVolume(int nVolume)</pre>
+            <p>Sets stream volume (0-255).</p>
+        </div>
+
+        <div class="endpoint" id="getstreamvolume">
+            <h3>GetStreamVolume()</h3>
+            <pre>int GetStreamVolume()</pre>
+            <p>Returns current stream volume (0-255).</p>
+        </div>
+
+        <div class="endpoint" id="pausestream">
+            <h3>PauseStream()</h3>
+            <pre>BOOL PauseStream(BOOL bPause)</pre>
+            <p>Pauses or resumes stream playback.</p>
+        </div>
+    </section>
+
+    <!-- Sample Methods -->
+    <section class="api-section">
+        <h2>Sample Methods</h2>
+
+        <div class="endpoint" id="addsample">
+            <h3>AddSample()</h3>
+            <pre>BOOL AddSample(const char* pszFilename)</pre>
+            <p>Loads a sound effect (WAV file recommended).</p>
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>sound.AddSample("data/jump.wav");
+sound.AddSample("data/coin.wav");
+sound.AddSample("data/explosion.wav");</code></pre>
+        </div>
+
+        <div class="endpoint" id="playsample">
+            <h3>PlaySample()</h3>
+            <pre>int PlaySample(int nIndex, int nVolume = -1, int nPanning = -1)</pre>
+            <p>Plays a loaded sound sample.</p>
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>nIndex</code> - Sample index in list</li>
+                <li><code>nVolume</code> - Volume (0-255), -1 = use current</li>
+                <li><code>nPanning</code> - Panning (currently ignored)</li>
+            </ul>
+            <p><strong>Returns:</strong> Channel number playing the sample, or -1 on error.</p>
+        </div>
+
+        <div class="endpoint" id="setsamplemaster">
+            <h3>SetSampleMaster()</h3>
+            <pre>void SetSampleMaster(int nVolume)</pre>
+            <p>Sets master volume for all sound effects (0-255).</p>
+        </div>
+
+        <div class="endpoint" id="getsamplemaster">
+            <h3>GetSampleMaster()</h3>
+            <pre>int GetSampleMaster()</pre>
+            <p>Returns master sample volume (0-255).</p>
+        </div>
+
+        <div class="endpoint" id="setsamplevolume">
+            <h3>SetSampleVolume()</h3>
+            <pre>BOOL SetSampleVolume(int nIndex, int nVolume)</pre>
+            <p>Sets volume for a specific sample (0-255).</p>
+        </div>
+
+        <div class="endpoint" id="setsamplepanning">
+            <h3>SetSamplePanning()</h3>
+            <pre>BOOL SetSamplePanning(int nIndex, int nPanning)</pre>
+            <p>Sets panning for a sample (currently not fully implemented).</p>
+        </div>
+    </section>
+
+    <!-- Global Control -->
+    <section class="api-section">
+        <h2>Global Control Methods</h2>
+
+        <div class="endpoint" id="pause">
+            <h3>Pause()</h3>
+            <pre>void Pause(BOOL bPause)</pre>
+            <p>Pauses or resumes all audio playback.</p>
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Pause all audio
+sound.Pause(TRUE);
+
+// Resume all audio
+sound.Pause(FALSE);</code></pre>
+        </div>
+
+        <div class="endpoint" id="setmastervolume">
+            <h3>SetMasterVolume()</h3>
+            <pre>void SetMasterVolume(int nVolume)</pre>
+            <p>Sets master volume for both music and samples.</p>
+        </div>
+
+        <div class="endpoint" id="getmastervolume">
+            <h3>GetMasterVolume()</h3>
+            <pre>int GetMasterVolume()</pre>
+            <p>Returns master volume (0-255).</p>
+        </div>
+
+        <div class="endpoint" id="isready">
+            <h3>IsReady()</h3>
+            <pre>BOOL IsReady()</pre>
+            <p>Returns TRUE if audio system is initialized.</p>
+        </div>
+
+        <div class="endpoint" id="ispaused">
+            <h3>IsPaused()</h3>
+            <pre>BOOL IsPaused()</pre>
+            <p>Returns TRUE if audio is paused.</p>
+        </div>
+    </section>
+
+    <!-- Practical Examples -->
+    <section class="api-section">
+        <h2>Practical Examples</h2>
+        <div class="endpoint">
+            <h3>Complete Audio Setup</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>GS_SDLMixerSound m_gsSound;
+
+BOOL GS_Demo::GameInit()
+{
+    // Initialize audio system
+    if (!m_gsSound.Initialize(GetWindow()))
+    {
+        GS_Error::Report(__FILE__, __LINE__, "Failed to initialize audio!");
+        return FALSE;
+    }
+    
+    // Load music
+    m_gsSound.AddStream("data/title_music.mp3");
+    m_gsSound.AddStream("data/game_music.mp3");
+    
+    // Load sound effects
+    m_gsSound.AddSample("data/menu_select.wav");
+    m_gsSound.AddSample("data/game_start.wav");
+    m_gsSound.AddSample("data/coin.wav");
+    m_gsSound.AddSample("data/jump.wav");
+    m_gsSound.AddSample("data/explosion.wav");
+    
+    // Set initial volumes
+    m_gsSound.SetMasterVolume(255);
+    m_gsSound.SetSampleMaster(200);
+    
+    // Play title music
+    m_gsSound.PlayStream(0, 180);
+    
+    return TRUE;
+}</code></pre>
+
+            <h3>Game State Audio Management</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Title screen
+BOOL GS_Demo::TitleScreen()
+{
+    if (!m_gsSound.IsStreamPlaying())
+    {
+        m_gsSound.PlayStream(0, 180);  // Title music
+    }
+    
+    if (startGamePressed)
+    {
+        m_gsSound.PlaySample(1);  // Game start sound
+        m_gsSound.StopStream();
+        m_gsSound.PlayStream(1, 200);  // Game music
+        m_nGameProgress = PLAY_GAME;
+    }
+    
+    return TRUE;
+}
+
+// Gameplay
+BOOL GS_Demo::PlayGame()
+{
+    if (playerJumped)
+    {
+        m_gsSound.PlaySample(3);  // Jump sound
+    }
+    
+    if (coinCollected)
+    {
+        m_gsSound.PlaySample(2);  // Coin sound
+    }
+    
+    if (playerDied)
+    {
+        m_gsSound.PlaySample(4);  // Explosion
+        m_gsSound.StopStream();
+    }
+    
+    return TRUE;
+}</code></pre>
+
+            <h3>Volume Control</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Increase music volume
+if (nKey == GSK_PLUS)
+{
+    int volume = m_gsSound.GetStreamVolume();
+    volume += 15;
+    if (volume > 255) volume = 255;
+    m_gsSound.SetStreamVolume(volume);
+}
+
+// Decrease music volume
+if (nKey == GSK_MINUS)
+{
+    int volume = m_gsSound.GetStreamVolume();
+    volume -= 15;
+    if (volume < 0) volume = 0;
+    m_gsSound.SetStreamVolume(volume);
+}
+
+// Mute/unmute music
+if (nKey == GSK_M)
+{
+    if (m_gsSound.GetStreamVolume() == 0)
+        m_gsSound.SetStreamVolume(m_nSavedMusicVolume);
+    else
+    {
+        m_nSavedMusicVolume = m_gsSound.GetStreamVolume();
+        m_gsSound.SetStreamVolume(0);
+    }
+}</code></pre>
+
+            <h3>Pause Handling</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>BOOL GS_Demo::GameRelease()
+{
+    // Pause audio when window loses focus
+    if (!IsActive())
+    {
+        m_gsSound.Pause(TRUE);
+        Pause(TRUE);
+    }
+    return TRUE;
+}
+
+BOOL GS_Demo::GameRestore()
+{
+    // Resume audio when window regains focus
+    if (IsActive())
+    {
+        m_gsSound.Pause(FALSE);
+    }
+    return TRUE;
+}</code></pre>
+
+            <h3>Best Practices</h3>
+            <ul>
+                <li><strong>Use MP3/OGG for Music:</strong> Smaller file sizes, good quality</li>
+                <li><strong>Use WAV for Sound Effects:</strong> Low latency, instant playback</li>
+                <li><strong>Load Once:</strong> Load all audio in GameInit(), not during gameplay</li>
+                <li><strong>Volume Settings:</strong> Store user preferences in settings.ini</li>
+                <li><strong>Pause on Focus Loss:</strong> Pause audio in GameRelease()</li>
+                <li><strong>Stop Before Exit:</strong> Stop streams before changing game states</li>
+                <li><strong>Error Checking:</strong> Always check Initialize() return value</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Platform Notes -->
+    <section class="api-section">
+        <h2>Platform-Specific Notes</h2>
+        <div class="endpoint">
+            <h3>Cross-Platform Compatibility</h3>
+            <p>GS_SDLMixerSound works identically across all platforms:</p>
+            <ul>
+                <li><strong>Windows</strong> - Full support via SDL2_mixer DLL</li>
+                <li><strong>Linux</strong> - Native support via package managers</li>
+                <li><strong>macOS</strong> - Native support via Homebrew</li>
+            </ul>
+
+            <h3>Apple Platform MIDI Restrictions</h3>
+            <div style="background-color: #f8d7da; padding: 15px; border-left: 4px solid #dc3545; margin: 20px 0;">
+                <h4 style="margin-top: 0; color: #721c24;">macOS and iOS MIDI Support</h4>
+                <p><strong>MIDI files are not supported on Apple platforms.</strong> This is a limitation of SDL_mixer on macOS and iOS, not a bug in GS_SDLMixerSound.</p>
+
+                <p><strong>Technical Details:</strong></p>
+                <ul>
+                    <li>Apple deprecated QuickTime's MIDI synthesis in macOS 10.15 Catalina</li>
+                    <li>No native MIDI synthesizer is available in modern macOS/iOS</li>
+                    <li>SDL_mixer cannot play MIDI without a platform synthesizer</li>
+                    <li>The class detects MIDI files and fails gracefully with error messages</li>
+                </ul>
+
+                <p><strong>Error Handling:</strong></p>
+                <pre style="background-color: #fff; padding: 10px; border: 1px solid #ddd;"><code>// On Apple platforms with MIDI file:
+AddMusic("theme.mid");
+// Error: "MIDI files are not supported on Apple platforms. Please convert to OGG or MP3."
+
+AddStream("background.midi");
+// Error: "MIDI files are not supported on Apple platforms. Please convert to OGG or MP3."</code></pre>
+
+                <p><strong>Conversion Recommendations:</strong></p>
+                <table style="width: 100%; border-collapse: collapse; margin: 10px 0;">
+                    <tr style="background-color: #f5f5f5;">
+                        <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Format</th>
+                        <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Use Case</th>
+                        <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">File Size</th>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px; border: 1px solid #ddd;"><strong>OGG Vorbis</strong></td>
+                        <td style="padding: 8px; border: 1px solid #ddd;">Best overall choice for music</td>
+                        <td style="padding: 8px; border: 1px solid #ddd;">Small (~10% of WAV)</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 8px; border: 1px solid #ddd;"><strong>MP3</strong></td>
+                        <td style="padding: 8px; border: 1px solid #ddd;">Universal compatibility</td>
+                        <td style="padding: 8px; border: 1px solid #ddd;">Small (~10% of WAV)</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px; border: 1px solid #ddd;"><strong>FLAC</strong></td>
+                        <td style="padding: 8px; border: 1px solid #ddd;">Lossless quality needed</td>
+                        <td style="padding: 8px; border: 1px solid #ddd;">Medium (~50% of WAV)</td>
+                    </tr>
+                </table>
+
+                <p style="margin-bottom: 0;"><strong>Conversion Tools:</strong> Use Audacity, ffmpeg, or online converters to convert MIDI to OGG/MP3. Note that you'll need a soundfont for good MIDI rendering quality.</p>
+            </div>
+
+            <h3>Utility Method for MIDI Detection</h3>
+            <p>The class provides a static utility method to check if a file is MIDI format:</p>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Check if file is MIDI before attempting to load
+if (GS_SDLMixerSound::IsMIDIFile("music/theme.mid"))
+{
+#ifdef __APPLE__
+    GS_Error::Report(__FILE__, __LINE__, "MIDI file detected on Apple platform!");
+    // Load alternative format instead
+    m_gsSound.AddMusic("music/theme.ogg");
+#else
+    m_gsSound.AddMusic("music/theme.mid");
+#endif
+}</code></pre>
+
+            <h3>Dependencies</h3>
+            <ul>
+                <li><strong>SDL2</strong> - Core SDL library</li>
+                <li><strong>SDL2_mixer</strong> - Audio mixing library</li>
+                <li><strong>Codec Libraries:</strong> May require additional libraries for MP3 (libmpg123) or OGG (libvorbis)</li>
+            </ul>
+
+            <h3>Limitations</h3>
+            <div style="background-color: #fff3cd; padding: 15px; border-left: 4px solid #ffc107; margin: 20px 0;">
+                <h4 style="margin-top: 0;">⚠️ Known Limitations</h4>
+                <ul style="margin-bottom: 0;">
+                    <li><strong>Playback Speed:</strong> Not supported (fSpeed parameter ignored)</li>
+                    <li><strong>One Music Track:</strong> Only one music/stream can play at a time</li>
+                    <li><strong>Panning:</strong> Limited panning support for samples</li>
+                    <li><strong>Format Support:</strong> Depends on installed codec libraries</li>
+                    <li><strong style="color: #dc3545;">MIDI on Apple:</strong> Not supported on macOS and iOS platforms</li>
+                </ul>
+            </div>
+
+            <!-- ...existing code... -->
+        </div>
+    </section>
+</body>
+
+</html>

@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GS_OGLCollide Class</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+
+<body class="endpoint-page">
+    <!-- GS_OGLCollide Methods Index -->
+    <section class="api-section">
+        <h2>GS_OGLCollide Class Reference</h2>
+        <p><strong>Files:</strong> <code>gs_ogl_collide.h</code>, <code>gs_ogl_collide.cpp</code></p>
+        
+        <div class="endpoint-index">
+            <h3>Constructor & Destructor</h3>
+            <ul>
+                <li><a href="#constructor">GS_OGLCollide() <span class="endpoint-desc">- Constructor</span></a></li>
+                <li><a href="#destructor">~GS_OGLCollide() <span class="endpoint-desc">- Destructor</span></a></li>
+            </ul>
+
+            <h3>Rectangle Adjustment Methods</h3>
+            <ul>
+                <li><a href="#setrectpercentx">SetRectPercentX() <span class="endpoint-desc">- Adjust rectangle width by percentage</span></a></li>
+                <li><a href="#setrectpercenty">SetRectPercentY() <span class="endpoint-desc">- Adjust rectangle height by percentage</span></a></li>
+                <li><a href="#setrectpercentxy">SetRectPercentXY() <span class="endpoint-desc">- Adjust rectangle size by percentage</span></a></li>
+            </ul>
+
+            <h3>Collision Detection Methods</h3>
+            <ul>
+                <li><a href="#iscoordinrect">IsCoordInRect() <span class="endpoint-desc">- Check if coordinate is within rectangle</span></a></li>
+                <li><a href="#isrectinrect">IsRectInRect() <span class="endpoint-desc">- Check if rectangle is fully contained within another</span></a></li>
+                <li><a href="#isrectonrect">IsRectOnRect() <span class="endpoint-desc">- Check if rectangles overlap</span></a></li>
+            </ul>
+        </div>
+    </section>
+    
+    <!-- Class Overview -->
+    <section class="api-section">
+        <h2>Class Overview</h2>
+        <div class="endpoint">
+            <h3>About GS_OGLCollide</h3>
+            <p>The <code>GS_OGLCollide</code> class provides 2D collision detection utilities for game objects. It offers methods for testing coordinate-based and rectangle-based collisions, with support for percentage-based bounding box adjustments to fine-tune collision accuracy.</p>
+
+            <p>This class is essential for implementing game physics, sprite interactions, mouse input detection, and boundary checking. It uses OpenGL's coordinate system where the origin (0,0) is at the bottom-left corner, with Y increasing upward.</p>
+
+            <h3>Key Features</h3>
+            <ul>
+                <li><strong>Point-in-Rectangle Testing:</strong> Check if coordinates (like mouse position) are within a rectangular area</li>
+                <li><strong>Rectangle Containment:</strong> Determine if one rectangle is fully inside another</li>
+                <li><strong>Rectangle Overlap Detection:</strong> Test if two rectangles intersect or touch</li>
+                <li><strong>Adjustable Hit Boxes:</strong> Modify collision rectangles by percentage for fine-tuned collision detection</li>
+                <li><strong>OpenGL Compatible:</strong> Uses bottom-left origin coordinate system matching OpenGL conventions</li>
+                <li><strong>Performance Optimized:</strong> Fast integer-based calculations suitable for real-time game loops</li>
+            </ul>
+
+            <h3>Coordinate System</h3>
+            <p>GS_OGLCollide uses OpenGL's coordinate convention where:</p>
+            <ul>
+                <li><strong>Origin (0,0):</strong> Bottom-left corner of the screen</li>
+                <li><strong>X-axis:</strong> Increases from left to right</li>
+                <li><strong>Y-axis:</strong> Increases from bottom to top (inverted from typical screen coordinates)</li>
+            </ul>
+
+            <div style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; margin: 15px 0;">
+                <h4 style="margin-top: 0;">Rectangle Structure (RECT)</h4>
+                <p>All methods use the Windows RECT structure defined as:</p>
+                <pre style="margin: 10px 0;">typedef struct RECT {
+    int left;    // Left edge (minimum X)
+    int top;     // Top edge (maximum Y)
+    int right;   // Right edge (maximum X)
+    int bottom;  // Bottom edge (minimum Y)
+} RECT;</pre>
+                <p style="margin-bottom: 0;">Note: In OpenGL coordinates, <code>top > bottom</code> because Y increases upward.</p>
+            </div>
+
+            <h3>Common Use Cases</h3>
+            <ul>
+                <li><strong>Sprite Collision:</strong> Detect when game objects (enemies, bullets, player) collide</li>
+                <li><strong>Mouse Input:</strong> Check if mouse cursor is over buttons, menu items, or clickable areas</li>
+                <li><strong>Boundary Checking:</strong> Prevent objects from leaving the screen or specific areas</li>
+                <li><strong>Menu Navigation:</strong> Detect which menu option is highlighted by mouse or selection box</li>
+                <li><strong>Trigger Zones:</strong> Check if player entered a specific area (doors, power-ups, traps)</li>
+                <li><strong>Object Containment:</strong> Verify objects stay within valid game regions</li>
+            </ul>
+
+            <h3>Member Variables</h3>
+            <p>The <code>GS_OGLCollide</code> class has no member variables. All methods are utility functions that operate on rectangles and coordinates passed as parameters. This makes the class lightweight and stateless.</p>
+
+            <h3>Percentage-Based Adjustments</h3>
+            <p>The class provides powerful percentage-based rectangle adjustment methods. These allow you to shrink or expand collision rectangles dynamically, which is useful for:</p>
+            <ul>
+                <li><strong>Fine-tuning collision boxes:</strong> Reduce sprite collision areas to prevent premature collisions</li>
+                <li><strong>Creating forgiveness zones:</strong> Make hit detection slightly more lenient for better gameplay feel</li>
+                <li><strong>Implementing damage zones:</strong> Different damage areas for attacks (e.g., 50% for critical hits)</li>
+                <li><strong>Proximity detection:</strong> Expand collision areas to detect nearby objects</li>
+            </ul>
+
+            <h3>Platform Compatibility</h3>
+            <p>GS_OGLCollide is completely cross-platform and works identically on:</p>
+            <ul>
+                <li><strong>Windows</strong> - Uses native RECT structure</li>
+                <li><strong>Linux</strong> - RECT structure defined in platform abstraction layer</li>
+                <li><strong>macOS</strong> - RECT structure defined in platform abstraction layer</li>
+            </ul>
+            <p>There are no platform-specific implementations - all collision detection uses standard integer arithmetic.</p>
+        </div>
+    </section>
+
+    <!-- Constructor & Destructor -->
+    <section class="api-section">
+        <h2>Constructor & Destructor</h2>
+
+        <div class="endpoint" id="constructor">
+            <h3>GS_OGLCollide()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_collide.cpp</code></p>
+            <p>Default constructor.</p>
+            
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Empty constructor body</li>
+                <li>No member variables to initialize</li>
+                <li>Class is ready to use immediately</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>GS_OGLCollide collide;  // Ready to use for collision detection</code></pre>
+        </div>
+
+        <div class="endpoint" id="destructor">
+            <h3>~GS_OGLCollide()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_collide.cpp</code></p>
+            <p>Destructor.</p>
+            
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Empty destructor body</li>
+                <li>No resources to clean up</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Rectangle Adjustment Methods -->
+    <section class="api-section">
+        <h2>Rectangle Adjustment Methods</h2>
+
+        <div class="endpoint" id="setrectpercentx">
+            <h3>SetRectPercentX()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_collide.cpp</code></p>
+            <p>Adjusts the width of a rectangle to a specified percentage of its original width, keeping it centered horizontally.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void SetRectPercentX(RECT* prcSource, int nPercentX)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>prcSource</code> - Pointer to the RECT structure to modify (modified in place)</li>
+                <li><code>nPercentX</code> - Percentage of original width (1-100)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>If <code>nPercentX</code> is ≤ 0 or > 100, the function returns without modification</li>
+                <li>Calculates new width as: <code>newWidth = originalWidth × (nPercentX / 100)</code></li>
+                <li>Centers the new rectangle horizontally within the original bounds</li>
+                <li>Modifies only <code>left</code> and <code>right</code> fields; <code>top</code> and <code>bottom</code> remain unchanged</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>None (void) - modifies the rectangle in place</li>
+            </ul>
+
+            <p><strong>Examples:</strong></p>
+
+            <h4>Shrink Collision Box:</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>RECT spriteRect = { 100, 200, 164, 100 };  // 64 pixels wide
+collide.SetRectPercentX(&spriteRect, 75);   // Reduce to 75% width (48 pixels)
+// Result: left=108, right=156 (centered, 48 pixels wide)</code></pre>
+
+            <h4>Create Narrow Hit Zone:</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Make collision detection more precise (50% of sprite width)
+RECT enemyRect;
+enemy.GetBoundingRect(&enemyRect);
+collide.SetRectPercentX(&enemyRect, 50);  // Only center 50% width counts as hit</code></pre>
+
+            <h4>Visual Representation:</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;">
+Original (100%):     |<------64 pixels------>|
+After 75%:              |<--48 pixels-->|
+After 50%:                 |<-32 px->|
+</pre>
+        </div>
+
+        <div class="endpoint" id="setrectpercenty">
+            <h3>SetRectPercentY()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_collide.cpp</code></p>
+            <p>Adjusts the height of a rectangle to a specified percentage of its original height, keeping it centered vertically.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void SetRectPercentY(RECT* prcSource, int nPercentY)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>prcSource</code> - Pointer to the RECT structure to modify (modified in place)</li>
+                <li><code>nPercentY</code> - Percentage of original height (1-100)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>If <code>nPercentY</code> is ≤ 0 or > 100, the function returns without modification</li>
+                <li>Calculates new height as: <code>newHeight = originalHeight × (nPercentY / 100)</code></li>
+                <li>Centers the new rectangle vertically within the original bounds</li>
+                <li>Modifies only <code>top</code> and <code>bottom</code> fields; <code>left</code> and <code>right</code> remain unchanged</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>None (void) - modifies the rectangle in place</li>
+            </ul>
+
+            <p><strong>Examples:</strong></p>
+
+            <h4>Reduce Vertical Hit Zone:</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>RECT playerRect = { 50, 200, 114, 100 };  // 100 pixels tall
+collide.SetRectPercentY(&playerRect, 80);  // Reduce to 80% height
+// Result: bottom=110, top=190 (centered, 80 pixels tall)</code></pre>
+
+            <h4>Create Head-Only Hit Zone:</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Only top 25% of sprite counts as headshot
+RECT headshotZone;
+enemy.GetBoundingRect(&headshotZone);
+collide.SetRectPercentY(&headshotZone, 25);  // Top quarter only</code></pre>
+        </div>
+
+        <div class="endpoint" id="setrectpercentxy">
+            <h3>SetRectPercentXY()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_collide.cpp</code></p>
+            <p>Adjusts both width and height of a rectangle to a specified percentage, keeping it centered.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void SetRectPercentXY(RECT* prcSource, int nPercent)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>prcSource</code> - Pointer to the RECT structure to modify (modified in place)</li>
+                <li><code>nPercent</code> - Percentage of original size (1-100)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>If <code>nPercent</code> is ≤ 0 or > 100, the function returns without modification</li>
+                <li>Calculates new dimensions uniformly: both width and height scaled by the same percentage</li>
+                <li>Centers the new rectangle within the original bounds (both horizontally and vertically)</li>
+                <li>Modifies all four fields: <code>left</code>, <code>right</code>, <code>top</code>, and <code>bottom</code></li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>None (void) - modifies the rectangle in place</li>
+            </ul>
+
+            <p><strong>Examples:</strong></p>
+
+            <h4>Shrink Entire Collision Box:</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>RECT spriteRect = { 0, 100, 64, 0 };      // 64x100 pixels
+collide.SetRectPercentXY(&spriteRect, 75); // Reduce to 75% of size
+// Result: 48x75 pixels, centered in original bounds</code></pre>
+
+            <h4>Fine-Tune Sprite Collision:</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Make collision detection slightly more forgiving
+RECT bulletRect;
+bullet.GetBoundingRect(&bulletRect);
+collide.SetRectPercentXY(&bulletRect, 90);  // Use 90% of sprite size
+
+if (collide.IsRectOnRect(bulletRect, enemyRect))
+{
+    // Collision detected with 90% of bullet's actual size
+    OnHit();
+}</code></pre>
+
+            <h4>Create Multiple Damage Zones:</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>RECT explosionRect;
+explosion.GetBoundingRect(&explosionRect);
+
+// Critical damage zone (center 30%)
+RECT criticalZone = explosionRect;
+collide.SetRectPercentXY(&criticalZone, 30);
+
+// Normal damage zone (full 100%)
+if (collide.IsRectOnRect(playerRect, criticalZone))
+{
+    player.TakeDamage(100);  // Critical damage
+}
+else if (collide.IsRectOnRect(playerRect, explosionRect))
+{
+    player.TakeDamage(30);   // Normal damage
+}</code></pre>
+        </div>
+    </section>
+
+    <!-- Collision Detection Methods -->
+    <section class="api-section">
+        <h2>Collision Detection Methods</h2>
+
+        <div class="endpoint" id="iscoordinrect">
+            <h3>IsCoordInRect()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_collide.cpp</code></p>
+            <p>Tests if a coordinate point (such as mouse position) falls within a rectangular area.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL IsCoordInRect(int nCoordX, int nCoordY, RECT rcDest, int nPercent = 0)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>nCoordX</code> - X coordinate to test</li>
+                <li><code>nCoordY</code> - Y coordinate to test</li>
+                <li><code>rcDest</code> - Rectangle to test against</li>
+                <li><code>nPercent</code> - Optional percentage adjustment (0-100, default: 0 = no adjustment)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>If <code>nPercent > 0</code>, adjusts the rectangle using <code>SetRectPercentXY()</code> before testing</li>
+                <li>Checks if coordinate is within the rectangle bounds</li>
+                <li>Uses inclusive lower bound, exclusive upper bound: <code>left ≤ X < right</code> and <code>bottom ≤ Y < top</code></li>
+                <li>Coordinate system: bottom-left origin (OpenGL convention)</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Coordinate is inside the rectangle</li>
+                <li><code>FALSE</code> - Coordinate is outside the rectangle</li>
+            </ul>
+
+            <p><strong>Examples:</strong></p>
+
+            <h4>Mouse Click Detection:</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Check if mouse click is on a button
+RECT buttonRect = { 100, 150, 200, 100 };  // 100x50 pixel button
+int mouseX = m_gsMouse.GetX();
+int mouseY = m_gsMouse.GetY();
+
+if (collide.IsCoordInRect(mouseX, mouseY, buttonRect))
+{
+    OnButtonClick();
+}</code></pre>
+
+            <h4>Menu Option Highlighting:</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Highlight menu option under mouse cursor
+RECT optionRect;
+for (int i = 0; i < menu.GetNumOptions(); i++)
+{
+    menu.GetOptionRect(i, &optionRect);
+    
+    if (collide.IsCoordInRect(mouseX, mouseY, optionRect))
+    {
+        menu.SetHighlight(i);
+        break;
+    }
+}</code></pre>
+
+            <h4>With Percentage Adjustment:</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Use 80% of button area for more precise clicking
+RECT buttonRect = { 50, 100, 150, 50 };
+
+if (collide.IsCoordInRect(mouseX, mouseY, buttonRect, 80))
+{
+    // Click detected in center 80% of button
+    ActivateButton();
+}</code></pre>
+
+            <h4>Clickable Game Object:</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Check if player clicked on an enemy
+RECT enemyRect;
+enemy.GetBoundingRect(&enemyRect);
+
+if (m_gsMouse.IsLeftPressed())
+{
+    if (collide.IsCoordInRect(m_gsMouse.GetX(), m_gsMouse.GetY(), enemyRect))
+    {
+        enemy.OnClicked();
+    }
+}</code></pre>
+        </div>
+
+        <div class="endpoint" id="isrectinrect">
+            <h3>IsRectInRect()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_collide.cpp</code></p>
+            <p>Tests if one rectangle is completely contained within another rectangle (no overlap with edges allowed).</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL IsRectInRect(RECT rcSource, RECT rcDest, int nPercent = 0)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>rcSource</code> - The inner rectangle to test</li>
+                <li><code>rcDest</code> - The outer rectangle (container)</li>
+                <li><code>nPercent</code> - Optional percentage adjustment (0-100, default: 0 = no adjustment)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>If <code>nPercent > 0</code>, adjusts both rectangles using <code>SetRectPercentXY()</code> before testing</li>
+                <li>Checks if <code>rcSource</code> is entirely within <code>rcDest</code></li>
+                <li>Returns FALSE if any edge of <code>rcSource</code> extends beyond <code>rcDest</code></li>
+                <li>Requires complete containment: <code>dest.left ≤ source.left</code> and <code>source.right ≤ dest.right</code> (and similar for top/bottom)</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Source rectangle is fully inside destination rectangle</li>
+                <li><code>FALSE</code> - Source rectangle extends outside destination rectangle</li>
+            </ul>
+
+            <p><strong>Examples:</strong></p>
+
+            <h4>Boundary Checking:</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Keep player within screen bounds
+RECT screenRect = { 0, 600, 800, 0 };  // 800x600 screen
+RECT playerRect;
+player.GetBoundingRect(&playerRect);
+
+if (!collide.IsRectInRect(playerRect, screenRect))
+{
+    // Player moved outside screen - clamp position
+    player.ClampToScreen();
+}</code></pre>
+
+            <h4>Zone Containment:</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Check if object is fully within safe zone
+RECT safeZone = { 100, 500, 700, 100 };
+RECT objectRect;
+object.GetBoundingRect(&objectRect);
+
+if (collide.IsRectInRect(objectRect, safeZone))
+{
+    object.SetSafe(true);
+}
+else
+{
+    object.TakeDamage(1);  // Outside safe zone
+}</code></pre>
+
+            <h4>Level Completion Check:</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Player must be fully within exit door to complete level
+RECT exitDoor = { 750, 150, 800, 100 };
+RECT playerRect;
+player.GetBoundingRect(&playerRect);
+
+if (collide.IsRectInRect(playerRect, exitDoor))
+{
+    CompleteLevel();
+}</code></pre>
+
+            <h4>Visual Representation:</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;">
+Fully Contained (TRUE):    Partially Outside (FALSE):
+┌─────────────┐            ┌─────────────┐
+│  Dest Rect  │            │  Dest Rect  │
+│  ┌──────┐   │            │  ┌──────┐   │
+│  │Source│   │            │  │Source│───┼─ Extends beyond
+│  └──────┘   │            │  └──────┘   │
+└─────────────┘            └─────────────┘
+</pre>
+        </div>
+
+        <div class="endpoint" id="isrectonrect">
+            <h3>IsRectOnRect()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_collide.cpp</code></p>
+            <p>Tests if two rectangles overlap or intersect in any way. This is the primary collision detection method for sprites and game objects.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL IsRectOnRect(RECT rcSource, RECT rcDest, int nPercent = 0)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>rcSource</code> - First rectangle</li>
+                <li><code>rcDest</code> - Second rectangle</li>
+                <li><code>nPercent</code> - Optional percentage adjustment (0-100, default: 0 = no adjustment)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>If <code>nPercent > 0</code>, adjusts both rectangles using <code>SetRectPercentXY()</code> before testing</li>
+                <li>Checks if rectangles overlap in any way (including edge touching)</li>
+                <li>Returns TRUE even if rectangles only partially overlap</li>
+                <li>Uses separation axis theorem: returns FALSE if rectangles are completely separated on either axis</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Rectangles overlap or touch</li>
+                <li><code>FALSE</code> - Rectangles are completely separated</li>
+            </ul>
+
+            <p><strong>Examples:</strong></p>
+
+            <h4>Basic Sprite Collision:</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Check if player collides with enemy
+RECT playerRect, enemyRect;
+player.GetBoundingRect(&playerRect);
+enemy.GetBoundingRect(&enemyRect);
+
+if (collide.IsRectOnRect(playerRect, enemyRect))
+{
+    player.TakeDamage(10);
+    enemy.OnHit();
+}</code></pre>
+
+            <h4>Bullet Collision Detection:</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Check bullet against all enemies
+RECT bulletRect;
+bullet.GetBoundingRect(&bulletRect);
+
+for (int i = 0; i < enemies.size(); i++)
+{
+    RECT enemyRect;
+    enemies[i].GetBoundingRect(&enemyRect);
+    
+    if (collide.IsRectOnRect(bulletRect, enemyRect))
+    {
+        enemies[i].TakeDamage(bullet.GetDamage());
+        bullet.Destroy();
+        break;
+    }
+}</code></pre>
+
+            <h4>With Percentage for Fine-Tuning:</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Use 80% of sprite size for more forgiving collision
+RECT player Rect, enemyRect;
+player.GetBoundingRect(&playerRect);
+enemy.GetBoundingRect(&enemyRect);
+
+if (collide.IsRectOnRect(playerRect, enemyRect, 80))
+{
+    // Collision with 80% of actual sprite sizes
+    OnCollision();
+}</code></pre>
+
+            <h4>Power-Up Collection:</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Check if player touches power-up
+RECT playerRect, powerUpRect;
+player.GetBoundingRect(&playerRect);
+powerUp.GetBoundingRect(&powerUpRect);
+
+if (collide.IsRectOnRect(playerRect, powerUpRect))
+{
+    player.CollectPowerUp(powerUp.GetType());
+    powerUp.Remove();
+}</code></pre>
+
+            <h4>Multiple Object Collision:</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Check all enemies against all bullets
+for (int i = 0; i < enemies.size(); i++)
+{
+    RECT enemyRect;
+    enemies[i].GetBoundingRect(&enemyRect);
+    
+    for (int j = 0; j < bullets.size(); j++)
+    {
+        RECT bulletRect;
+        bullets[j].GetBoundingRect(&bulletRect);
+        
+        if (collide.IsRectOnRect(enemyRect, bulletRect, 85))
+        {
+            enemies[i].TakeDamage(bullets[j].GetDamage());
+            bullets.erase(bullets.begin() + j);
+            
+            if (enemies[i].IsDead())
+            {
+                enemies.erase(enemies.begin() + i);
+                i--;  // Adjust index
+            }
+            break;
+        }
+    }
+}</code></pre>
+
+            <h4>Visual Representation:</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;">
+Overlap (TRUE):            No Overlap (FALSE):
+┌──────┐                   ┌──────┐
+│Rect A│                   │Rect A│    ┌──────┐
+│  ┌───┼──┐                │      │    │Rect B│
+│  │   │  │                │      │    │      │
+└──┼───┘  │                └──────┘    └──────┘
+   │Rect B│
+   └──────┘
+</pre>
+        </div>
+    </section>
+
+    <!-- Practical Examples -->
+    <section class="api-section">
+        <h2>Practical Examples</h2>
+        <div class="endpoint">
+            <h3>Complete Collision Detection System</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>class GameObject
+{
+private:
+    GS_OGLSprite m_sprite;
+    int m_x, m_y;
+    int m_width, m_height;
+    GS_OGLCollide m_collide;
+    
+public:
+    void GetBoundingRect(RECT* pRect)
+    {
+        pRect->left = m_x;
+        pRect->bottom = m_y;
+        pRect->right = m_x + m_width;
+        pRect->top = m_y + m_height;
+    }
+    
+    bool CollidesWith(GameObject& other, int percent = 100)
+    {
+        RECT myRect, otherRect;
+        GetBoundingRect(&myRect);
+        other.GetBoundingRect(&otherRect);
+        
+        return m_collide.IsRectOnRect(myRect, otherRect, percent);
+    }
+    
+    bool IsAt(int mouseX, int mouseY)
+    {
+        RECT myRect;
+        GetBoundingRect(&myRect);
+        
+        return m_collide.IsCoordInRect(mouseX, mouseY, myRect);
+    }
+    
+    bool IsWithin(RECT bounds)
+    {
+        RECT myRect;
+        GetBoundingRect(&myRect);
+        
+        return m_collide.IsRectInRect(myRect, bounds);
+    }
+};</code></pre>
+
+            <h3>Menu System with Mouse Interaction</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>void UpdateMenu()
+{
+    static int highlightedOption = -1;
+    GS_OGLCollide collide;
+    RECT optionRect;
+    
+    int mouseX = m_gsMouse.GetX();
+    int mouseY = m_gsMouse.GetY();
+    
+    // Check which option is under mouse
+    for (int i = 0; i < m_menu.GetNumOptions(); i++)
+    {
+        m_menu.GetOptionRect(i, &optionRect);
+        
+        if (collide.IsCoordInRect(mouseX, mouseY, optionRect))
+        {
+            if (highlightedOption != i)
+            {
+                m_sound.PlaySample(SAMPLE_HOVER);
+                highlightedOption = i;
+            }
+            m_menu.SetHighlight(i);
+            
+            // Check for click
+            if (m_gsMouse.IsLeftPressed() && m_wasMouseReleased)
+            {
+                m_sound.PlaySample(SAMPLE_SELECT);
+                ExecuteMenuOption(i);
+                m_wasMouseReleased = false;
+            }
+            break;
+        }
+    }
+    
+    if (!m_gsMouse.IsLeftPressed())
+    {
+        m_wasMouseReleased = true;
+    }
+}</code></pre>
+
+            <h3>Platform Game Collision</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>void CheckPlatformCollisions()
+{
+    RECT playerRect;
+    player.GetBoundingRect(&playerRect);
+    
+    bool onGround = false;
+    
+    for (int i = 0; i < platforms.size(); i++)
+    {
+        RECT platformRect;
+        platforms[i].GetBoundingRect(&platformRect);
+        
+        // Check collision with 90% of sizes for better feel
+        if (collide.IsRectOnRect(playerRect, platformRect, 90))
+        {
+            // Determine collision side
+            int playerCenterY = (playerRect.top + playerRect.bottom) / 2;
+            int platformCenterY = (platformRect.top + platformRect.bottom) / 2;
+            
+            if (playerCenterY < platformCenterY)
+            {
+                // Player hit platform from below
+                player.SetVelocityY(0);
+                player.SetY(platformRect.bottom - player.GetHeight());
+            }
+            else
+            {
+                // Player landed on platform
+                player.SetVelocityY(0);
+                player.SetY(platformRect.top);
+                onGround = true;
+            }
+        }
+    }
+    
+    player.SetOnGround(onGround);
+}</code></pre>
+
+            <h3>Trigger Zone System</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>class TriggerZone
+{
+private:
+    RECT m_zone;
+    bool m_isActive;
+    bool m_wasTriggered;
+    GS_OGLCollide m_collide;
+    
+public:
+    void Update(RECT playerRect)
+    {
+        if (!m_isActive) return;
+        
+        bool isInside = m_collide.IsRectOnRect(playerRect, m_zone);
+        
+        if (isInside && !m_wasTriggered)
+        {
+            // Player entered zone
+            OnEnter();
+            m_wasTriggered = true;
+        }
+        else if (!isInside && m_wasTriggered)
+        {
+            // Player left zone
+            OnExit();
+            m_wasTriggered = false;
+        }
+    }
+    
+    void OnEnter()
+    {
+        // Spawn enemies, play sound, show message, etc.
+        m_sound.PlaySample(SAMPLE_TRIGGER);
+        SpawnEnemies();
+    }
+    
+    void OnExit()
+    {
+        // Clean up, close door, etc.
+    }
+};</code></pre>
+
+            <h3>Damage Zones with Different Intensities</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>void ApplyExplosionDamage(int explosionX, int explosionY, int radius)
+{
+    RECT outerZone = {
+        explosionX - radius,
+        explosionY + radius,
+        explosionX + radius,
+        explosionY - radius
+    };
+    
+    // Critical damage zone (40% of explosion)
+    RECT criticalZone = outerZone;
+    collide.SetRectPercentXY(&criticalZone, 40);
+    
+    // Heavy damage zone (70% of explosion)
+    RECT heavyZone = outerZone;
+    collide.SetRectPercentXY(&heavyZone, 70);
+    
+    RECT playerRect;
+    player.GetBoundingRect(&playerRect);
+    
+    if (collide.IsRectOnRect(playerRect, criticalZone))
+    {
+        player.TakeDamage(100);  // Critical damage
+        player.ApplyKnockback(explosionX, explosionY, 20);
+    }
+    else if (collide.IsRectOnRect(playerRect, heavyZone))
+    {
+        player.TakeDamage(50);   // Heavy damage
+        player.ApplyKnockback(explosionX, explosionY, 15);
+    }
+    else if (collide.IsRectOnRect(playerRect, outerZone))
+    {
+        player.TakeDamage(20);   // Light damage
+        player.ApplyKnockback(explosionX, explosionY, 10);
+    }
+}</code></pre>
+
+            <h3>Best Practices</h3>
+            <ul>
+                <li><strong>Use Percentage Adjustment:</strong> 80-90% works well for most sprite collisions to avoid pixel-perfect frustration</li>
+                <li><strong>Cache Rectangles:</strong> Create RECT structures once per frame, not in loops</li>
+                <li><strong>Optimize Collision Checks:</strong> Use spatial partitioning for many objects</li>
+                <li><strong>Layer Collision Types:</strong> Different percentages for different collision layers (damage, triggers, pickups)</li>
+                <li><strong>Visualize Debug Boxes:</strong> Draw collision rectangles during development</li>
+                <li><strong>Handle Edge Cases:</strong> Check for touching edges separately if needed</li>
+            </ul>
+
+            <div style="background-color: #fffbcc; padding: 15px; border-left: 4px solid #ffcc00; margin: 20px 0;">
+                <h4 style="margin-top: 0;">💡 Pro Tip</h4>
+                <p style="margin-bottom: 0;">For most games, using 85-90% collision boxes feels better than 100%. It prevents the "almost missed but still hit" frustration while maintaining fair gameplay. Experiment with different percentages to find what feels best for your game!</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Platform Notes -->
+    <section class="api-section">
+        <h2>Platform-Specific Notes</h2>
+        <div class="endpoint">
+            <h3>Cross-Platform Compatibility</h3>
+            <p>GS_OGLCollide is completely platform-agnostic and requires no platform-specific code:</p>
+            <ul>
+                <li><strong>Windows</strong> - Uses native RECT structure from Windows.h</li>
+                <li><strong>Linux</strong> - RECT defined in gs_platform.h</li>
+                <li><strong>macOS</strong> - RECT defined in gs_platform.h</li>
+            </ul>
+
+            <h3>Coordinate System Consistency</h3>
+            <p>All platforms use the same coordinate system:</p>
+            <ul>
+                <li>Origin (0,0) at bottom-left</li>
+                <li>Y increases upward (OpenGL convention)</li>
+                <li>This matches sprite rendering and mouse coordinates in GameSystem</li>
+            </ul>
+
+            <h3>Performance Considerations</h3>
+            <p>Collision detection performance is identical across all platforms:</p>
+            <ul>
+                <li>Simple integer arithmetic - very fast</li>
+                <li>No floating-point operations</li>
+                <li>No memory allocations</li>
+                <li>Suitable for checking hundreds of collisions per frame</li>
+            </ul>
+
+            <h3>Rectangle Structure Definition</h3>
+            <p>On non-Windows platforms, the RECT structure is defined as:</p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// In gs_platform.h for SDL2 platforms
+typedef struct tagRECT {
+    int left;
+    int top;
+    int right;
+    int bottom;
+} RECT;</code></pre>
+
+            <div style="background-color: #d4edda; padding: 15px; border-left: 4px solid #28a745; margin: 20px 0;">
+                <h4 style="margin-top: 0;">✅ Platform Independence</h4>
+                <p style="margin-bottom: 0;">The GS_OGLCollide class is one of the most portable components in GameSystem. The same code compiles and runs identically on all supported platforms without any modifications.</p>
+            </div>
+        </div>
+    </section>
+</body>
+
+</html>

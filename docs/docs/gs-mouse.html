@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GS_Mouse Class</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+
+<body class="endpoint-page">
+    <!-- GS_Mouse Methods Index -->
+    <section class="api-section">
+        <h2>GS_Mouse Class Reference</h2>
+        <p><strong>Files:</strong> <code>gs_mouse.h</code>, <code>gs_mouse.cpp</code> (Windows/SDL2), <code>gs_mouse_sdl.cpp</code> (SDL2-specific)</p>
+        
+        <div class="endpoint-index">
+            <h3>Constructor & Destructor</h3>
+            <ul>
+                <li><a href="#constructor">GS_Mouse() <span class="endpoint-desc">- Constructor</span></a></li>
+                <li><a href="#destructor">~GS_Mouse() <span class="endpoint-desc">- Destructor</span></a></li>
+            </ul>
+
+            <h3>Update & Reset Methods</h3>
+            <ul>
+                <li><a href="#update">Update() <span class="endpoint-desc">- Process mouse events</span></a></li>
+                <li><a href="#reset">Reset() <span class="endpoint-desc">- Clear all mouse state</span></a></li>
+            </ul>
+
+            <h3>Position Methods</h3>
+            <ul>
+                <li><a href="#setx">SetX() <span class="endpoint-desc">- Set mouse X coordinate</span></a></li>
+                <li><a href="#sety">SetY() <span class="endpoint-desc">- Set mouse Y coordinate</span></a></li>
+                <li><a href="#getx">GetX() <span class="endpoint-desc">- Get mouse X coordinate</span></a></li>
+                <li><a href="#gety">GetY() <span class="endpoint-desc">- Get mouse Y coordinate</span></a></li>
+            </ul>
+
+            <h3>Button State Methods</h3>
+            <ul>
+                <li><a href="#leftpressed">LeftPressed() <span class="endpoint-desc">- Set left button state</span></a></li>
+                <li><a href="#middlepressed">MiddlePressed() <span class="endpoint-desc">- Set middle button state</span></a></li>
+                <li><a href="#rightpressed">RightPressed() <span class="endpoint-desc">- Set right button state</span></a></li>
+                <li><a href="#isleftpressed">IsLeftPressed() <span class="endpoint-desc">- Check left button state</span></a></li>
+                <li><a href="#ismiddlepressed">IsMiddlePressed() <span class="endpoint-desc">- Check middle button state</span></a></li>
+                <li><a href="#isrightpressed">IsRightPressed() <span class="endpoint-desc">- Check right button state</span></a></li>
+            </ul>
+
+            <h3>Cursor Visibility Methods</h3>
+            <ul>
+                <li><a href="#hidecursor">HideCursor() <span class="endpoint-desc">- Show or hide mouse cursor</span></a></li>
+                <li><a href="#iscursorhidden">IsCursorHidden() <span class="endpoint-desc">- Check cursor visibility</span></a></li>
+            </ul>
+
+            <h3>Position Testing Methods</h3>
+            <ul>
+                <li><a href="#isinrect">IsInRect() <span class="endpoint-desc">- Check if mouse is in rectangle</span></a></li>
+                <li><a href="#isinwindow">IsInWindow() <span class="endpoint-desc">- Check if mouse is in window</span></a></li>
+                <li><a href="#isinclient">IsInClient() <span class="endpoint-desc">- Check if mouse is in client area</span></a></li>
+            </ul>
+        </div>
+    </section>
+    
+    <!-- Class Overview -->
+    <section class="api-section">
+        <h2>Class Overview</h2>
+        <div class="endpoint">
+            <h3>About GS_Mouse</h3>
+            <p>The <code>GS_Mouse</code> class provides comprehensive mouse input handling for GameSystem applications. It tracks mouse position, button states (left, middle, right), and cursor visibility. The class supports both real-time position tracking and button state checking, making it suitable for both menu navigation and gameplay interaction.</p>
+
+            <p>The class inherits from <code>GS_Object</code> and uses platform-specific implementations to ensure consistent behavior across Windows and SDL2 platforms. On SDL2, the Y coordinate is automatically inverted to match OpenGL's bottom-left origin.</p>
+
+            <h3>Key Features</h3>
+            <ul>
+                <li><strong>Position Tracking:</strong> Real-time mouse coordinate updates</li>
+                <li><strong>Button States:</strong> Track left, middle, and right mouse buttons</li>
+                <li><strong>Cursor Control:</strong> Show or hide the system cursor</li>
+                <li><strong>Boundary Testing:</strong> Check if mouse is within rectangles or windows</li>
+                <li><strong>Cross-Platform:</strong> Same API on Windows, Linux, and macOS</li>
+                <li><strong>OpenGL Compatible:</strong> Y coordinate handling matches OpenGL conventions</li>
+            </ul>
+
+            <h3>Coordinate System</h3>
+            <p>GS_Mouse uses OpenGL's coordinate system where:</p>
+            <ul>
+                <li><strong>Origin (0,0):</strong> Bottom-left corner of the window</li>
+                <li><strong>X-axis:</strong> Increases from left to right</li>
+                <li><strong>Y-axis:</strong> Increases from bottom to top (inverted from Windows standard)</li>
+            </ul>
+
+            <div style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; margin: 15px 0;">
+                <h4 style="margin-top: 0;">Coordinate Inversion</h4>
+                <p style="margin-bottom: 0;">On Windows, mouse Y coordinates are automatically inverted in <code>MsgProc()</code>. On SDL2, inversion happens in <code>Update()</code>. This ensures consistent behavior where (0,0) is the bottom-left corner on all platforms.</p>
+            </div>
+
+            <h3>Member Variables</h3>
+            <p>All member variables are private:</p>
+
+            <table style="width: 100%; border-collapse: collapse; margin: 1em 0;">
+                <thead>
+                    <tr style="background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Variable</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Type</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_nMouseX</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">int</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Current X coordinate (bottom-left origin)</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_nMouseY</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">int</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Current Y coordinate (bottom-left origin)</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_bIsLeftPressed</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">BOOL</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Left mouse button state (TRUE = pressed)</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_bIsMiddlePressed</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">BOOL</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Middle mouse button state (TRUE = pressed)</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_bIsRightPressed</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">BOOL</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Right mouse button state (TRUE = pressed)</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_bIsCursorHidden</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">BOOL</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Cursor visibility state (TRUE = hidden)</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Usage Pattern</h3>
+            <p>Typical workflow for mouse input handling:</p>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// In your game class
+GS_Mouse m_gsMouse;
+
+// In MsgProc() - Update mouse state (Windows)
+LRESULT GS_Demo::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+    switch (uMsg)
+    {
+    case WM_MOUSEMOVE:
+        m_gsMouse.SetX(LOWORD(lParam));
+        m_gsMouse.SetY(GetHeight() - HIWORD(lParam) - 1);
+        break;
+    case WM_LBUTTONDOWN:
+        m_gsMouse.LeftPressed(TRUE);
+        break;
+    case WM_LBUTTONUP:
+        m_gsMouse.LeftPressed(FALSE);
+        break;
+    }
+    return GS_Application::MsgProc(hWnd, uMsg, wParam, lParam);
+}
+
+// In GameLoop() - Use mouse state
+int mouseX = m_gsMouse.GetX();
+int mouseY = m_gsMouse.GetY();
+
+if (m_gsMouse.IsLeftPressed())
+{
+    // Handle click at (mouseX, mouseY)
+}
+
+// Check if mouse is over a button
+RECT buttonRect = { 100, 100, 200, 150 };
+if (m_gsMouse.IsInRect(buttonRect))
+{
+    // Mouse is over button
+}</code></pre>
+        </div>
+    </section>
+
+    <!-- Constructor & Destructor -->
+    <section class="api-section">
+        <h2>Constructor & Destructor</h2>
+
+        <div class="endpoint" id="constructor">
+            <h3>GS_Mouse()</h3>
+            <p><strong>File:</strong> <code>gs_mouse.cpp</code></p>
+            <p>Constructor that initializes mouse state to default values.</p>
+            
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Initialization:</strong></p>
+            <ul>
+                <li>Sets mouse coordinates to (0, 0)</li>
+                <li>Sets all button states to FALSE (not pressed)</li>
+                <li>Sets cursor visibility to FALSE (visible)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>GS_Mouse m_gsMouse;  // Ready to use</pre>
+        </div>
+
+        <div class="endpoint" id="destructor">
+            <h3>~GS_Mouse()</h3>
+            <p><strong>File:</strong> <code>gs_mouse.cpp</code></p>
+            <p>Destructor that ensures the cursor is visible when the object is destroyed.</p>
+            
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>If cursor was hidden, makes it visible again</li>
+                <li><strong>Windows:</strong> Uses <code>ShowCursor()</code> API</li>
+                <li><strong>SDL2:</strong> Uses <code>SDL_ShowCursor(SDL_ENABLE)</code></li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Update & Reset Methods -->
+    <section class="api-section">
+        <h2>Update & Reset Methods</h2>
+
+        <div class="endpoint" id="update">
+            <h3>Update()</h3>
+            <p><strong>Files:</strong> <code>gs_mouse.cpp</code> (Windows), <code>gs_mouse_sdl.cpp</code> (SDL2)</p>
+            <p>Updates mouse state by processing pending mouse events.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void Update(HWND hWnd)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>hWnd</code> - Window handle to process messages for</li>
+            </ul>
+
+            <p><strong>Behavior (Windows):</strong></p>
+            <ul>
+                <li>Uses <code>PeekMessage()</code>/<code>GetMessage()</code> to process mouse messages</li>
+                <li>Translates and dispatches messages to window procedure</li>
+                <li>Actual state updates happen in <code>MsgProc()</code></li>
+            </ul>
+
+            <p><strong>Behavior (SDL2):</strong></p>
+            <ul>
+                <li>Calls <code>SDL_GetMouseState()</code> to get current button states</li>
+                <li>Retrieves mouse position from SDL</li>
+                <li>Inverts Y coordinate to match OpenGL coordinate system</li>
+                <li>Updates all button states (left, middle, right)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>// Typically called in main message loop
+m_gsMouse.Update(GetWindow());</pre>
+
+            <p><strong>Note:</strong> On Windows, you typically update mouse state in <code>MsgProc()</code> instead. On SDL2, <code>Update()</code> actively polls mouse state.</p>
+        </div>
+
+        <div class="endpoint" id="reset">
+            <h3>Reset()</h3>
+            <p><strong>File:</strong> <code>gs_mouse.cpp</code></p>
+            <p>Resets all mouse state to default values.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void Reset()</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Sets coordinates to (0, 0)</li>
+                <li>Sets all button states to FALSE</li>
+                <li>If cursor was hidden, makes it visible</li>
+                <li>Resets cursor hidden state</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>// When starting a new level or changing game states
+m_gsMouse.Reset();</pre>
+        </div>
+    </section>
+
+    <!-- Position Methods -->
+    <section class="api-section">
+        <h2>Position Methods</h2>
+
+        <div class="endpoint" id="setx">
+            <h3>SetX()</h3>
+            <p><strong>File:</strong> <code>gs_mouse.h</code> (inline)</p>
+            <p>Sets the mouse X coordinate.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void SetX(int nMouseX)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>nMouseX</code> - New X coordinate</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>case WM_MOUSEMOVE:
+    m_gsMouse.SetX(LOWORD(lParam));
+    break;</pre>
+        </div>
+
+        <div class="endpoint" id="sety">
+            <h3>SetY()</h3>
+            <p><strong>File:</strong> <code>gs_mouse.h</code> (inline)</p>
+            <p>Sets the mouse Y coordinate.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void SetY(int nMouseY)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>nMouseY</code> - New Y coordinate (OpenGL coordinate system)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>case WM_MOUSEMOVE:
+    // Invert Y coordinate for OpenGL
+    m_gsMouse.SetY(GetHeight() - HIWORD(lParam) - 1);
+    break;</pre>
+        </div>
+
+        <div class="endpoint" id="getx">
+            <h3>GetX()</h3>
+            <p><strong>File:</strong> <code>gs_mouse.h</code> (inline)</p>
+            <p>Gets the current mouse X coordinate.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>int GetX()</pre>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Current X coordinate (pixels from left edge)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>int mouseX = m_gsMouse.GetX();
+sprite.SetDestX(mouseX - 16);  // Center sprite on cursor</pre>
+        </div>
+
+        <div class="endpoint" id="gety">
+            <h3>GetY()</h3>
+            <p><strong>File:</strong> <code>gs_mouse.h</code> (inline)</p>
+            <p>Gets the current mouse Y coordinate.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>int GetY()</pre>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Current Y coordinate (pixels from bottom edge, OpenGL convention)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>int mouseY = m_gsMouse.GetY();
+sprite.SetDestY(mouseY - 16);  // Center sprite on cursor</pre>
+        </div>
+    </section>
+
+    <!-- Button State Methods -->
+    <section class="api-section">
+        <h2>Button State Methods</h2>
+
+        <div class="endpoint" id="leftpressed">
+            <h3>LeftPressed()</h3>
+            <p><strong>File:</strong> <code>gs_mouse.h</code> (inline)</p>
+            <p>Sets the left mouse button state.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void LeftPressed(BOOL bIsPressed)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>bIsPressed</code> - TRUE if button is pressed, FALSE if released</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>case WM_LBUTTONDOWN:
+    m_gsMouse.LeftPressed(TRUE);
+    break;
+case WM_LBUTTONUP:
+    m_gsMouse.LeftPressed(FALSE);
+    break;</pre>
+        </div>
+
+        <div class="endpoint" id="middlepressed">
+            <h3>MiddlePressed()</h3>
+            <p><strong>File:</strong> <code>gs_mouse.h</code> (inline)</p>
+            <p>Sets the middle mouse button state.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void MiddlePressed(BOOL bIsPressed)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>bIsPressed</code> - TRUE if button is pressed, FALSE if released</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>case WM_MBUTTONDOWN:
+    m_gsMouse.MiddlePressed(TRUE);
+    break;</pre>
+        </div>
+
+        <div class="endpoint" id="rightpressed">
+            <h3>RightPressed()</h3>
+            <p><strong>File:</strong> <code>gs_mouse.h</code> (inline)</p>
+            <p>Sets the right mouse button state.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void RightPressed(BOOL bIsPressed)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>bIsPressed</code> - TRUE if button is pressed, FALSE if released</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>case WM_RBUTTONDOWN:
+    m_gsMouse.RightPressed(TRUE);
+    break;</pre>
+        </div>
+
+        <div class="endpoint" id="isleftpressed">
+            <h3>IsLeftPressed()</h3>
+            <p><strong>File:</strong> <code>gs_mouse.h</code> (inline)</p>
+            <p>Checks if the left mouse button is currently pressed.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL IsLeftPressed()</pre>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Left button is pressed</li>
+                <li><code>FALSE</code> - Left button is not pressed</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>if (m_gsMouse.IsLeftPressed())
+{
+    FireWeapon(m_gsMouse.GetX(), m_gsMouse.GetY());
+}</pre>
+        </div>
+
+        <div class="endpoint" id="ismiddlepressed">
+            <h3>IsMiddlePressed()</h3>
+            <p><strong>File:</strong> <code>gs_mouse.h</code> (inline)</p>
+            <p>Checks if the middle mouse button is currently pressed.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL IsMiddlePressed()</pre>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Middle button is pressed</li>
+                <li><code>FALSE</code> - Middle button is not pressed</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>if (m_gsMouse.IsMiddlePressed())
+{
+    ToggleSpecialAbility();
+}</pre>
+        </div>
+
+        <div class="endpoint" id="isrightpressed">
+            <h3>IsRightPressed()</h3>
+            <p><strong>File:</strong> <code>gs_mouse.h</code> (inline)</p>
+            <p>Checks if the right mouse button is currently pressed.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL IsRightPressed()</pre>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Right button is pressed</li>
+                <li><code>FALSE</code> - Right button is not pressed</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>if (m_gsMouse.IsRightPressed())
+{
+    OpenContextMenu(m_gsMouse.GetX(), m_gsMouse.GetY());
+}</pre>
+        </div>
+    </section>
+
+    <!-- Cursor Visibility Methods -->
+    <section class="api-section">
+        <h2>Cursor Visibility Methods</h2>
+
+        <div class="endpoint" id="hidecursor">
+            <h3>HideCursor()</h3>
+            <p><strong>Files:</strong> <code>gs_mouse.cpp</code> (Windows/SDL2)</p>
+            <p>Shows or hides the system mouse cursor.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void HideCursor(BOOL bHideCursor)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>bHideCursor</code> - TRUE to hide cursor, FALSE to show it</li>
+            </ul>
+
+            <p><strong>Behavior (Windows):</strong></p>
+            <ul>
+                <li>Uses <code>ShowCursor()</code> API</li>
+                <li>Maintains reference count to handle multiple show/hide calls</li>
+                <li>Tracks state in <code>m_bIsCursorHidden</code></li>
+            </ul>
+
+            <p><strong>Behavior (SDL2):</strong></p>
+            <ul>
+                <li>Uses <code>SDL_ShowCursor(SDL_DISABLE)</code> to hide</li>
+                <li>Uses <code>SDL_ShowCursor(SDL_ENABLE)</code> to show</li>
+                <li>Simpler than Windows - no reference counting</li>
+            </ul>
+
+            <p><strong>Examples:</strong></p>
+            <pre>// Hide cursor for fullscreen gameplay
+m_gsMouse.HideCursor(TRUE);
+
+// Show cursor for menus
+m_gsMouse.HideCursor(FALSE);
+
+// Toggle cursor visibility
+m_gsMouse.HideCursor(!m_gsMouse.IsCursorHidden());</pre>
+        </div>
+
+        <div class="endpoint" id="iscursorhidden">
+            <h3>IsCursorHidden()</h3>
+            <p><strong>File:</strong> <code>gs_mouse.h</code> (inline)</p>
+            <p>Checks if the cursor is currently hidden.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL IsCursorHidden()</pre>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Cursor is hidden</li>
+                <li><code>FALSE</code> - Cursor is visible</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>if (!m_gsMouse.IsCursorHidden())
+{
+    // Draw custom cursor sprite
+    m_cursorSprite.SetDestXY(m_gsMouse.GetX(), m_gsMouse.GetY());
+    m_cursorSprite.Render();
+}</pre>
+        </div>
+    </section>
+
+    <!-- Position Testing Methods -->
+    <section class="api-section">
+        <h2>Position Testing Methods</h2>
+
+        <div class="endpoint" id="isinrect">
+            <h3>IsInRect()</h3>
+            <p><strong>File:</strong> <code>gs_mouse.cpp</code></p>
+            <p>Checks if the mouse cursor is inside a specified rectangle.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL IsInRect(RECT rcTemp)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>rcTemp</code> - Rectangle to test (left, top, right, bottom)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li><strong>Windows:</strong> Uses <code>GetCursorPos()</code> and <code>PtInRect()</code></li>
+                <li><strong>SDL2:</strong> Uses stored coordinates with <code>GS_Platform::PtInRect()</code></li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Mouse is inside the rectangle</li>
+                <li><code>FALSE</code> - Mouse is outside the rectangle</li>
+            </ul>
+
+            <p><strong>Examples:</strong></p>
+            <pre>// Check if mouse is over a button
+RECT buttonRect = { 100, 100, 200, 150 };
+if (m_gsMouse.IsInRect(buttonRect))
+{
+    // Highlight button
+    m_buttonSprite.SetModulateColor(1.0f, 1.0f, 0.5f, 1.0f);
+    
+    if (m_gsMouse.IsLeftPressed())
+    {
+        // Button clicked
+        OnButtonClick();
+    }
+}
+
+// Check if mouse is over menu option
+m_gsMenu.GetOptionRect(0, &rcOption);
+if (m_gsMouse.IsInRect(rcOption))
+{
+    m_gsMenu.SetHighlight(0);
+}</pre>
+        </div>
+
+        <div class="endpoint" id="isinwindow">
+            <h3>IsInWindow()</h3>
+            <p><strong>Files:</strong> <code>gs_mouse.cpp</code> (Windows), <code>gs_mouse_sdl.cpp</code> (SDL2)</p>
+            <p>Checks if the mouse cursor is inside the window bounds.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL IsInWindow(HWND hWnd)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>hWnd</code> - Window handle to check against</li>
+            </ul>
+
+            <p><strong>Behavior (Windows):</strong></p>
+            <ul>
+                <li>Gets cursor position with <code>GetCursorPos()</code></li>
+                <li>Gets window rectangle with <code>GetWindowRect()</code></li>
+                <li>Tests if cursor is within window bounds</li>
+            </ul>
+
+            <p><strong>Behavior (SDL2):</strong></p>
+            <ul>
+                <li>Gets window size with <code>SDL_GetWindowSize()</code></li>
+                <li>Checks if stored coordinates are within window</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Mouse is inside window</li>
+                <li><code>FALSE</code> - Mouse is outside window or invalid handle</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>if (m_gsMouse.IsInWindow(GetWindow()))
+{
+    // Mouse is over our window
+    ProcessMouseInput();
+}
+else
+{
+    // Mouse left window - cancel drag operations
+    CancelDrag();
+}</pre>
+        </div>
+
+        <div class="endpoint" id="isinclient">
+            <h3>IsInClient()</h3>
+            <p><strong>Files:</strong> <code>gs_mouse.cpp</code> (Windows), <code>gs_mouse_sdl.cpp</code> (SDL2)</p>
+            <p>Checks if the mouse cursor is inside the client area of the window (excluding title bar and borders).</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL IsInClient(HWND hWnd)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>hWnd</code> - Window handle to check against</li>
+            </ul>
+
+            <p><strong>Behavior (Windows):</strong></p>
+            <ul>
+                <li>Gets cursor position with <code>GetCursorPos()</code></li>
+                <li>Gets client rectangle with <code>GetClientRect()</code></li>
+                <li>Converts client coords to screen coords with <code>ClientToScreen()</code></li>
+                <li>Tests if cursor is within client area</li>
+            </ul>
+
+            <p><strong>Behavior (SDL2):</strong></p>
+            <ul>
+                <li>Same as <code>IsInWindow()</code> since SDL windows don't have title bars by default</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Mouse is inside client area</li>
+                <li><code>FALSE</code> - Mouse is outside client area or on window decorations</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>if (m_gsMouse.IsInClient(GetWindow()))
+{
+    // Mouse is in the rendering area
+    UpdateCursor();
+}
+else
+{
+    // Mouse is on title bar or outside window
+    HideCursor(FALSE);  // Show system cursor
+}</pre>
+        </div>
+    </section>
+
+    <!-- SDL2 Implementation -->
+    <section class="api-section">
+        <h2>SDL2 Implementation (gs_mouse_sdl.cpp)</h2>
+        <div class="endpoint">
+            <h3>Overview</h3>
+            <p>The <code>gs_mouse_sdl.cpp</code> file provides SDL2-specific implementations for mouse functionality. While most of the logic is in <code>gs_mouse.cpp</code> with conditional compilation, some methods have dedicated SDL2 implementations.</p>
+
+            <h3>Key Differences from Windows</h3>
+
+            <h4>Update() Method</h4>
+            <p>The SDL2 version actively polls mouse state:</p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>void GS_Mouse::Update(HWND hWnd)
+{
+    // Get button states and position from SDL
+    Uint32 buttons = SDL_GetMouseState(&m_nMouseX, &m_nMouseY);
+    
+    // Invert Y for OpenGL
+    if (hWnd) {
+        SDL_Window* window = (SDL_Window*)hWnd;
+        int h;
+        SDL_GetWindowSize(window, NULL, &h);
+        m_nMouseY = h - m_nMouseY - 1;
+    }
+    
+    // Update button states
+    m_bIsLeftPressed = (buttons & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0;
+    m_bIsRightPressed = (buttons & SDL_BUTTON(SDL_BUTTON_RIGHT)) != 0;
+    m_bIsMiddlePressed = (buttons & SDL_BUTTON(SDL_BUTTON_MIDDLE)) != 0;
+}</code></pre>
+
+            <h4>HideCursor() Method</h4>
+            <p>SDL2 version is simpler - no reference counting needed:</p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>void GS_Mouse::HideCursor(BOOL bHideCursor)
+{
+    if (bHideCursor && !m_bIsCursorHidden)
+    {
+        SDL_ShowCursor(SDL_DISABLE);
+        m_bIsCursorHidden = TRUE;
+    }
+    else if (!bHideCursor && m_bIsCursorHidden)
+    {
+        SDL_ShowCursor(SDL_ENABLE);
+        m_bIsCursorHidden = FALSE;
+    }
+}</code></pre>
+
+            <h4>Position Testing Methods</h4>
+            <p>SDL2 implementations use stored coordinates instead of querying the system:</p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>BOOL GS_Mouse::IsInWindow(HWND hWnd)
+{
+    if (!hWnd) return FALSE;
+    
+    SDL_Window* window = (SDL_Window*)hWnd;
+    int w, h;
+    SDL_GetWindowSize(window, &w, &h);
+    
+    return (m_nMouseX >= 0 && m_nMouseX < w && 
+            m_nMouseY >= 0 && m_nMouseY < h);
+}
+
+BOOL GS_Mouse::IsInRect(RECT rcTemp)
+{
+    POINT pt = { m_nMouseX, m_nMouseY };
+    return GS_Platform::PtInRect(&rcTemp, pt);
+}</code></pre>
+
+            <h3>Platform Abstraction</h3>
+            <p>The SDL2 implementation maintains API compatibility with Windows:</p>
+            <ul>
+                <li><strong>HWND:</strong> Reinterpreted as <code>SDL_Window*</code></li>
+                <li><strong>Button States:</strong> SDL button masks mapped to BOOL values</li>
+                <li><strong>Coordinates:</strong> Y-axis inverted to match OpenGL</li>
+                <li><strong>Cursor Visibility:</strong> SDL_ShowCursor replaces ShowCursor()</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Best Practices -->
+    <section class="api-section">
+        <h2>Best Practices & Examples</h2>
+        <div class="endpoint">
+            <h3>Menu Navigation with Mouse</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Update menu highlighting based on mouse position
+RECT rcOption;
+
+// Check each menu option
+for (int i = 0; i < m_gsMenu.GetNumOptions(); i++)
+{
+    m_gsMenu.GetOptionRect(i, &rcOption);
+    
+    if (m_gsMouse.IsInRect(rcOption))
+    {
+        m_gsMenu.SetHighlight(i);
+        
+        // Handle click
+        if (m_gsMouse.IsLeftPressed() && m_bWasMouseReleased)
+        {
+            m_nOptionSelected = i;
+            m_gsSound.PlaySample(SAMPLE_SELECT);
+            m_bWasMouseReleased = FALSE;
+        }
+        break;
+    }
+}
+
+// Track mouse release
+if (!m_gsMouse.IsLeftPressed())
+{
+    m_bWasMouseReleased = TRUE;
+}</code></pre>
+
+            <h3>Custom Cursor Rendering</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>void GS_Demo::RenderCursor()
+{
+    // Only render custom cursor if system cursor is hidden
+    if (!m_gsMouse.IsCursorHidden())
+        return;
+    
+    // Position cursor sprite at mouse coordinates
+    m_gsCursorSprite.SetDestX(m_gsMouse.GetX());
+    m_gsCursorSprite.SetDestY(m_gsMouse.GetY());
+    
+    // Render cursor
+    m_gsCursorSprite.Render();
+}
+
+// In GameInit()
+m_gsCursorSprite.Create("data/cursor.tga", TRUE);
+
+// Hide system cursor
+m_gsMouse.HideCursor(TRUE);</code></pre>
+
+            <h3>Click Detection with Release</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Prevent multiple actions from one click
+static bool wasPressed = false;
+
+if (m_gsMouse.IsLeftPressed())
+{
+    if (!wasPressed)
+    {
+        // First frame of click - handle it
+        RECT buttonRect = { 100, 100, 200, 150 };
+        if (m_gsMouse.IsInRect(buttonRect))
+        {
+            OnButtonClick();
+        }
+        wasPressed = true;
+    }
+}
+else
+{
+    wasPressed = false;  // Button released
+}</code></pre>
+
+            <h3>Drag and Drop</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Dragging objects with mouse
+static bool isDragging = false;
+static int dragStartX, dragStartY;
+static int objectStartX, objectStartY;
+
+if (m_gsMouse.IsLeftPressed())
+{
+    if (!isDragging)
+    {
+        // Check if mouse is over object
+        if (m_gsMouse.IsInRect(objectRect))
+        {
+            isDragging = true;
+            dragStartX = m_gsMouse.GetX();
+            dragStartY = m_gsMouse.GetY();
+            objectStartX = object.GetX();
+            objectStartY = object.GetY();
+        }
+    }
+    else
+    {
+        // Update object position based on mouse movement
+        int deltaX = m_gsMouse.GetX() - dragStartX;
+        int deltaY = m_gsMouse.GetY() - dragStartY;
+        
+        object.SetPosition(objectStartX + deltaX, objectStartY + deltaY);
+    }
+}
+else
+{
+    isDragging = false;
+}</code></pre>
+
+            <h3>Context Menu on Right Click</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Show context menu on right click
+static bool wasRightPressed = false;
+
+if (m_gsMouse.IsRightPressed())
+{
+    if (!wasRightPressed)
+    {
+        // Right click just happened
+        ShowContextMenu(m_gsMouse.GetX(), m_gsMouse.GetY());
+        wasRightPressed = true;
+    }
+}
+else
+{
+    wasRightPressed = false;
+}</code></pre>
+
+            <h3>Mouse-Based Camera Control</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Pan camera with middle mouse button
+static int lastMouseX, lastMouseY;
+static bool isPanning = false;
+
+if (m_gsMouse.IsMiddlePressed())
+{
+    if (!isPanning)
+    {
+        isPanning = true;
+        lastMouseX = m_gsMouse.GetX();
+        lastMouseY = m_gsMouse.GetY();
+    }
+    else
+    {
+        int deltaX = m_gsMouse.GetX() - lastMouseX;
+        int deltaY = m_gsMouse.GetY() - lastMouseY;
+        
+        cameraX -= deltaX;
+        cameraY -= deltaY;
+        
+        lastMouseX = m_gsMouse.GetX();
+        lastMouseY = m_gsMouse.GetY();
+    }
+}
+else
+{
+    isPanning = false;
+}</code></pre>
+
+            <h3>Important Tips</h3>
+            <ul>
+                <li><strong>Track Previous State:</strong> Detect clicks by comparing current and previous button states</li>
+                <li><strong>Y Coordinate:</strong> Remember that Y increases upward (bottom = 0) in GS_Mouse</li>
+                <li><strong>Custom Cursors:</strong> Hide system cursor before rendering custom sprite</li>
+                <li><strong>Boundary Checks:</strong> Use <code>IsInClient()</code> to ensure mouse is in valid area</li>
+                <li><strong>Release Detection:</strong> Track button release to prevent repeated actions</li>
+                <li><strong>Platform Differences:</strong> Windows uses messages, SDL2 polls state in <code>Update()</code></li>
+            </ul>
+
+            <div style="background-color: #fffbcc; padding: 15px; border-left: 4px solid #ffcc00; margin: 20px 0;">
+                <h4 style="margin-top: 0;">💡 Pro Tip</h4>
+                <p style="margin-bottom: 0;">When implementing click detection, always track the previous button state to distinguish between a new click and a held button. This prevents actions from triggering every frame while the button is held.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Platform Notes -->
+    <section class="api-section">
+        <h2>Platform-Specific Notes</h2>
+        <div class="endpoint">
+            <h3>Windows</h3>
+            <ul>
+                <li>Mouse state updated via WM_MOUSEMOVE, WM_LBUTTONDOWN, etc. in <code>MsgProc()</code></li>
+                <li><code>Update()</code> processes pending messages but doesn't directly update state</li>
+                <li>Cursor visibility uses <code>ShowCursor()</code> with reference counting</li>
+                <li>Position testing uses <code>GetCursorPos()</code> for accuracy</li>
+                <li>Y coordinate must be manually inverted in <code>MsgProc()</code></li>
+            </ul>
+
+            <h3>Linux / macOS (SDL2)</h3>
+            <ul>
+                <li><code>Update()</code> actively polls mouse state with <code>SDL_GetMouseState()</code></li>
+                <li>Y coordinate automatically inverted in <code>Update()</code></li>
+                <li>Cursor visibility uses <code>SDL_ShowCursor()</code> (no reference counting)</li>
+                <li>Position testing uses stored coordinates instead of querying system</li>
+                <li><code>IsInClient()</code> same as <code>IsInWindow()</code> (no window decorations)</li>
+            </ul>
+
+            <h3>Cross-Platform Compatibility</h3>
+            <p>The GS_Mouse class ensures consistent behavior:</p>
+            <ul>
+                <li>Same coordinate system (bottom-left origin) on all platforms</li>
+                <li>Same button state checking methods</li>
+                <li>Same cursor visibility controls</li>
+                <li>Platform differences handled transparently</li>
+            </ul>
+
+            <div style="background-color: #d4edda; padding: 15px; border-left: 4px solid #28a745; margin: 20px 0;">
+                <h4 style="margin-top: 0;">✅ Best Practice</h4>
+                <p style="margin-bottom: 0;">Always use GS_Mouse methods instead of platform-specific APIs. This ensures your code works correctly on all platforms and maintains the OpenGL coordinate system convention.</p>
+            </div>
+        </div>
+    </section>
+</body>
+
+</html>

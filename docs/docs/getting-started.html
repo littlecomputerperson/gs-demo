@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Getting Started with GameSystem</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+
+<body class="endpoint-page">
+    <!-- Table of Contents -->
+    <section class="api-section">
+        <h2>Getting Started with GameSystem</h2>
+        <div class="endpoint">
+            <h3>Table of Contents</h3>
+            <ul style="list-style: none; padding-left: 0;">
+                <li><a href="#introduction" style="color: #007acc;">1. Introduction</a></li>
+                <li><a href="#installation" style="color: #007acc;">2. Installation & Setup</a>
+                    <ul style="padding-left: 20px;">
+                        <li><a href="#windows-setup" style="color: #007acc;">2.1 Windows Setup</a></li>
+                        <li><a href="#linux-setup" style="color: #007acc;">2.2 Linux Setup</a></li>
+                        <li><a href="#macos-setup" style="color: #007acc;">2.3 macOS Setup</a></li>
+                    </ul>
+                </li>
+                <li><a href="#building" style="color: #007acc;">3. Building Your First Project</a></li>
+                <li><a href="#running" style="color: #007acc;">4. Running the Demo</a></li>
+                <li><a href="#architecture" style="color: #007acc;">5. Framework Architecture</a></li>
+                <li><a href="#state-machine" style="color: #007acc;">6. State Machine Architecture</a></li>
+                <li><a href="#creating-game" style="color: #007acc;">7. Creating Your Own Game</a></li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Introduction -->
+    <section class="api-section" id="introduction">
+        <h2>1. Introduction</h2>
+        <div class="endpoint">
+            <h3>What is GameSystem?</h3>
+            <p>GameSystem is a complete C++ game development framework built with OpenGL and SDL2. It provides everything you need to create 2D games with a state-based architecture, cross-platform compatibility, and a comprehensive set of rendering, audio, and input systems.</p>
+
+            <h3>Prerequisites</h3>
+            <ul>
+                <li><strong>C++ Knowledge:</strong> Familiarity with C++ classes, inheritance, and basic programming concepts</li>
+                <li><strong>Development Environment:</strong> Visual Studio 2017+, MinGW-w64, GCC 7+, or Clang 5+</li>
+                <li><strong>Build System:</strong> CMake 3.10 or higher</li>
+                <li><strong>Graphics:</strong> OpenGL 2.1+ compatible graphics card and drivers</li>
+            </ul>
+
+            <h3>What You'll Learn</h3>
+            <p>This guide will teach you how to:</p>
+            <ul>
+                <li>Install and configure GameSystem on Windows, Linux, and macOS</li>
+                <li>Build the template project from source</li>
+                <li>Understand the framework's architecture and game loop</li>
+                <li>Use the state machine to create game flows</li>
+                <li>Customize the template to create your own games</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Installation & Setup -->
+    <section class="api-section" id="installation">
+        <h2>2. Installation & Setup</h2>
+
+        <!-- Windows Setup -->
+        <div class="endpoint" id="windows-setup">
+            <h3>2.1 Windows Setup</h3>
+            <p>There are three main ways to set up GameSystem on Windows: Visual Studio with vcpkg, MinGW/MSYS2, or standalone SDL2 installation.</p>
+
+            <h4>Option A: Visual Studio + vcpkg (Recommended)</h4>
+            <p>This is the easiest method for Windows development.</p>
+
+            <div style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; margin: 15px 0;">
+                <h5 style="margin-top: 0;">Step 1: Install Visual Studio</h5>
+                <ol style="margin-bottom: 10px;">
+                    <li>Download <a href="https://visualstudio.microsoft.com/downloads/" target="_blank">Visual Studio 2022 Community</a> (free)</li>
+                    <li>During installation, select "Desktop development with C++"</li>
+                    <li>Ensure CMake tools are included in the installation</li>
+                </ol>
+            </div>
+
+            <div style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; margin: 15px 0;">
+                <h5 style="margin-top: 0;">Step 2: Install vcpkg</h5>
+                <p>Open PowerShell or Command Prompt and run:</p>
+                <pre style="background-color: #1e1e1e; color: #dcdcdc; padding: 10px; overflow-x: auto;">cd C:\
+git clone https://github.com/Microsoft/vcpkg.git
+cd vcpkg
+.\bootstrap-vcpkg.bat</pre>
+            </div>
+
+            <div style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; margin: 15px 0;">
+                <h5 style="margin-top: 0;">Step 3: Install Dependencies</h5>
+                <pre style="background-color: #1e1e1e; color: #dcdcdc; padding: 10px; overflow-x: auto;">.\vcpkg install sdl2:x64-windows
+.\vcpkg install sdl2-mixer:x64-windows
+.\vcpkg integrate install</pre>
+                <p style="margin-top: 10px; margin-bottom: 0;"><strong>Note:</strong> The <code>integrate install</code> command makes libraries available to all VS projects.</p>
+            </div>
+
+            <div style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; margin: 15px 0;">
+                <h5 style="margin-top: 0;">Step 4: Set Environment Variable</h5>
+                <p>Set <code>VCPKG_ROOT</code> to your vcpkg installation directory:</p>
+                <ol>
+                    <li>Open System Properties → Advanced → Environment Variables</li>
+                    <li>Add new system variable: <code>VCPKG_ROOT = C:\vcpkg</code></li>
+                    <li>Restart your terminal/IDE</li>
+                </ol>
+            </div>
+
+            <h4>Option B: MinGW/MSYS2</h4>
+            <p>For those who prefer GCC/Clang on Windows.</p>
+
+            <div style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; margin: 15px 0;">
+                <h5 style="margin-top: 0;">Step 1: Install MSYS2</h5>
+                <ol>
+                    <li>Download <a href="https://www.msys2.org/" target="_blank">MSYS2 installer</a></li>
+                    <li>Run installer and follow defaults (install to <code>C:\msys64</code>)</li>
+                    <li>Open MSYS2 terminal</li>
+                </ol>
+            </div>
+
+            <div style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; margin: 15px 0;">
+                <h5 style="margin-top: 0;">Step 2: Update MSYS2</h5>
+                <pre style="background-color: #1e1e1e; color: #dcdcdc; padding: 10px; overflow-x: auto;">pacman -Syu</pre>
+                <p style="margin-top: 10px; margin-bottom: 0;">Close terminal when prompted, reopen, and run again:</p>
+                <pre style="background-color: #1e1e1e; color: #dcdcdc; padding: 10px; overflow-x: auto; margin-top: 10px;">pacman -Su</pre>
+            </div>
+
+            <div style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; margin: 15px 0;">
+                <h5 style="margin-top: 0;">Step 3: Install Development Tools</h5>
+                <pre style="background-color: #1e1e1e; color: #dcdcdc; padding: 10px; overflow-x: auto;">pacman -S mingw-w64-x86_64-gcc \
+          mingw-w64-x86_64-cmake \
+          mingw-w64-x86_64-make \
+          mingw-w64-x86_64-SDL2 \
+          mingw-w64-x86_64-SDL2_mixer</pre>
+            </div>
+
+            <div style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; margin: 15px 0;">
+                <h5 style="margin-top: 0;">Step 4: Add to PATH</h5>
+                <p>Add <code>C:\msys64\mingw64\bin</code> to your system PATH environment variable.</p>
+            </div>
+
+            <h4>Option C: Manual SDL2 Installation</h4>
+            <p>Download SDL2 development libraries manually:</p>
+            <ol>
+                <li>Download <a href="https://github.com/libsdl-org/SDL/releases" target="_blank">SDL2 Development Libraries</a> (VC or MinGW)</li>
+                <li>Download <a href="https://github.com/libsdl-org/SDL_mixer/releases" target="_blank">SDL2_mixer Development Libraries</a></li>
+                <li>Extract to a known location (e.g., <code>C:\SDL2</code>)</li>
+                <li>Configure CMake to find libraries (see building section)</li>
+            </ol>
+        </div>
+
+        <!-- Linux Setup -->
+        <div class="endpoint" id="linux-setup">
+            <h3>2.2 Linux Setup</h3>
+            <p>Installation on Linux is straightforward using your distribution's package manager.</p>
+
+            <h4>Ubuntu / Debian / Linux Mint</h4>
+            <pre style="background-color: #1e1e1e; color: #dcdcdc; padding: 10px; overflow-x: auto;">sudo apt-get update
+sudo apt-get install build-essential cmake git \
+                     libsdl2-dev libsdl2-mixer-dev \
+                     libgl1-mesa-dev libglu1-mesa-dev</pre>
+
+            <h4>Fedora / RHEL / CentOS</h4>
+            <pre style="background-color: #1e1e1e; color: #dcdcdc; padding: 10px; overflow-x: auto;">sudo dnf install gcc-c++ cmake git \
+                 SDL2-devel SDL2_mixer-devel \
+                 mesa-libGL-devel mesa-libGLU-devel</pre>
+
+            <h4>Arch Linux / Manjaro</h4>
+            <pre style="background-color: #1e1e1e; color: #dcdcdc; padding: 10px; overflow-x: auto;">sudo pacman -S base-devel cmake git sdl2 sdl2_mixer mesa</pre>
+
+            <h4>openSUSE</h4>
+            <pre style="background-color: #1e1e1e; color: #dcdcdc; padding: 10px; overflow-x: auto;">sudo zypper install gcc-c++ cmake git \
+                     libSDL2-devel libSDL2_mixer-devel \
+                     Mesa-libGL-devel Mesa-libGLU-devel</pre>
+
+            <div style="background-color: #d4edda; padding: 15px; border-left: 4px solid #28a745; margin: 20px 0;">
+                <h4 style="margin-top: 0;">✅ Verify Installation</h4>
+                <p>Check that everything is installed correctly:</p>
+                <pre style="background-color: #1e1e1e; color: #dcdcdc; padding: 10px; overflow-x: auto; margin-top: 10px;">cmake --version
+gcc --version
+pkg-config --modversion sdl2
+pkg-config --modversion SDL2_mixer</pre>
+                <p style="margin-bottom: 0; margin-top: 10px;">All commands should return version numbers.</p>
+            </div>
+        </div>
+
+        <!-- macOS Setup -->
+        <div class="endpoint" id="macos-setup">
+            <h3>2.3 macOS Setup</h3>
+            <p>macOS setup uses Homebrew for easy package management.</p>
+
+            <div style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; margin: 15px 0;">
+                <h5 style="margin-top: 0;">Step 1: Install Homebrew</h5>
+                <p>If you don't have Homebrew installed:</p>
+                <pre style="background-color: #1e1e1e; color: #dcdcdc; padding: 10px; overflow-x: auto;">/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"</pre>
+            </div>
+
+            <div style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; margin: 15px 0;">
+                <h5 style="margin-top: 0;">Step 2: Install Xcode Command Line Tools</h5>
+                <pre style="background-color: #1e1e1e; color: #dcdcdc; padding: 10px; overflow-x: auto;">xcode-select --install</pre>
+                <p style="margin-top: 10px; margin-bottom: 0;">Click "Install" in the dialog that appears.</p>
+            </div>
+
+            <div style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; margin: 15px 0;">
+                <h5 style="margin-top: 0;">Step 3: Install Dependencies</h5>
+                <pre style="background-color: #1e1e1e; color: #dcdcdc; padding: 10px; overflow-x: auto;">brew install cmake pkg-config sdl2 sdl2_mixer</pre>
+                <p style="margin-top: 10px; margin-bottom: 0;"><strong>Note:</strong> <code>pkg-config</code> is required by the build system to locate SDL2 libraries.</p>
+            </div>
+
+            <div style="background-color: #fff3cd; padding: 15px; border-left: 4px solid #ffc107; margin: 20px 0;">
+                <h4 style="margin-top: 0;">⚠️ Apple Silicon (M1/M2/M3) Note</h4>
+                <p style="margin-bottom: 0;">Homebrew on Apple Silicon installs to <code>/opt/homebrew</code> instead of <code>/usr/local</code>. CMake should automatically detect this, but if you encounter issues, ensure <code>/opt/homebrew/bin</code> is in your PATH.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Building Your First Project -->
+    <section class="api-section" id="building">
+        <h2>3. Building Your First Project</h2>
+        <div class="endpoint">
+            <h3>Download the Template</h3>
+            <p>Get the GameSystem template from your preferred location:</p>
+
+            <pre style="background-color: #1e1e1e; color: #dcdcdc; padding: 10px; overflow-x: auto;"># Using git (if available)
+git clone [repository-url] GameSystem
+cd GameSystem
+
+# Or download and extract the ZIP file</pre>
+
+            <h3>Project Structure</h3>
+            <p>The template contains:</p>
+            <pre style="background-color: #f5f5f5; padding: 10px; overflow-x: auto;">GameSystem/
+├── CMakeLists.txt           # Build configuration
+├── build.sh                 # Linux/macOS build script
+├── build_windows.bat        # Windows (vcpkg) build script
+├── build_windows_mingw.bat  # Windows (MinGW) build script
+├── build_macos.sh           # macOS-specific build script
+├── gs_*.cpp/h               # GameSystem library files
+├── gs_demo.cpp/h            # Template game implementation
+├── data/                    # Game assets (textures, sounds)
+│   ├── *.tga, *.pcx        # Image files
+│   ├── *.mp3               # Music files
+│   └── *.wav               # Sound effects
+├── docs/                    # Documentation (this file!)
+└── README.md                # Project overview</pre>
+
+            <h3>Building on Windows</h3>
+
+            <h4>Method 1: Using Visual Studio (vcpkg)</h4>
+            <p>Double-click <code>build_windows.bat</code>, or run in Command Prompt:</p>
+            <pre style="background-color: #1e1e1e; color: #dcdcdc; padding: 10px; overflow-x: auto;">build_windows.bat</pre>
+            <p>The script will:</p>
+            <ol>
+                <li>Check for CMake and vcpkg</li>
+                <li>Configure the project with CMake</li>
+                <li>Build in Release configuration</li>
+                <li>Copy assets to <code>build/Release/</code></li>
+            </ol>
+            <p>Executable: <code>build\Release\Demo.exe</code></p>
+
+            <h4>Method 2: Using MinGW</h4>
+            <p>Run in Command Prompt or MSYS2 terminal:</p>
+            <pre style="background-color: #1e1e1e; color: #dcdcdc; padding: 10px; overflow-x: auto;">build_windows_mingw.bat</pre>
+            <p>Or manually:</p>
+            <pre style="background-color: #1e1e1e; color: #dcdcdc; padding: 10px; overflow-x: auto;">mkdir build
+cd build
+cmake .. -G "MinGW Makefiles"
+mingw32-make -j4</pre>
+            <p>Executable: <code>build\Demo.exe</code></p>
+
+            <h4>Method 3: Visual Studio IDE</h4>
+            <ol>
+                <li>Open Visual Studio</li>
+                <li>File → Open → CMake → Select <code>CMakeLists.txt</code></li>
+                <li>Wait for CMake to configure</li>
+                <li>Select "Demo.exe" as startup item</li>
+                <li>Build → Build Solution (or press F7)</li>
+            </ol>
+
+            <h3>Building on Linux</h3>
+
+            <h4>Using the Build Script</h4>
+            <pre style="background-color: #1e1e1e; color: #dcdcdc; padding: 10px; overflow-x: auto;">chmod +x build.sh
+./build.sh</pre>
+
+            <h4>Manual Build</h4>
+            <pre style="background-color: #1e1e1e; color: #dcdcdc; padding: 10px; overflow-x: auto;">mkdir build
+cd build
+cmake ..
+make -j$(nproc)</pre>
+
+            <p>Executable: <code>build/Demo</code></p>
+
+            <h3>Building on macOS</h3>
+
+            <h4>Using the Build Script</h4>
+            <pre style="background-color: #1e1e1e; color: #dcdcdc; padding: 10px; overflow-x: auto;">chmod +x build_macos.sh
+./build_macos.sh</pre>
+            <p>The script will:</p>
+            <ol>
+                <li>Check for required tools (CMake, Homebrew)</li>
+                <li>Install missing dependencies (pkg-config, SDL2, SDL2_mixer)</li>
+                <li>Configure the project with CMake</li>
+                <li>Build in Release configuration</li>
+                <li>Create an application bundle</li>
+            </ol>
+
+            <h4>Manual Build</h4>
+            <pre style="background-color: #1e1e1e; color: #dcdcdc; padding: 10px; overflow-x: auto;">mkdir build
+cd build
+cmake .. -DCMAKE_BUILD_TYPE=Release
+cmake --build . -j$(sysctl -n hw.ncpu)
+cd ..</pre>
+
+            <p>Application bundle: <code>build/Demo.app</code></p>
+
+            <div style="background-color: #d4edda; padding: 15px; border-left: 4px solid #28a745; margin: 20px 0;">
+                <h4 style="margin-top: 0;">✅ Build Success</h4>
+                <p>If the build completes successfully, you should see:</p>
+                <pre style="background-color: #1e1e1e; color: #dcdcdc; padding: 10px; overflow-x: auto; margin: 10px 0;">[100%] Built target Demo
+Build complete! Executable: build/Demo</pre>
+                <p style="margin-bottom: 0;">The <code>data/</code> folder is automatically copied to the build directory.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Running the Demo -->
+    <section class="api-section" id="running">
+        <h2>4. Running the Demo</h2>
+        <div class="endpoint">
+            <h3>Windows</h3>
+            <pre style="background-color: #1e1e1e; color: #dcdcdc; padding: 10px; overflow-x: auto;"># Visual Studio build
+cd build\Release
+Demo.exe
+
+# MinGW build
+cd build
+Demo.exe</pre>
+
+            <h3>Linux / macOS</h3>
+            <pre style="background-color: #1e1e1e; color: #dcdcdc; padding: 10px; overflow-x: auto;"># Linux
+cd build
+./Demo
+
+# Or from project root
+./build/Demo
+
+# macOS
+open build/Demo.app
+
+# Or from project root
+open build/Demo.app</pre>
+
+            <p><strong>macOS Note:</strong> You can also double-click <code>Demo.app</code> in Finder from the <code>build</code> directory.</p>
+
+            <h3>First Run Experience</h3>
+            <p>On first run, you'll see a dialog asking to choose between fullscreen and windowed mode:</p>
+            <ul>
+                <li><strong>Fullscreen:</strong> Recommended for gaming experience</li>
+                <li><strong>Windowed:</strong> Recommended for development and debugging</li>
+            </ul>
+
+            <p>The demo will then display:</p>
+            <ol>
+                <li><strong>Intro Sequence:</strong> "Breakthrough Software Presents" fade-in/out</li>
+                <li><strong>Title Screen:</strong> Main menu with options:
+                    <ul>
+                        <li>Play Game</li>
+                        <li>View Hiscores</li>
+                        <li>Set Options</li>
+                        <li>Quit</li>
+                    </ul>
+                </li>
+            </ol>
+
+            <h3>Basic Controls</h3>
+            <table style="width: 100%; border-collapse: collapse; margin: 15px 0;">
+                <thead>
+                    <tr style="background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Key</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><kbd>↑</kbd> <kbd>↓</kbd></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Navigate menus</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><kbd>Enter</kbd></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Select menu option</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><kbd>Esc</kbd></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Back / Cancel / Quit</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><kbd>Space</kbd></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Advance / End game</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><kbd>P</kbd></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Pause / Resume</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><kbd>Alt</kbd>+<kbd>Enter</kbd></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Toggle fullscreen (Windows with menu)</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><kbd>V</kbd></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Toggle VSync</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><kbd>B</kbd></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Toggle blending (transparency)</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><kbd>F1</kbd>-<kbd>F5</kbd></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Quick resolution change</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Configuration Files</h3>
+            <p>After first run, two INI files are created in the build directory:</p>
+
+            <h4>settings.ini</h4>
+            <pre style="background-color: #f5f5f5; padding: 10px; overflow-x: auto;">[Display]
+DisplayWidth=960
+DisplayHeight=540
+ColorDepth=32
+WindowMode=1         ; 0=Fullscreen, 1=Windowed
+EnableVSync=0
+EnableAliasing=0
+
+[Sound]
+MusicVolume=255
+EffectsVolume=255</pre>
+
+            <h4>hiscores.ini</h4>
+            <pre style="background-color: #f5f5f5; padding: 10px; overflow-x: auto;">[Score0]
+Name=PLAYER.1..
+Score=0
+
+[Score1]
+Name=..........
+Score=0
+...
+</pre>
+
+            <p>These files are preserved between builds by the build scripts.</p>
+
+            <div style="background-color: #fff3cd; padding: 15px; border-left: 4px solid #ffc107; margin: 20px 0;">
+                <h4 style="margin-top: 0;">⚠️ Troubleshooting</h4>
+                <p><strong>If the window doesn't appear:</strong></p>
+                <ul>
+                    <li>Check that the <code>data/</code> folder exists in the build directory</li>
+                    <li>Ensure graphics drivers are up to date</li>
+                    <li>Try running from the command line to see error messages</li>
+                </ul>
+                <p><strong>If you see "Failed to load" errors:</strong></p>
+                <ul>
+                    <li>Verify all image and sound files are in <code>build/data/</code></li>
+                    <li>Check file permissions (readable)</li>
+                </ul>
+                <p><strong>On Windows, if DLLs are missing:</strong></p>
+                <ul style="margin-bottom: 0;">
+                    <li>vcpkg: DLLs should be in <code>build/Release/</code> automatically</li>
+                    <li>MinGW: Copy SDL2.dll and SDL2_mixer.dll to executable directory</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Framework Architecture (existing content) -->
+    <section class="api-section" id="architecture">
+        <h2>5. Framework Architecture</h2>
+        <div class="endpoint">
+            <h3>Introduction</h3>
+            <p>The GameSystem framework follows an object-oriented, inheritance-based architecture:</p>
+            
+            <div style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; margin: 15px 0;">
+                <h4 style="margin-top: 0;">Class Hierarchy</h4>
+                <pre style="margin: 0; font-family: 'Courier New', monospace;">
+GS_Application (base class)
+    ↓
+GS_Demo (your game class)
+</pre>
+                <p style="margin-bottom: 0; margin-top: 10px;">Your game inherits from <code>GS_Application</code> and overrides key methods to implement your game logic.</p>
+            </div>
+
+            <h3>Core Components</h3>
+            <p>The framework provides several key systems:</p>
+            <ul>
+                <li><strong>GS_Application:</strong> Main application base class with window management and game loop</li>
+                <li><strong>GS_OGLDisplay:</strong> OpenGL rendering system for 2D and 3D graphics</li>
+                <li><strong>GS_Keyboard:</strong> Input handling with buffered and real-time key detection</li>
+                <li><strong>GS_Sound:</strong> Audio system (FMOD or SDL_mixer) for music and sound effects</li>
+                <li><strong>GS_Sprite:</strong> 2D sprite rendering with transformations and animations</li>
+                <li><strong>GS_Font:</strong> Bitmap font rendering system</li>
+                <li><strong>GS_Menu:</strong> Menu system for game interfaces</li>
+                <li><strong>GS_OGLCollide:</strong> Collision detection utilities</li>
+            </ul>
+
+            <h3>Game Loop Overview</h3>
+            <p>The framework manages the game loop automatically. Your game class overrides specific methods that are called at different stages:</p>
+
+            <div style="margin: 15px 0;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr style="background-color: #f5f5f5;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Method</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Purpose</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Called When</th>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>GameSetup()</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Initial configuration before window creation</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Before the game window is created</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>GameInit()</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Initialize resources (textures, sounds, etc.)</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Once at startup, after window creation</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>GameLoop()</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Main game logic and rendering</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Every frame (continuously)</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>GameShutdown()</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Clean up resources</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Once before the program exits</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>GameRelease()</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Pause and release resources temporarily</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">When window loses focus</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>GameRestore()</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Restore resources after release</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">When window regains focus</td>
+                    </tr>
+                </table>
+            </div>
+
+            <h3>Game Loop Execution Flow</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;">
+1. GameSetup()           → Configure display settings
+2. Create Window         → Platform creates the game window
+3. GameInit()            → Load textures, sounds, initialize game objects
+4. ┌── GameLoop() ───┐   → Runs every frame
+   │                 │
+   │  • Get Input    │
+   │  • Update Logic │
+   │  • Render Frame │
+   │  • Swap Buffers │
+   │                 │
+   └─────────────────┘
+5. GameShutdown()        → Clean up and exit
+</pre>
+
+            <h3>Frame-Rate Independent Timing</h3>
+            <p>GameSystem provides <code>GetActionInterval()</code> to ensure consistent gameplay across different frame rates:</p>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Update 60 times per second regardless of FPS
+m_fInterval += this->GetActionInterval(60);
+
+while (m_fInterval >= 1.0f)
+{
+    // Perform one update cycle
+    playerX += velocityX;  // Move player
+    enemyY += enemySpeed;  // Move enemies
+    m_nCounter++;          // Increment timer
+    
+    m_fInterval -= 1.0f;   // One update completed
+}
+
+// For smooth animations
+sprite.AddRotateZ(this->GetActionInterval(60));  // Rotate 60°/sec
+sprite.AddScrollX(this->GetActionInterval(30));  // Scroll at 30 px/sec</code></pre>
+        </div>
+    </section>
+
+    <!-- State Machine Architecture -->
+    <section class="api-section" id="state-machine">
+        <h2>6. State Machine Architecture</h2>
+        <div class="endpoint">
+            <h3>Introduction</h3>
+            <p>GameSystem uses a state-based approach where <code>GameLoop()</code> delegates to different methods based on the current game state. This provides clean separation of different game screens and phases.</p>
+
+            <h3>Game States</h3>
+            <p>The template defines the following states in <code>gs_demo.h</code>:</p>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Game state constants
+#define GAME_INTRO    0   // Company logo / intro sequence
+#define GAME_OUTRO    1   // Credits / game exit sequence
+#define TITLE_INTRO   2   // Fade into title screen
+#define TITLE_SCREEN  3   // Main menu
+#define TITLE_OUTRO   4   // Fade out of title screen
+#define OPTION_INTRO  5   // Transition to options
+#define OPTION_SCREEN 6   // Settings menu
+#define OPTION_OUTRO  7   // Exit options menu
+#define PLAY_INTRO    8   // Difficulty selection
+#define PLAY_GAME     9   // Active gameplay
+#define PLAY_UPDATE   10  // Level transitions
+#define PLAY_PAUSE    11  // Pause screen
+#define PLAY_EXIT     12  // Confirm exit dialog
+#define PLAY_OUTRO    13  // Game over sequence
+#define SCORES_INTRO  14  // Transition to scores
+#define SCORES_VIEW   15  // View high scores
+#define SCORES_ADD    16  // Enter name for high score
+#define SCORES_OUTRO  17  // Exit high scores</code></pre>
+
+            <h3>State Dispatch in GameLoop()</h3>
+            <p>The <code>GameLoop()</code> method uses a switch statement to route to the appropriate state handler:</p>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>BOOL GS_Demo::GameLoop()
+{
+    switch (m_nGameProgress)
+    {
+        case GAME_INTRO:    return GameIntro();
+        case GAME_OUTRO:    return GameOutro();
+        case TITLE_INTRO:   return TitleIntro();
+        case TITLE_SCREEN:  return TitleScreen();
+        case TITLE_OUTRO:   return TitleOutro();
+        case OPTION_INTRO:  return OptionIntro();
+        case OPTION_SCREEN: return OptionScreen();
+        case OPTION_OUTRO:  return OptionOutro();
+        case PLAY_INTRO:    return PlayIntro();
+        case PLAY_GAME:     return PlayGame();
+        case PLAY_UPDATE:   return PlayUpdate();
+        case PLAY_PAUSE:    return PlayPause();
+        case PLAY_EXIT:     return PlayExit();
+        case PLAY_OUTRO:    return PlayOutro();
+        case SCORES_INTRO:  return ScoresIntro();
+        case SCORES_VIEW:   return ScoresView();
+        case SCORES_ADD:    return ScoresAdd();
+        case SCORES_OUTRO:  return ScoresOutro();
+        default:
+            m_nGameProgress = GAME_OUTRO;
+            break;
+    }
+    return TRUE;
+}</code></pre>
+
+            <h3>State Method Pattern</h3>
+            <p>Each state method follows a consistent pattern for organization and maintainability:</p>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>BOOL GS_Demo::PlayGame()
+{
+    // 1. INITIALIZATION (runs once when state is entered)
+    if (m_nPrevProgress == PLAY_INTRO)
+    {
+        m_nPrevProgress = PLAY_GAME;
+        m_fInterval = 0.0f;
+        m_nCounter = 0;
+        m_gsKeyboard.ClearBuffer();
+        // ... initialize game variables
+    }
+
+    // 2. INPUT HANDLING
+    int nKey = m_gsKeyboard.GetBufferedKey();
+    switch (nKey)
+    {
+        case GSK_LEFT:   /* move left */   break;
+        case GSK_RIGHT:  /* move right */  break;
+        case GSK_SPACE:  /* fire */        break;
+        case GSK_ESCAPE: m_nGameProgress = PLAY_EXIT; break;
+    }
+
+    // 3. UPDATE LOGIC (frame-rate independent)
+    m_fInterval += this->GetActionInterval(60);
+    while (m_fInterval >= 1.0f)
+    {
+        m_nCounter++;
+        // Update game objects
+        // Check collisions
+        // Update score
+        m_fInterval -= 1.0f;
+    }
+
+    // 4. RENDERING
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glLoadIdentity();
+    
+    m_gsDisplay.BeginRender2D(this->GetWindow());
+    
+    // Render game objects
+    m_gsBackSprite.Render();
+    // ... render other sprites
+    
+    m_gsDisplay.EndRender2D();
+    SwapBuffers(this->GetDevice());
+
+    // 5. CLEANUP (runs when exiting this state)
+    if (m_nGameProgress != PLAY_GAME)
+    {
+        m_nPrevProgress = PLAY_GAME;
+        // Clean up state-specific resources
+    }
+
+    return TRUE;
+}</code></pre>
+
+            <h3>State Transitions</h3>
+            
+            <h4>Direct Transitions</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Direct transition
+m_nGameProgress = PLAY_GAME;
+
+// Transition with fade (using intro/outro states)
+m_nNextProgress = PLAY_GAME;
+m_nGameProgress = TITLE_OUTRO;  // Fade out title, then go to PLAY_GAME</code></pre>
+
+            <h4>Transition States</h4>
+            <p>States ending in "_INTRO" or "_OUTRO" are typically transition states that handle fade effects:</p>
+            <ul>
+                <li><strong>Intro States:</strong> Fade in or prepare the next major state</li>
+                <li><strong>Outro States:</strong> Fade out or clean up before transitioning</li>
+                <li>They use <code>m_nNextProgress</code> to know where to go next</li>
+            </ul>
+
+            <h3>Common Patterns</h3>
+
+            <h4>Input Handling</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Buffered input (one key press per buffer entry)
+int nKey = m_gsKeyboard.GetBufferedKey();
+if (nKey == GSK_ENTER) { /* action */ }
+
+// Continuous input (held down)
+if (m_gsKeyboard.IsKeyPressed(GSK_LEFT)) { /* action */ }
+
+// Key release detection
+if (!m_gsKeyboard.IsKeyPressed(GSK_SPACE)) 
+{
+    m_bSpaceReleased = TRUE;
+}
+if (m_gsKeyboard.IsKeyPressed(GSK_SPACE) && m_bSpaceReleased)
+{
+    // Fire weapon
+    m_bSpaceReleased = FALSE;
+}</code></pre>
+
+            <h4>Menu Systems</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Create menu
+m_gsMenu.ClearOptions();
+m_gsMenu.SetTitle("MAIN MENU");
+m_gsMenu.AddOption("NEW GAME");
+m_gsMenu.AddOption("CONTINUE");
+m_gsMenu.AddOption("OPTIONS");
+m_gsMenu.AddOption("QUIT");
+m_gsMenu.SetHighlight(0);
+
+// Handle menu navigation
+int nKey = m_gsKeyboard.GetBufferedKey();
+if (nKey == GSK_UP)   m_gsMenu.HighlightPrev();
+if (nKey == GSK_DOWN) m_gsMenu.HighlightNext();
+if (nKey == GSK_ENTER)
+{
+    switch (m_gsMenu.GetHighlight())
+    {
+        case 0: m_nGameProgress = PLAY_INTRO; break;
+        case 1: m_nGameProgress = LOAD_GAME;  break;
+        case 2: m_nGameProgress = OPTION_INTRO; break;
+        case 3: m_nGameProgress = GAME_OUTRO; break;
+    }
+}</code></pre>
+
+            <h3>Best Practices</h3>
+            <ul>
+                <li><strong>Initialize Once:</strong> Use <code>m_nPrevProgress</code> check to prevent re-initialization on every frame</li>
+                <li><strong>Clear Input Buffers:</strong> Call <code>m_gsKeyboard.ClearBuffer()</code> when entering a new state</li>
+                <li><strong>Track Previous State:</strong> Use <code>m_nPrevProgress</code> to handle state-specific initialization</li>
+                <li><strong>Set Next State:</strong> Use <code>m_nNextProgress</code> for transition states (intro/outro)</li>
+                <li><strong>Cleanup on Exit:</strong> Check if state changed and perform cleanup before leaving</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Creating Your Own Game -->
+    <section class="api-section" id="creating-game">
+        <h2>7. Creating Your Own Game</h2>
+        <div class="endpoint">
+            <h3>Overview</h3>
+            <p>Transform the GameSystem template into your own game by following these steps. The template provides a complete working example you can learn from and build upon.</p>
+
+            <h3>Step 1: Define Your Game States</h3>
+            <p>Decide what states your game needs. You can reuse existing states or define new ones in <code>gs_demo.h</code>:</p>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Add custom states for your game
+#define LEVEL_START   18  // Level introduction
+#define BOSS_FIGHT    19  // Boss battle
+#define CUTSCENE      20  // Story cutscene
+#define SHOP_SCREEN   21  // Upgrade shop</code></pre>
+
+            <h3>Step 2: Implement State Methods</h3>
+            <p>Create methods for each state in <code>gs_demo.cpp</code>. Add declarations to <code>gs_demo.h</code>:</p>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// In gs_demo.h
+class GS_Demo : public GS_Application
+{
+    // ...existing code...
+    BOOL LevelStart();
+    BOOL BossFight();
+    BOOL Cutscene();
+    BOOL ShopScreen();
+};
+
+// In gs_demo.cpp
+BOOL GS_Demo::LevelStart()
+{
+    // Show level number, objectives, etc.
+    // Initialize level-specific variables
+    // Transition to PLAY_GAME when ready
+    return TRUE;
+}
+
+BOOL GS_Demo::BossFight()
+{
+    // Special gameplay logic for boss battles
+    // Track boss health, special attacks
+    // Transition to victory or game over
+    return TRUE;
+}</code></pre>
+
+            <h3>Step 3: Customize PlayGame()</h3>
+            <p>This is where your core gameplay happens. Replace the template logic with your game mechanics:</p>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>BOOL GS_Demo::PlayGame()
+{
+    // Initialize player, enemies, level on first entry
+    if (m_nPrevProgress == PLAY_INTRO)
+    {
+        m_nPrevProgress = PLAY_GAME;
+        m_player.SetPosition(100, 100);
+        m_enemies.clear();
+        LoadLevel(m_currentLevel);
+    }
+
+    // Handle input
+    if (m_gsKeyboard.IsKeyPressed(GSK_LEFT))  m_player.MoveLeft();
+    if (m_gsKeyboard.IsKeyPressed(GSK_RIGHT)) m_player.MoveRight();
+    if (m_gsKeyboard.GetBufferedKey() == GSK_SPACE) m_player.Fire();
+
+    // Update game logic
+    m_fInterval += this->GetActionInterval(60);
+    while (m_fInterval >= 1.0f)
+    {
+        m_player.Update();
+        UpdateEnemies();
+        CheckCollisions();
+        
+        if (m_player.IsDead())
+            m_nGameProgress = PLAY_OUTRO;
+        else if (LevelComplete())
+            m_nGameProgress = PLAY_UPDATE;
+            
+        m_fInterval -= 1.0f;
+    }
+
+    // Render everything
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glLoadIdentity();
+    
+    m_gsDisplay.BeginRender2D(this->GetWindow());
+    
+    RenderBackground();
+    m_player.Render();
+    RenderEnemies();
+    RenderUI();
+    
+    m_gsDisplay.EndRender2D();
+    SwapBuffers(this->GetDevice());
+    
+    return TRUE;
+}</code></pre>
+
+            <h3>Step 4: Load Your Assets</h3>
+            <p>In <code>GameInit()</code>, load your game's graphics and sounds:</p>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>BOOL GS_Demo::GameInit()
+{
+    // Load player sprite
+    m_playerSprite.Create("data/player.tga", TRUE);
+    
+    // Load enemy sprites
+    m_enemySprite.Create("data/enemy.tga", TRUE);
+    
+    // Load background
+    m_backgroundSprite.Create("data/level1_bg.pcx", FALSE);
+    
+    // Load sounds
+    m_gsSound.AddSample("data/shoot.wav");
+    m_gsSound.AddSample("data/explosion.wav");
+    m_gsSound.AddStream("data/level_music.mp3");
+    
+    // Create game font
+    m_gsFontTexture.Create("data/font.tga", GS_MIPMAP, GL_NEAREST, GL_NEAREST);
+    m_gsFont.Create(m_gsFontTexture.GetID(), 
+                    m_gsFontTexture.GetWidth(),
+                    m_gsFontTexture.GetHeight(), 16, 16, 16);
+    
+    return TRUE;
+}</code></pre>
+
+            <h3>Step 5: Update GameLoop() Switch</h3>
+            <p>Add your new states to the switch statement in <code>GameLoop()</code>:</p>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>BOOL GS_Demo::GameLoop()
+{
+    switch (m_nGameProgress)
+    {
+        // ...existing states...
+        case LEVEL_START:  return LevelStart();
+        case BOSS_FIGHT:   return BossFight();
+        case CUTSCENE:     return Cutscene();
+        case SHOP_SCREEN:  return ShopScreen();
+        default:
+            m_nGameProgress = GAME_OUTRO;
+            break;
+    }
+    return TRUE;
+}</code></pre>
+
+            <h3>Example: Simple Platformer</h3>
+            <p>Here's a minimal example of implementing a simple platformer game:</p>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>BOOL GS_Demo::PlayGame()
+{
+    // Initialize
+    static float playerX = 100;
+    static float playerY = 100;
+    static float velocityY = 0;
+    static const float GRAVITY = 0.5f;
+    static const float JUMP_FORCE = -10.0f;
+    static bool isOnGround = false;
+
+    if (m_nPrevProgress == PLAY_INTRO)
+    {
+        m_nPrevProgress = PLAY_GAME;
+        playerX = 100;
+        playerY = 100;
+        velocityY = 0;
+    }
+
+    // Input
+    int nKey = m_gsKeyboard.GetBufferedKey();
+    if (nKey == GSK_ESCAPE) 
+    {
+        m_nGameProgress = PLAY_EXIT;
+        return TRUE;
+    }
+    
+    // Update
+    m_fInterval += this->GetActionInterval(60);
+    while (m_fInterval >= 1.0f)
+    {
+        // Movement
+        if (m_gsKeyboard.IsKeyPressed(GSK_LEFT))  playerX -= 3;
+        if (m_gsKeyboard.IsKeyPressed(GSK_RIGHT)) playerX += 3;
+        
+        // Jumping
+        if (m_gsKeyboard.IsKeyPressed(GSK_SPACE) && isOnGround)
+        {
+            velocityY = JUMP_FORCE;
+            isOnGround = false;
+        }
+        
+        // Physics
+        velocityY += GRAVITY;
+        playerY += velocityY;
+        
+        // Ground collision
+        if (playerY >= 400)
+        {
+            playerY = 400;
+            velocityY = 0;
+            isOnGround = true;
+        }
+        
+        m_fInterval -= 1.0f;
+    }
+
+    // Render
+    glClearColor(0.2f, 0.4f, 0.8f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glLoadIdentity();
+    
+    m_gsDisplay.BeginRender2D(this->GetWindow());
+    
+    // Draw player
+    m_playerSprite.SetDestXY(playerX, playerY);
+    m_playerSprite.Render();
+    
+    // Draw UI
+    m_gsFont.SetText("Score: %ld", m_lScore);
+    m_gsFont.SetDestXY(10, INTERNAL_RES_Y - 30);
+    m_gsFont.Render();
+    
+    m_gsDisplay.EndRender2D();
+    SwapBuffers(this->GetDevice());
+
+    return TRUE;
+}</code></pre>
+
+            <h3>Development Workflow</h3>
+            <ol>
+                <li><strong>Start Small:</strong> Modify existing states before creating new ones</li>
+                <li><strong>Test Frequently:</strong> Build and run after each change</li>
+                <li><strong>Use Version Control:</strong> Commit working code regularly</li>
+                <li><strong>Study the Template:</strong> Learn from the existing implementations</li>
+                <li><strong>Replace Assets:</strong> Swap graphics and sounds with your own</li>
+                <li><strong>Iterate:</strong> Add features gradually</li>
+            </ol>
+
+            <h3>Best Practices</h3>
+            <ul>
+                <li><strong>Frame-Rate Independence:</strong> Always use <code>GetActionInterval()</code> for movement and timing</li>
+                <li><strong>State Initialization:</strong> Use <code>m_nPrevProgress</code> check to initialize state variables once</li>
+                <li><strong>Clear Buffers:</strong> Call <code>m_gsKeyboard.ClearBuffer()</code> when entering new states</li>
+                <li><strong>Resource Management:</strong> Load resources in <code>GameInit()</code>, cleanup in <code>GameShutdown()</code></li>
+                <li><strong>Separation of Concerns:</strong> Keep input, update, and rendering separate</li>
+                <li><strong>Error Handling:</strong> Check return values of Create() and other initialization functions</li>
+            </ul>
+
+            <h3>Common Tasks</h3>
+
+            <h4>Adding Game Objects</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// In gs_demo.h - add member variables
+GS_Sprite m_enemySprite[10];
+int m_enemyActive[10];
+
+// In GameInit() - load assets
+for (int i = 0; i < 10; i++)
+{
+    m_enemySprite[i].Create("data/enemy.tga", TRUE);
+    m_enemyActive[i] = 0;
+}
+
+// In PlayGame() - update and render
+for (int i = 0; i < 10; i++)
+{
+    if (m_enemyActive[i])
+    {
+        // Update enemy position
+        m_enemySprite[i].AddDestY(this->GetActionInterval(60));
+        // Render
+        m_enemySprite[i].Render();
+    }
+}</code></pre>
+
+            <h4>Collision Detection</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Check if two sprites collide
+if (m_gsCollide.CheckCollision(&m_playerSprite, &m_enemySprite[i]))
+{
+    // Handle collision
+    m_gsSound.PlaySample(SND_EXPLOSION);
+    m_playerLives--;
+}</code></pre>
+
+            <h4>Playing Audio</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Play sound effect
+m_gsSound.PlaySample(SND_SHOOT);
+
+// Play music (loop)
+m_gsSound.PlayStream(MUS_LEVEL1, TRUE);
+
+// Stop music
+m_gsSound.StopStream();</code></pre>
+
+            <h3>Next Steps</h3>
+            <ul>
+                <li>Review the complete demo game code to see all features in action</li>
+                <li>Explore the API documentation for detailed class references</li>
+                <li>Experiment with sprite transformations and effects</li>
+                <li>Implement particle systems for visual effects</li>
+                <li>Add scrolling backgrounds for depth</li>
+                <li>Create complex collision systems</li>
+                <li>Build level editors or data-driven content</li>
+            </ul>
+
+            <div style="background-color: #fffbcc; padding: 15px; border-left: 4px solid #ffcc00; margin: 20px 0;">
+                <h4 style="margin-top: 0;">💡 Pro Tip</h4>
+                <p style="margin-bottom: 0;">Start by modifying the <code>PlayGame()</code> method with simple changes, then gradually expand to new states and features. The template provides a complete working example you can learn from and build upon. Don't be afraid to experiment!</p>
+            </div>
+        </div>
+    </section>
+
+</body>
+</html>

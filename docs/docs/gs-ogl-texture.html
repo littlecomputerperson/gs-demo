@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GS_OGLTexture Class</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+
+<body class="endpoint-page">
+    <!-- GS_OGLTexture Methods Index -->
+    <section class="api-section">
+        <h2>GS_OGLTexture Class Reference</h2>
+        <p><strong>Files:</strong> <code>gs_ogl_texture.h</code>, <code>gs_ogl_texture.cpp</code></p>
+        <p><strong>Inherits from:</strong> <code>GS_Object</code></p>
+        
+        <div class="endpoint-index">
+            <h3>Constructor & Destructor</h3>
+            <ul>
+                <li><a href="#constructor">GS_OGLTexture() <span class="endpoint-desc">- Constructor</span></a></li>
+                <li><a href="#destructor">~GS_OGLTexture() <span class="endpoint-desc">- Destructor</span></a></li>
+            </ul>
+
+            <h3>Creation Methods</h3>
+            <ul>
+                <li><a href="#create">Create() <span class="endpoint-desc">- Load texture from image file</span></a></li>
+                <li><a href="#destroy">Destroy() <span class="endpoint-desc">- Release texture resources</span></a></li>
+            </ul>
+
+            <h3>Accessor Methods</h3>
+            <ul>
+                <li><a href="#getid">GetID() <span class="endpoint-desc">- Get OpenGL texture ID</span></a></li>
+                <li><a href="#getwidth">GetWidth() <span class="endpoint-desc">- Get texture width</span></a></li>
+                <li><a href="#getheight">GetHeight() <span class="endpoint-desc">- Get texture height</span></a></li>
+                <li><a href="#getbpp">GetBpp() <span class="endpoint-desc">- Get bytes per pixel</span></a></li>
+                <li><a href="#hasalpha">HasAlpha() <span class="endpoint-desc">- Check for alpha channel</span></a></li>
+                <li><a href="#isready">IsReady() <span class="endpoint-desc">- Check initialization status</span></a></li>
+            </ul>
+        </div>
+    </section>
+    
+    <!-- Class Overview -->
+    <section class="api-section">
+        <h2>Class Overview</h2>
+        <div class="endpoint">
+            <h3>About GS_OGLTexture</h3>
+            <p>The <code>GS_OGLTexture</code> class provides a high-level interface for loading, managing, and using OpenGL textures in GameSystem applications. It encapsulates the complexity of OpenGL texture creation, supporting multiple image formats and texture types with automatic resource management.</p>
+
+            <p>This class is the foundation for all texture-based rendering in GameSystem. It's used internally by <code>GS_OGLSprite</code>, <code>GS_OGLFont</code>, <code>GS_OGLMenu</code>, and other rendering classes, but can also be used directly for custom rendering needs.</p>
+
+            <h3>Key Features</h3>
+            <ul>
+                <li><strong>Multiple Image Formats:</strong> Supports TGA, PCX, and BMP file formats</li>
+                <li><strong>Texture Types:</strong> Create standard 2D textures or mipmapped textures</li>
+                <li><strong>Filtering Options:</strong> Configure minification and magnification filters</li>
+                <li><strong>Alpha Channel Support:</strong> Automatic detection and handling of transparency</li>
+                <li><strong>Automatic Resource Management:</strong> Textures cleaned up automatically on destruction</li>
+                <li><strong>Flexible Texture Sizes:</strong> Supports any texture dimensions (mipmaps resize automatically)</li>
+                <li><strong>OpenGL Integration:</strong> Direct access to OpenGL texture ID for custom rendering</li>
+                <li><strong>Cross-Platform:</strong> Works identically on Windows, Linux, and macOS</li>
+            </ul>
+
+            <h3>Supported Image Formats</h3>
+            <div style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; margin: 15px 0;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="background-color: #e9ecef;">
+                            <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Format</th>
+                            <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Color Depths</th>
+                            <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Alpha Support</th>
+                            <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Best For</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #ddd;"><strong>TGA</strong></td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">24-bit RGB, 32-bit RGBA</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">✓ Yes</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">Sprites with transparency, UI elements</td>
+                        </tr>
+                        <tr style="background-color: #f9f9f9;">
+                            <td style="padding: 10px; border: 1px solid #ddd;"><strong>PCX</strong></td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">24-bit RGB</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">✗ No</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">Backgrounds, opaque textures</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #ddd;"><strong>BMP</strong></td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">24-bit RGB, 32-bit RGBA</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">✓ Yes (32-bit only)</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">General purpose, easy editing</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Texture Types</h3>
+            <p>GS_OGLTexture supports two texture creation modes:</p>
+
+            <h4>GS_IMAGE2D (Standard 2D Texture)</h4>
+            <ul>
+                <li>Single texture at original resolution</li>
+                <li>Faster creation time</li>
+                <li>Less memory usage</li>
+                <li>Good for textures that won't be scaled much</li>
+                <li>Ideal for pixel-perfect rendering</li>
+            </ul>
+
+            <h4>GS_MIPMAP (Mipmapped Texture)</h4>
+            <ul>
+                <li>Multiple texture levels at different resolutions</li>
+                <li>Better quality when scaled down</li>
+                <li>Reduces texture aliasing (shimmering)</li>
+                <li>Automatic resizing to power-of-2 dimensions</li>
+                <li>Recommended for most use cases</li>
+                <li>OpenGL automatically selects best mip level</li>
+            </ul>
+
+            <div style="background-color: #fffbcc; padding: 15px; border-left: 4px solid #ffcc00; margin: 20px 0;">
+                <h4 style="margin-top: 0;">💡 Mipmap Benefits</h4>
+                <p>Mipmaps improve visual quality and performance when rendering scaled textures. OpenGL automatically uses smaller mip levels for distant or scaled-down objects, reducing texture aliasing and improving cache performance.</p>
+                <p style="margin-bottom: 0;">For example, a 256×256 mipmap includes levels: 256×256, 128×128, 64×64, 32×32, 16×16, 8×8, 4×4, 2×2, 1×1.</p>
+            </div>
+
+            <h3>Texture Filtering</h3>
+            <p>Filtering determines how textures appear when scaled:</p>
+
+            <table style="width: 100%; border-collapse: collapse; margin: 1em 0;">
+                <thead>
+                    <tr style="background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Filter Type</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Description</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Best For</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>GL_NEAREST</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Nearest-neighbor (pixelated)</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Pixel art, retro graphics, sharp edges</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>GL_LINEAR</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Bilinear interpolation (smooth)</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Smooth sprites, photos, general use</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>GL_NEAREST_MIPMAP_NEAREST</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Pixelated with mipmap selection</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Pixel art that scales</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>GL_LINEAR_MIPMAP_LINEAR</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Trilinear filtering (smoothest)</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">High-quality scaling</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Member Variables</h3>
+            <p>All member variables are private and encapsulated in the <code>GS_TextureInfo</code> structure:</p>
+
+            <table style="width: 100%; border-collapse: collapse; margin: 1em 0;">
+                <thead>
+                    <tr style="background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Variable</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Type</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_gsImage</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">GS_OGLImage</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Image loader object (temporary during Create)</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_gsTextureInfo.glID</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">GLuint</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">OpenGL texture identifier</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_gsTextureInfo.glFormat</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">GLenum</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Color format (GL_RGB or GL_RGBA)</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_gsTextureInfo.nWidth</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">int</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Texture width in pixels</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_gsTextureInfo.nHeight</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">int</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Texture height in pixels</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_gsTextureInfo.nBpp</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">int</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Bytes per pixel (3 for RGB, 4 for RGBA)</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_gsTextureInfo.bHasAlpha</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">BOOL</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">TRUE if texture has alpha channel</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_gsTextureInfo.bIsReady</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">BOOL</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">TRUE if texture successfully created</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Usage Pattern</h3>
+            <p>Typical workflow for using GS_OGLTexture:</p>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Create a texture object
+GS_OGLTexture myTexture;
+
+// Load from file with mipmaps and linear filtering
+if (!myTexture.Create("data/sprite.tga", GS_MIPMAP, GL_LINEAR, GL_LINEAR))
+{
+    GS_Error::Report(__FILE__, __LINE__, "Failed to load texture!");
+    return FALSE;
+}
+
+// Use in custom OpenGL rendering
+glBindTexture(GL_TEXTURE_2D, myTexture.GetID());
+glBegin(GL_QUADS);
+    glTexCoord2f(0.0f, 0.0f); glVertex2f(0.0f, 0.0f);
+    glTexCoord2f(1.0f, 0.0f); glVertex2f(100.0f, 0.0f);
+    glTexCoord2f(1.0f, 1.0f); glVertex2f(100.0f, 100.0f);
+    glTexCoord2f(0.0f, 1.0f); glVertex2f(0.0f, 100.0f);
+glEnd();
+
+// Texture automatically destroyed when myTexture goes out of scope</code></pre>
+
+            <h3>Common Use Cases</h3>
+            <ul>
+                <li><strong>Sprite Textures:</strong> Used by GS_OGLSprite for 2D sprite rendering</li>
+                <li><strong>Font Atlases:</strong> Used by GS_OGLFont for bitmap font rendering</li>
+                <li><strong>Menu Graphics:</strong> Used by GS_OGLMenu for UI backgrounds</li>
+                <li><strong>Tile Textures:</strong> Used by GS_OGLMap for tile-based maps</li>
+                <li><strong>Particle Textures:</strong> Used by GS_OGLParticle for effects</li>
+                <li><strong>Custom Rendering:</strong> Direct OpenGL texture access for advanced effects</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Constructor & Destructor -->
+    <section class="api-section">
+        <h2>Constructor & Destructor</h2>
+
+        <div class="endpoint" id="constructor">
+            <h3>GS_OGLTexture()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_texture.cpp</code></p>
+            <p>Constructor that initializes the texture information structure to zero.</p>
+            
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Initialization:</strong></p>
+            <ul>
+                <li>Zeros out the entire <code>GS_TextureInfo</code> structure</li>
+                <li><code>m_gsTextureInfo.glID = 0</code> - No OpenGL texture ID</li>
+                <li><code>m_gsTextureInfo.bIsReady = FALSE</code> - Not initialized</li>
+                <li>All other fields set to zero</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>GS_OGLTexture texture;  // Ready for Create() call</pre>
+        </div>
+
+        <div class="endpoint" id="destructor">
+            <h3>~GS_OGLTexture()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_texture.cpp</code></p>
+            <p>Destructor that ensures proper cleanup of OpenGL texture resources.</p>
+            
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Calls <code>Destroy()</code> to release OpenGL texture</li>
+                <li>Safe to call even if texture was never created</li>
+                <li>Automatic cleanup prevents texture memory leaks</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>{
+    GS_OGLTexture tempTexture;
+    tempTexture.Create("data/temp.tga");
+    // Use texture...
+} // Texture automatically destroyed here</code></pre>
+        </div>
+    </section>
+
+    <!-- Creation Methods -->
+    <section class="api-section">
+        <h2>Creation Methods</h2>
+
+        <div class="endpoint" id="create">
+            <h3>Create()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_texture.cpp</code></p>
+            <p>Loads an image file and creates an OpenGL texture from it.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL Create(const char* pszFilename, 
+            GS_TextureType gsTextureType = GS_MIPMAP,
+            GLint glMinFilter = GL_LINEAR, 
+            GLint glMagFilter = GL_LINEAR)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>pszFilename</code> - Path to image file (TGA, PCX, or BMP)</li>
+                <li><code>gsTextureType</code> - Texture type: <code>GS_IMAGE2D</code> or <code>GS_MIPMAP</code> (default: GS_MIPMAP)</li>
+                <li><code>glMinFilter</code> - Minification filter (default: GL_LINEAR)</li>
+                <li><code>glMagFilter</code> - Magnification filter (default: GL_LINEAR)</li>
+            </ul>
+
+            <p><strong>Minification Filters (when texture is scaled down):</strong></p>
+            <ul>
+                <li><code>GL_NEAREST</code> - Nearest-neighbor (pixelated)</li>
+                <li><code>GL_LINEAR</code> - Bilinear filtering (smooth)</li>
+                <li><code>GL_NEAREST_MIPMAP_NEAREST</code> - Choose nearest mip, nearest pixel</li>
+                <li><code>GL_LINEAR_MIPMAP_NEAREST</code> - Choose nearest mip, linear filtering</li>
+                <li><code>GL_NEAREST_MIPMAP_LINEAR</code> - Interpolate mips, nearest pixel</li>
+                <li><code>GL_LINEAR_MIPMAP_LINEAR</code> - Trilinear filtering (best quality)</li>
+            </ul>
+
+            <p><strong>Magnification Filters (when texture is scaled up):</strong></p>
+            <ul>
+                <li><code>GL_NEAREST</code> - Nearest-neighbor (pixelated, sharp)</li>
+                <li><code>GL_LINEAR</code> - Bilinear filtering (smooth, blurry)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ol>
+                <li>Validates filename (returns FALSE if NULL)</li>
+                <li>Destroys previous texture if already created</li>
+                <li>Loads image using <code>GS_OGLImage</code> class</li>
+                <li>Determines color format (RGB or RGBA)</li>
+                <li>Generates OpenGL texture ID with <code>glGenTextures()</code></li>
+                <li>Binds texture with <code>glBindTexture()</code></li>
+                <li>Sets texture filtering parameters</li>
+                <li>Creates texture data:
+                    <ul>
+                        <li><strong>GS_IMAGE2D:</strong> Uses <code>glTexImage2D()</code> for standard texture</li>
+                        <li><strong>GS_MIPMAP:</strong> Uses <code>gluBuild2DMipmaps()</code> to auto-generate mip levels</li>
+                    </ul>
+                </li>
+                <li>Frees temporary image data</li>
+                <li>Sets <code>m_gsTextureInfo.bIsReady = TRUE</code></li>
+            </ol>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Texture created successfully</li>
+                <li><code>FALSE</code> - Creation failed (NULL filename or image load failure)</li>
+            </ul>
+
+            <p><strong>Examples:</strong></p>
+
+            <h4>Default Creation (Mipmapped, Linear Filtering):</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>GS_OGLTexture texture;
+if (!texture.Create("data/player.tga"))
+{
+    GS_Error::Report(__FILE__, __LINE__, "Failed to load player texture!");
+    return FALSE;
+}</code></pre>
+
+            <h4>Pixel Art (Nearest Filtering):</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>GS_OGLTexture pixelArt;
+pixelArt.Create("data/tileset.pcx", GS_IMAGE2D, GL_NEAREST, GL_NEAREST);</code></pre>
+
+            <h4>High-Quality Mipmap (Trilinear Filtering):</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>GS_OGLTexture highQuality;
+highQuality.Create("data/background.tga", 
+                   GS_MIPMAP, 
+                   GL_LINEAR_MIPMAP_LINEAR, 
+                   GL_LINEAR);</code></pre>
+
+            <h4>Font Texture (Mipmap with Nearest):</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>GS_OGLTexture fontTexture;
+fontTexture.Create("data/font.tga", GS_MIPMAP, GL_NEAREST, GL_NEAREST);</code></pre>
+
+            <h4>UI Element (2D Image, Linear):</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>GS_OGLTexture button;
+button.Create("data/button.bmp", GS_IMAGE2D, GL_LINEAR, GL_LINEAR);</code></pre>
+
+            <p><strong>Error Handling:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>GS_OGLTexture texture;
+
+if (!texture.Create("data/sprite.tga"))
+{
+    // Handle error - texture not loaded
+    GS_Error::Report(__FILE__, __LINE__, "Texture creation failed!");
+    
+    // Check if file exists
+    GS_File file;
+    if (!file.Exists("data/sprite.tga"))
+    {
+        GS_Error::Report(__FILE__, __LINE__, "Texture file not found!");
+    }
+    
+    return FALSE;
+}
+
+// Texture successfully created - safe to use
+GLuint texID = texture.GetID();</code></pre>
+        </div>
+
+        <div class="endpoint" id="destroy">
+            <h3>Destroy()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_texture.cpp</code></p>
+            <p>Destroys the OpenGL texture and releases all associated resources.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void Destroy()</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Returns immediately if <code>!m_gsTextureInfo.bIsReady</code></li>
+                <li>Calls <code>glDeleteTextures()</code> to free GPU memory</li>
+                <li>Zeros out <code>m_gsTextureInfo</code> structure</li>
+                <li>Sets <code>m_gsTextureInfo.bIsReady = FALSE</code></li>
+                <li>Safe to call multiple times</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>None (void)</li>
+            </ul>
+
+            <p><strong>Note:</strong> Called automatically by destructor - explicit calls usually not needed.</p>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Explicit cleanup (rare - usually handled by destructor)
+GS_OGLTexture texture;
+texture.Create("data/temp.tga");
+
+// Use texture...
+
+// Explicitly release before going out of scope
+texture.Destroy();</code></pre>
+        </div>
+    </section>
+
+    <!-- Accessor Methods -->
+    <section class="api-section">
+        <h2>Accessor Methods</h2>
+
+        <div class="endpoint" id="getid">
+            <h3>GetID()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_texture.h</code> (inline)</p>
+            <p>Returns the OpenGL texture identifier for use in OpenGL rendering calls.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>GLuint GetID()</pre>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>GLuint</code> - OpenGL texture ID (0 if not created)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>GS_OGLTexture texture;
+texture.Create("data/sprite.tga");
+
+// Bind texture for rendering
+glBindTexture(GL_TEXTURE_2D, texture.GetID());
+
+// Or pass to sprite
+GS_OGLSprite sprite;
+sprite.Create(texture.GetID(), texture.GetWidth(), texture.GetHeight());</code></pre>
+        </div>
+
+        <div class="endpoint" id="getwidth">
+            <h3>GetWidth()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_texture.h</code> (inline)</p>
+            <p>Returns the width of the texture in pixels.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>int GetWidth()</pre>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>int</code> - Texture width in pixels (0 if not created)</li>
+            </ul>
+
+            <p><strong>Note:</strong> For mipmapped textures, this is the size of the base (largest) mip level.</p>
+
+            <p><strong>Example:</strong></p>
+            <pre>int width = texture.GetWidth();   // e.g., 256</pre>
+        </div>
+
+        <div class="endpoint" id="getheight">
+            <h3>GetHeight()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_texture.h</code> (inline)</p>
+            <p>Returns the height of the texture in pixels.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>int GetHeight()</pre>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>int</code> - Texture height in pixels (0 if not created)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>int height = texture.GetHeight(); // e.g., 256</pre>
+        </div>
+
+        <div class="endpoint" id="getbpp">
+            <h3>GetBpp()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_texture.h</code> (inline)</p>
+            <p>Returns the number of bytes per pixel in the texture.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>int GetBpp()</pre>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>3</code> - RGB texture (24-bit color)</li>
+                <li><code>4</code> - RGBA texture (32-bit color with alpha)</li>
+                <li><code>0</code> - Texture not created</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>int bpp = texture.GetBpp();
+if (bpp == 4)
+{
+    // Texture has alpha channel
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+}</code></pre>
+        </div>
+
+        <div class="endpoint" id="hasalpha">
+            <h3>HasAlpha()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_texture.h</code> (inline)</p>
+            <p>Checks if the texture includes an alpha (transparency) channel.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL HasAlpha()</pre>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Texture has alpha channel (32-bit RGBA)</li>
+                <li><code>FALSE</code> - Texture has no alpha (24-bit RGB) or not created</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>GS_OGLTexture sprite;
+sprite.Create("data/character.tga");
+
+if (sprite.HasAlpha())
+{
+    printf("Sprite supports transparency\n");
+}</code></pre>
+        </div>
+
+        <div class="endpoint" id="isready">
+            <h3>IsReady()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_texture.h</code> (inline)</p>
+            <p>Checks if the texture has been successfully created and is ready for use.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL IsReady()</pre>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Texture successfully created</li>
+                <li><code>FALSE</code> - Texture not created or creation failed</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>GS_OGLTexture texture;
+texture.Create("data/optional.tga");
+
+if (texture.IsReady())
+{
+    // Use texture
+    glBindTexture(GL_TEXTURE_2D, texture.GetID());
+}
+else
+{
+    // Use fallback texture or skip rendering
+    printf("Warning: Optional texture not loaded\n");
+}</code></pre>
+        </div>
+    </section>
+
+    <!-- Practical Examples -->
+    <section class="api-section">
+        <h2>Practical Examples</h2>
+        <div class="endpoint">
+            <h3>Sharing Textures Between Sprites</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Load one texture, use for multiple sprites (memory efficient)
+GS_OGLTexture enemyTexture;
+enemyTexture.Create("data/enemy.tga", GS_MIPMAP, GL_LINEAR, GL_LINEAR);
+
+// Create multiple sprites from same texture
+GS_OGLSprite enemy1, enemy2, enemy3;
+
+enemy1.Create(enemyTexture.GetID(), 
+              enemyTexture.GetWidth(), 
+              enemyTexture.GetHeight());
+
+enemy2.Create(enemyTexture.GetID(),
+              enemyTexture.GetWidth(),
+              enemyTexture.GetHeight());
+
+enemy3.Create(enemyTexture.GetID(),
+              enemyTexture.GetWidth(),
+              enemyTexture.GetHeight());
+
+// Position sprites independently
+enemy1.SetDestXY(100, 100);
+enemy2.SetDestXY(200, 150);
+enemy3.SetDestXY(300, 200);
+
+// Render all sprites
+enemy1.Render();
+enemy2.Render();
+enemy3.Render();</code></pre>
+
+            <h3>Custom OpenGL Rendering</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>GS_OGLTexture customTexture;
+customTexture.Create("data/custom.tga");
+
+// Enable texturing
+glEnable(GL_TEXTURE_2D);
+
+// Bind our texture
+glBindTexture(GL_TEXTURE_2D, customTexture.GetID());
+
+// Enable alpha blending if texture has transparency
+if (customTexture.HasAlpha())
+{
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+}
+
+// Render textured quad
+glBegin(GL_QUADS);
+    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+    
+    glTexCoord2f(0.0f, 0.0f); 
+    glVertex2f(0.0f, 0.0f);
+    
+    glTexCoord2f(1.0f, 0.0f); 
+    glVertex2f((float)customTexture.GetWidth(), 0.0f);
+    
+    glTexCoord2f(1.0f, 1.0f); 
+    glVertex2f((float)customTexture.GetWidth(), 
+               (float)customTexture.GetHeight());
+    
+    glTexCoord2f(0.0f, 1.0f); 
+    glVertex2f(0.0f, (float)customTexture.GetHeight());
+glEnd();
+
+// Restore state
+glDisable(GL_BLEND);
+glDisable(GL_TEXTURE_2D);</code></pre>
+
+            <h3>Texture Atlas / Sprite Sheet</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Load a sprite sheet as a single texture
+GS_OGLTexture spriteSheet;
+spriteSheet.Create("data/characters.tga");
+
+// Calculate texture coordinates for individual sprites
+// Assume 4x4 grid of 64x64 sprites in a 256x256 texture
+float spriteSize = 64.0f / 256.0f;  // 0.25 in UV space
+
+// Render sprite at grid position (2, 1)
+int gridX = 2;
+int gridY = 1;
+
+float u0 = gridX * spriteSize;
+float v0 = gridY * spriteSize;
+float u1 = u0 + spriteSize;
+float v1 = v0 + spriteSize;
+
+glBindTexture(GL_TEXTURE_2D, spriteSheet.GetID());
+glBegin(GL_QUADS);
+    glTexCoord2f(u0, v0); glVertex2f(100.0f, 100.0f);
+    glTexCoord2f(u1, v0); glVertex2f(164.0f, 100.0f);
+    glTexCoord2f(u1, v1); glVertex2f(164.0f, 164.0f);
+    glTexCoord2f(u0, v1); glVertex2f(100.0f, 164.0f);
+glEnd();</code></pre>
+
+            <h3>Texture Quality Comparison</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Create same texture with different filtering for comparison
+
+// Pixelated (retro look)
+GS_OGLTexture pixelated;
+pixelated.Create("data/test.tga", GS_IMAGE2D, GL_NEAREST, GL_NEAREST);
+
+// Smooth (modern look)
+GS_OGLTexture smooth;
+smooth.Create("data/test.tga", GS_IMAGE2D, GL_LINEAR, GL_LINEAR);
+
+// High quality (best for scaling)
+GS_OGLTexture highQuality;
+highQuality.Create("data/test.tga", GS_MIPMAP, 
+                   GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+
+// Render side by side for comparison
+// Pixelated version
+glBindTexture(GL_TEXTURE_2D, pixelated.GetID());
+RenderQuad(0, 0, 100, 100);
+
+// Smooth version
+glBindTexture(GL_TEXTURE_2D, smooth.GetID());
+RenderQuad(110, 0, 100, 100);
+
+// High quality version
+glBindTexture(GL_TEXTURE_2D, highQuality.GetID());
+RenderQuad(220, 0, 100, 100);</code></pre>
+
+            <h3>Error Handling and Validation</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>class TextureManager {
+    std::map<std::string, GS_OGLTexture*> textures;
+    
+public:
+    GS_OGLTexture* Load(const char* filename) {
+        // Check if already loaded
+        if (textures.find(filename) != textures.end()) {
+            return textures[filename];
+        }
+        
+        // Create new texture
+        GS_OGLTexture* texture = new GS_OGLTexture();
+        
+        if (!texture->Create(filename)) {
+            GS_Error::Report(__FILE__, __LINE__, 
+                           "Failed to load texture");
+            delete texture;
+            return nullptr;
+        }
+        
+        // Validate texture properties
+        if (texture->GetWidth() == 0 || texture->GetHeight() == 0) {
+            GS_Error::Report(__FILE__, __LINE__, 
+                           "Invalid texture dimensions");
+            delete texture;
+            return nullptr;
+        }
+        
+        // Store and return
+        textures[filename] = texture;
+        return texture;
+    }
+    
+    ~TextureManager() {
+        // Clean up all textures
+        for (auto& pair : textures) {
+            delete pair.second;
+        }
+    }
+};</code></pre>
+
+            <h3>Best Practices</h3>
+            <ul>
+                <li><strong>Use Mipmaps:</strong> Enable GS_MIPMAP for most textures to improve quality when scaled</li>
+                <li><strong>Power-of-2 Sizes:</strong> While not required, 64×64, 128×128, 256×256 textures are most efficient</li>
+                <li><strong>Appropriate Filtering:</strong> Use GL_NEAREST for pixel art, GL_LINEAR for photographs/smooth graphics</li>
+                <li><strong>Alpha Channel:</strong> Use TGA or 32-bit BMP for sprites requiring transparency</li>
+                <li><strong>Share Textures:</strong> Load once, use in multiple sprites to save memory</li>
+                <li><strong>Texture Atlases:</strong> Combine multiple small textures into one large texture for better performance</li>
+                <li><strong>Check IsReady():</strong> Always verify texture creation succeeded before using</li>
+                <li><strong>Resource Management:</strong> Let destructor handle cleanup - avoid manual Destroy() calls</li>
+            </ul>
+
+            <div style="background-color: #fffbcc; padding: 15px; border-left: 4px solid #ffcc00; margin: 20px 0;">
+                <h4 style="margin-top: 0;">💡 Pro Tip</h4>
+                <p style="margin-bottom: 0;">For maximum performance, organize textures into atlases and use mipmaps with trilinear filtering (GL_LINEAR_MIPMAP_LINEAR). This provides the best balance of visual quality and rendering speed, especially when sprites are scaled dynamically.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Platform Notes -->
+    <section class="api-section">
+        <h2>Platform-Specific Notes</h2>
+        <div class="endpoint">
+            <h3>Cross-Platform Compatibility</h3>
+            <p>GS_OGLTexture is completely cross-platform with identical behavior on all platforms:</p>
+            <ul>
+                <li><strong>Windows</strong> - Full OpenGL support via native drivers</li>
+                <li><strong>Linux</strong> - Mesa or proprietary OpenGL drivers via SDL2</li>
+                <li><strong>macOS</strong> - Native OpenGL framework support</li>
+            </ul>
+
+            <p>There are no platform-specific implementations or behavior differences.</p>
+
+            <h3>OpenGL Compatibility</h3>
+            <ul>
+                <li><strong>OpenGL Version:</strong> Requires OpenGL 1.1 or higher</li>
+                <li><strong>GLU Required:</strong> Uses <code>gluBuild2DMipmaps()</code> for mipmap generation</li>
+                <li><strong>Texture Formats:</strong> GL_RGB and GL_RGBA universally supported</li>
+                <li><strong>Maximum Texture Size:</strong> Platform/driver dependent (typically 2048×2048 to 16384×16384)</li>
+            </ul>
+
+            <h3>Performance Characteristics</h3>
+            <ul>
+                <li><strong>Memory Usage:</strong> width × height × bytesPerPixel (×1.33 for mipmaps)</li>
+                <li><strong>Load Time:</strong> Dominated by file I/O; texture creation is fast</li>
+                <li><strong>GPU Transfer:</strong> Texture data uploaded to GPU on Create()</li>
+                <li><strong>Rendering Speed:</strong> Texture size and filtering affect fill rate</li>
+            </ul>
+
+            <h3>Memory Estimates</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;">
+Texture Sizes (approximate GPU memory):
+
+64×64 RGB:    12 KB (no mipmap) / 16 KB (with mipmaps)
+64×64 RGBA:   16 KB (no mipmap) / 21 KB (with mipmaps)
+
+256×256 RGB:  192 KB (no mipmap) / 256 KB (with mipmaps)
+256×256 RGBA: 256 KB (no mipmap) / 341 KB (with mipmaps)
+
+512×512 RGB:  768 KB (no mipmap) / 1 MB (with mipmaps)
+512×512 RGBA: 1 MB (no mipmap) / 1.3 MB (with mipmaps)
+
+1024×1024 RGB:  3 MB (no mipmap) / 4 MB (with mipmaps)
+1024×1024 RGBA: 4 MB (no mipmap) / 5.3 MB (with mipmaps)
+</pre>
+
+            <h3>Common Issues</h3>
+            <div style="background-color: #fff3cd; padding: 15px; border-left: 4px solid #ffc107; margin: 20px 0;">
+                <h4 style="margin-top: 0;">⚠️ Troubleshooting</h4>
+                <ul style="margin-bottom: 0;">
+                    <li><strong>White/Black Texture:</strong> File not found or format not supported - check path and format</li>
+                    <li><strong>Texture Corruption:</strong> Ensure OpenGL context exists before Create()</li>
+                    <li><strong>Memory Leaks:</strong> Textures not destroyed - use RAII or explicit Destroy()</li>
+                    <li><strong>Poor Quality:</strong> Try mipmaps or change filtering mode</li>
+                    <li><strong>Non-Power-of-2:</strong> Mipmaps auto-resize; use GS_IMAGE2D if size must be exact</li>
+                    <li><strong>Performance:</strong> Too many textures or too large - use atlases and compression</li>
+                </ul>
+            </div>
+
+            <div style="background-color: #d4edda; padding: 15px; border-left: 4px solid #28a745; margin: 20px 0;">
+                <h4 style="margin-top: 0;">✅ Best Performance</h4>
+                <p style="margin-bottom: 0;">For optimal performance: use power-of-2 texture dimensions (64, 128, 256, 512), enable mipmaps for scaled sprites, use texture atlases to reduce texture switches, and prefer RGB over RGBA when transparency isn't needed. The GameSystem framework handles texture binding efficiently when using the built-in sprite classes.</p>
+            </div>
+        </div>
+    </section>
+</body>
+
+</html>

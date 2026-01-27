@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GS_IniFile Class</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+
+<body class="endpoint-page">
+    <!-- GS_IniFile Methods Index -->
+    <section class="api-section">
+        <h2>GS_IniFile Class Reference</h2>
+        <p><strong>Files:</strong> <code>gs_ini_file.h</code>, <code>gs_ini_file.cpp</code></p>
+        
+        <div class="endpoint-index">
+            <h3>Constructor & Destructor</h3>
+            <ul>
+                <li><a href="#constructor">GS_IniFile() <span class="endpoint-desc">- Constructor</span></a></li>
+                <li><a href="#destructor">~GS_IniFile() <span class="endpoint-desc">- Destructor</span></a></li>
+            </ul>
+
+            <h3>File Operations</h3>
+            <ul>
+                <li><a href="#open">Open() <span class="endpoint-desc">- Open an INI file for reading/writing</span></a></li>
+                <li><a href="#close">Close() <span class="endpoint-desc">- Close the INI file</span></a></li>
+                <li><a href="#isopen">IsOpen() <span class="endpoint-desc">- Check if file is open</span></a></li>
+            </ul>
+
+            <h3>Read Methods</h3>
+            <ul>
+                <li><a href="#readint">ReadInt() <span class="endpoint-desc">- Read an integer value</span></a></li>
+                <li><a href="#readfloat">ReadFloat() <span class="endpoint-desc">- Read a floating-point value</span></a></li>
+                <li><a href="#readstring">ReadString() <span class="endpoint-desc">- Read a string value</span></a></li>
+            </ul>
+
+            <h3>Write Methods</h3>
+            <ul>
+                <li><a href="#writeint">WriteInt() <span class="endpoint-desc">- Write an integer value</span></a></li>
+                <li><a href="#writefloat">WriteFloat() <span class="endpoint-desc">- Write a floating-point value</span></a></li>
+                <li><a href="#writestring">WriteString() <span class="endpoint-desc">- Write a string value</span></a></li>
+            </ul>
+        </div>
+    </section>
+    
+    <!-- Class Overview -->
+    <section class="api-section">
+        <h2>Class Overview</h2>
+        <div class="endpoint">
+            <h3>About GS_IniFile</h3>
+            <p>The <code>GS_IniFile</code> class provides a cross-platform interface for reading and writing INI (initialization) configuration files. INI files are simple text-based configuration files organized into sections with key-value pairs, commonly used for storing application settings, game options, and persistent data.</p>
+
+            <p>This class abstracts platform differences between Windows (which has native INI file support) and other platforms (Linux/macOS), providing a unified API for configuration management across all supported platforms.</p>
+
+            <h3>Key Features</h3>
+            <ul>
+                <li><strong>Cross-Platform:</strong> Works identically on Windows, Linux, and macOS</li>
+                <li><strong>Simple API:</strong> Easy-to-use read and write methods for common data types</li>
+                <li><strong>Type-Safe:</strong> Separate methods for int, float, and string values</li>
+                <li><strong>Default Values:</strong> Automatic fallback to default values when keys don't exist</li>
+                <li><strong>Section Support:</strong> Organize settings into logical sections</li>
+                <li><strong>Automatic Persistence:</strong> Changes written immediately to disk</li>
+                <li><strong>Error Handling:</strong> Safe operation even when files don't exist</li>
+            </ul>
+
+            <h3>INI File Format</h3>
+            <p>INI files use a simple, human-readable text format:</p>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>[SectionName]
+Key1=Value1
+Key2=Value2
+
+[AnotherSection]
+Key3=Value3
+Key4=Value4</code></pre>
+
+            <h4>Example: Game Settings File</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>[Display]
+DisplayWidth=960
+DisplayHeight=540
+ColorDepth=32
+WindowMode=1
+EnableVSync=0
+
+[Sound]
+MusicVolume=255
+EffectsVolume=200
+
+[Player]
+LastName=PLAYER1
+HighScore=50000</code></pre>
+
+            <h3>Member Variables</h3>
+            <p>All member variables are private:</p>
+
+            <table style="width: 100%; border-collapse: collapse; margin: 1em 0;">
+                <thead>
+                    <tr style="background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Variable</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Type</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_pszFullname</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">char[_MAX_PATH]</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Full path to the INI file</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_bIsOpen</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">BOOL</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Whether the file is currently open</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_cBuffer</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">char[100]</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Internal buffer for string operations</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Platform Implementation</h3>
+            <p>The class uses different backends depending on the platform:</p>
+
+            <table style="width: 100%; border-collapse: collapse; margin: 1em 0;">
+                <thead>
+                    <tr style="background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Platform</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Implementation</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><strong>Windows</strong></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Native Windows API</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Uses <code>GetPrivateProfileString()</code> and <code>WritePrivateProfileString()</code></td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><strong>Linux/macOS</strong></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Custom parser</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">STL-based implementation with file caching for performance</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Usage Pattern</h3>
+            <p>Typical workflow for reading settings:</p>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>GS_IniFile iniFile;
+
+// Open the file
+if (iniFile.Open("settings.ini"))
+{
+    // Read values with defaults
+    int width = iniFile.ReadInt("Display", "Width", 800);
+    int height = iniFile.ReadInt("Display", "Height", 600);
+    float volume = iniFile.ReadFloat("Sound", "Volume", 1.0f);
+    const char* name = iniFile.ReadString("Player", "Name", "Unknown");
+    
+    // Close when done
+    iniFile.Close();
+}</code></pre>
+
+            <p>Typical workflow for writing settings:</p>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>GS_IniFile iniFile;
+
+if (iniFile.Open("settings.ini"))
+{
+    // Write values
+    iniFile.WriteInt("Display", "Width", 1024);
+    iniFile.WriteInt("Display", "Height", 768);
+    iniFile.WriteFloat("Sound", "Volume", 0.75f);
+    iniFile.WriteString("Player", "Name", "Player1");
+    
+    iniFile.Close();
+}</code></pre>
+
+            <h3>Common Use Cases</h3>
+            <ul>
+                <li><strong>Game Settings:</strong> Store display resolution, audio volume, control bindings</li>
+                <li><strong>Player Progress:</strong> Save high scores, level progress, unlocked achievements</li>
+                <li><strong>Configuration:</strong> Store application preferences and options</li>
+                <li><strong>Localization:</strong> Language selection and regional settings</li>
+                <li><strong>Debug Settings:</strong> Development flags and debug options</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Constructor & Destructor -->
+    <section class="api-section">
+        <h2>Constructor & Destructor</h2>
+
+        <div class="endpoint" id="constructor">
+            <h3>GS_IniFile()</h3>
+            <p><strong>File:</strong> <code>gs_ini_file.cpp</code></p>
+            <p>Constructor that initializes the INI file object to a closed state.</p>
+            
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Initialization:</strong></p>
+            <ul>
+                <li>Clears the filename buffer (<code>m_pszFullname</code>)</li>
+                <li>Clears the internal read buffer (<code>m_cBuffer</code>)</li>
+                <li>Sets <code>m_bIsOpen</code> to FALSE</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>GS_IniFile settingsFile;
+GS_IniFile hiscoresFile;</pre>
+        </div>
+
+        <div class="endpoint" id="destructor">
+            <h3>~GS_IniFile()</h3>
+            <p><strong>File:</strong> <code>gs_ini_file.cpp</code></p>
+            <p>Destructor that automatically closes the file if it's still open.</p>
+            
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Checks if file is open with <code>IsOpen()</code></li>
+                <li>Calls <code>Close()</code> if necessary</li>
+            </ul>
+
+            <p><strong>Note:</strong> Files are automatically closed when the object goes out of scope.</p>
+        </div>
+    </section>
+
+    <!-- File Operations -->
+    <section class="api-section">
+        <h2>File Operations</h2>
+
+        <div class="endpoint" id="open">
+            <h3>Open()</h3>
+            <p><strong>File:</strong> <code>gs_ini_file.cpp</code></p>
+            <p>Opens an INI file for reading and writing. If a file is already open, it is closed first.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL Open(const char* pszFilename)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>pszFilename</code> - Path to the INI file (relative or absolute)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Closes any currently open file</li>
+                <li>Stores the filename internally</li>
+                <li>Sets <code>m_bIsOpen</code> to TRUE</li>
+                <li>Does not require the file to exist (will be created on first write)</li>
+                <li><strong>Windows:</strong> Path is stored as-is</li>
+                <li><strong>Linux/macOS:</strong> Path separators are normalized (<code>\</code> → <code>/</code>)</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - File opened successfully</li>
+            </ul>
+
+            <p><strong>Examples:</strong></p>
+            <pre>// Open settings file in current directory
+GS_IniFile file;
+file.Open("settings.ini");
+
+// Open file with full path
+char fullPath[_MAX_PATH];
+GetCurrentDirectory(_MAX_PATH, fullPath);
+strcat(fullPath, "\\config.ini");
+file.Open(fullPath);</pre>
+        </div>
+
+        <div class="endpoint" id="close">
+            <h3>Close()</h3>
+            <p><strong>File:</strong> <code>gs_ini_file.cpp</code></p>
+            <p>Closes the currently open INI file.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL Close()</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Sets <code>m_bIsOpen</code> to FALSE</li>
+                <li>Safe to call even if no file is open</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Always returns TRUE</li>
+            </ul>
+
+            <p><strong>Note:</strong> Files are automatically closed by the destructor, but explicit closure allows reusing the object.</p>
+        </div>
+
+        <div class="endpoint" id="isopen">
+            <h3>IsOpen()</h3>
+            <p><strong>File:</strong> <code>gs_ini_file.cpp</code></p>
+            <p>Checks whether an INI file is currently open.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL IsOpen()</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - File is open</li>
+                <li><code>FALSE</code> - No file is open</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>GS_IniFile file;
+file.Open("settings.ini");
+
+if (file.IsOpen())
+{
+    // Perform read/write operations
+}
+
+file.Close();</pre>
+        </div>
+    </section>
+
+    <!-- Read Methods -->
+    <section class="api-section">
+        <h2>Read Methods</h2>
+
+        <div class="endpoint" id="readint">
+            <h3>ReadInt()</h3>
+            <p><strong>File:</strong> <code>gs_ini_file.cpp</code></p>
+            <p>Reads an integer value from the INI file.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>int ReadInt(const char* pszSection, const char* pszKey, int nDefaultValue)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>pszSection</code> - Section name (e.g., "Display")</li>
+                <li><code>pszKey</code> - Key name within the section (e.g., "Width")</li>
+                <li><code>nDefaultValue</code> - Value to return if key doesn't exist or can't be parsed</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Returns default value if file is not open</li>
+                <li>Reads the value as a string from the INI file</li>
+                <li>Parses the string as an integer using <code>sscanf()</code></li>
+                <li>Returns the default value if the key doesn't exist or parsing fails</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>The integer value from the INI file, or <code>nDefaultValue</code> if not found</li>
+            </ul>
+
+            <p><strong>Examples:</strong></p>
+            <pre>GS_IniFile file;
+file.Open("settings.ini");
+
+// Read display settings
+int width = file.ReadInt("Display", "Width", 800);
+int height = file.ReadInt("Display", "Height", 600);
+int colorDepth = file.ReadInt("Display", "ColorDepth", 32);
+int isWindowed = file.ReadInt("Display", "Windowed", 1);
+
+file.Close();</pre>
+        </div>
+
+        <div class="endpoint" id="readfloat">
+            <h3>ReadFloat()</h3>
+            <p><strong>File:</strong> <code>gs_ini_file.cpp</code></p>
+            <p>Reads a floating-point value from the INI file.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>float ReadFloat(const char* pszSection, const char* pszKey, float fDefaultValue)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>pszSection</code> - Section name</li>
+                <li><code>pszKey</code> - Key name within the section</li>
+                <li><code>fDefaultValue</code> - Value to return if key doesn't exist or can't be parsed</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Returns default value if file is not open</li>
+                <li>Reads the value as a string from the INI file</li>
+                <li>Parses the string as a float using <code>sscanf()</code></li>
+                <li>Returns the default value if the key doesn't exist or parsing fails</li>
+                <li>Values are written with 2 decimal places by default</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>The floating-point value from the INI file, or <code>fDefaultValue</code> if not found</li>
+            </ul>
+
+            <p><strong>Examples:</strong></p>
+            <pre>GS_IniFile file;
+file.Open("settings.ini");
+
+// Read audio settings
+float musicVolume = file.ReadFloat("Sound", "MusicVolume", 1.0f);
+float sfxVolume = file.ReadFloat("Sound", "EffectsVolume", 0.8f);
+float masterVolume = file.ReadFloat("Sound", "MasterVolume", 1.0f);
+
+// Read game balance values
+float gravity = file.ReadFloat("Physics", "Gravity", 9.8f);
+float playerSpeed = file.ReadFloat("Player", "Speed", 5.5f);
+
+file.Close();</pre>
+        </div>
+
+        <div class="endpoint" id="readstring">
+            <h3>ReadString()</h3>
+            <p><strong>File:</strong> <code>gs_ini_file.cpp</code></p>
+            <p>Reads a string value from the INI file.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>const char* ReadString(const char* pszSection, const char* pszKey, const char* pszDefaultValue)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>pszSection</code> - Section name</li>
+                <li><code>pszKey</code> - Key name within the section</li>
+                <li><code>pszDefaultValue</code> - String to return if key doesn't exist</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Returns default value if file is not open</li>
+                <li>Reads the value from the INI file</li>
+                <li>Returns the default value if the key doesn't exist</li>
+                <li>Maximum string length is 98 characters (buffer size - 2)</li>
+                <li>Returned pointer is valid until next read operation or object destruction</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Pointer to the string value (stored in internal buffer), or <code>pszDefaultValue</code> if not found</li>
+            </ul>
+
+            <p><strong>Examples:</strong></p>
+            <pre>GS_IniFile file;
+file.Open("settings.ini");
+
+// Read player settings
+const char* playerName = file.ReadString("Player", "Name", "Player1");
+const char* difficulty = file.ReadString("Game", "Difficulty", "Normal");
+const char* language = file.ReadString("Localization", "Language", "English");
+
+// Copy to permanent storage if needed
+char name[64];
+strcpy(name, playerName);
+
+file.Close();</pre>
+
+            <div style="background-color: #fffbcc; padding: 15px; border-left: 4px solid #ffcc00; margin: 20px 0;">
+                <h4 style="margin-top: 0;">⚠️ Important Note</h4>
+                <p style="margin-bottom: 0;">The returned string pointer is stored in an internal buffer that is reused on subsequent reads. If you need to keep the string value, copy it to your own buffer before calling another read method.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Write Methods -->
+    <section class="api-section">
+        <h2>Write Methods</h2>
+
+        <div class="endpoint" id="writeint">
+            <h3>WriteInt()</h3>
+            <p><strong>File:</strong> <code>gs_ini_file.cpp</code></p>
+            <p>Writes an integer value to the INI file.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL WriteInt(const char* pszSection, const char* pszKey, int nValue)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>pszSection</code> - Section name (created if doesn't exist)</li>
+                <li><code>pszKey</code> - Key name within the section (created if doesn't exist)</li>
+                <li><code>nValue</code> - Integer value to write</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Returns FALSE if file is not open</li>
+                <li>Converts the integer to a string</li>
+                <li>Writes the value to the INI file</li>
+                <li>Creates the section and/or key if they don't exist</li>
+                <li>Overwrites existing value if key already exists</li>
+                <li><strong>Windows:</strong> Uses native API for immediate persistence</li>
+                <li><strong>Linux/macOS:</strong> Updates cache and writes entire file</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Write successful</li>
+                <li><code>FALSE</code> - File not open or write failed</li>
+            </ul>
+
+            <p><strong>Examples:</strong></p>
+            <pre>GS_IniFile file;
+file.Open("settings.ini");
+
+// Write display settings
+file.WriteInt("Display", "Width", 1024);
+file.WriteInt("Display", "Height", 768);
+file.WriteInt("Display", "ColorDepth", 32);
+file.WriteInt("Display", "Windowed", 0);  // 0 = fullscreen
+
+// Write game progress
+file.WriteInt("Progress", "CurrentLevel", 5);
+file.WriteInt("Progress", "Lives", 3);
+
+file.Close();</pre>
+        </div>
+
+        <div class="endpoint" id="writefloat">
+            <h3>WriteFloat()</h3>
+            <p><strong>File:</strong> <code>gs_ini_file.cpp</code></p>
+            <p>Writes a floating-point value to the INI file.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL WriteFloat(const char* pszSection, const char* pszKey, float fValue)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>pszSection</code> - Section name (created if doesn't exist)</li>
+                <li><code>pszKey</code> - Key name within the section (created if doesn't exist)</li>
+                <li><code>fValue</code> - Floating-point value to write</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Returns FALSE if file is not open</li>
+                <li>Converts the float to a string with 2 decimal places</li>
+                <li>Writes the value to the INI file</li>
+                <li>Creates the section and/or key if they don't exist</li>
+                <li>Overwrites existing value if key already exists</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Write successful</li>
+                <li><code>FALSE</code> - File not open or write failed</li>
+            </ul>
+
+            <p><strong>Examples:</strong></p>
+            <pre>GS_IniFile file;
+file.Open("settings.ini");
+
+// Write audio settings (values written as "0.75", "1.00", etc.)
+file.WriteFloat("Sound", "MusicVolume", 0.75f);
+file.WriteFloat("Sound", "EffectsVolume", 0.50f);
+file.WriteFloat("Sound", "MasterVolume", 1.00f);
+
+// Write physics settings
+file.WriteFloat("Physics", "Gravity", 9.81f);
+file.WriteFloat("Player", "JumpForce", 12.50f);
+
+file.Close();</pre>
+        </div>
+
+        <div class="endpoint" id="writestring">
+            <h3>WriteString()</h3>
+            <p><strong>File:</strong> <code>gs_ini_file.cpp</code></p>
+            <p>Writes a string value to the INI file.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL WriteString(const char* pszSection, const char* pszKey, const char* pszValue)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>pszSection</code> - Section name (created if doesn't exist)</li>
+                <li><code>pszKey</code> - Key name within the section (created if doesn't exist)</li>
+                <li><code>pszValue</code> - String value to write</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Returns FALSE if file is not open</li>
+                <li>Writes the string value to the INI file</li>
+                <li>Creates the section and/or key if they don't exist</li>
+                <li>Overwrites existing value if key already exists</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Write successful</li>
+                <li><code>FALSE</code> - File not open or write failed</li>
+            </ul>
+
+            <p><strong>Examples:</strong></p>
+            <pre>GS_IniFile file;
+file.Open("settings.ini");
+
+// Write player settings
+file.WriteString("Player", "Name", "PLAYER1");
+file.WriteString("Player", "Class", "Warrior");
+file.WriteString("Game", "Difficulty", "Hard");
+file.WriteString("Localization", "Language", "English");
+
+// Write metadata
+file.WriteString("Info", "Version", "1.0.0");
+file.WriteString("Info", "LastPlayed", "2024-01-15");
+
+file.Close();</pre>
+        </div>
+    </section>
+
+    <!-- Best Practices -->
+    <section class="api-section">
+        <h2>Best Practices</h2>
+        <div class="endpoint">
+            <h3>Complete Settings Management Example</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Loading game settings
+BOOL LoadSettings()
+{
+    GS_IniFile iniFile;
+    
+    // Construct full path to settings file
+    char settingsPath[_MAX_PATH];
+    GetCurrentDirectory(_MAX_PATH, settingsPath);
+    strcat(settingsPath, "\\settings.ini");
+    
+    if (!iniFile.Open(settingsPath))
+    {
+        return FALSE;
+    }
+    
+    // Read display settings with sensible defaults
+    m_displayWidth = iniFile.ReadInt("Display", "Width", 800);
+    m_displayHeight = iniFile.ReadInt("Display", "Height", 600);
+    m_colorDepth = iniFile.ReadInt("Display", "ColorDepth", 32);
+    m_isWindowed = iniFile.ReadInt("Display", "Windowed", 1);
+    m_vsyncEnabled = iniFile.ReadInt("Display", "VSync", 0);
+    
+    // Read audio settings
+    m_musicVolume = iniFile.ReadFloat("Sound", "MusicVolume", 1.0f);
+    m_sfxVolume = iniFile.ReadFloat("Sound", "EffectsVolume", 0.8f);
+    
+    // Read player preferences
+    const char* name = iniFile.ReadString("Player", "Name", "Player1");
+    strcpy(m_playerName, name);
+    
+    iniFile.Close();
+    return TRUE;
+}
+
+// Saving game settings
+BOOL SaveSettings()
+{
+    GS_IniFile iniFile;
+    
+    char settingsPath[_MAX_PATH];
+    GetCurrentDirectory(_MAX_PATH, settingsPath);
+    strcat(settingsPath, "\\settings.ini");
+    
+    if (!iniFile.Open(settingsPath))
+    {
+        return FALSE;
+    }
+    
+    // Write display settings
+    iniFile.WriteInt("Display", "Width", m_displayWidth);
+    iniFile.WriteInt("Display", "Height", m_displayHeight);
+    iniFile.WriteInt("Display", "ColorDepth", m_colorDepth);
+    iniFile.WriteInt("Display", "Windowed", m_isWindowed);
+    iniFile.WriteInt("Display", "VSync", m_vsyncEnabled);
+    
+    // Write audio settings
+    iniFile.WriteFloat("Sound", "MusicVolume", m_musicVolume);
+    iniFile.WriteFloat("Sound", "EffectsVolume", m_sfxVolume);
+    
+    // Write player preferences
+    iniFile.WriteString("Player", "Name", m_playerName);
+    
+    iniFile.Close();
+    return TRUE;
+}</code></pre>
+
+            <h3>High Score Management</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Structure for high scores
+struct HighScore {
+    char name[32];
+    int score;
+};
+
+// Load high scores
+BOOL LoadHighScores(HighScore scores[], int maxScores)
+{
+    GS_IniFile iniFile;
+    if (!iniFile.Open("hiscores.ini"))
+        return FALSE;
+    
+    for (int i = 0; i < maxScores; i++)
+    {
+        char section[32];
+        sprintf(section, "Score%d", i);
+        
+        // Read name and score
+        const char* name = iniFile.ReadString(section, "Name", "Unknown");
+        strcpy(scores[i].name, name);
+        scores[i].score = iniFile.ReadInt(section, "Score", 0);
+    }
+    
+    iniFile.Close();
+    return TRUE;
+}
+
+// Save high scores
+BOOL SaveHighScores(HighScore scores[], int maxScores)
+{
+    GS_IniFile iniFile;
+    if (!iniFile.Open("hiscores.ini"))
+        return FALSE;
+    
+    for (int i = 0; i < maxScores; i++)
+    {
+        char section[32];
+        sprintf(section, "Score%d", i);
+        
+        iniFile.WriteString(section, "Name", scores[i].name);
+        iniFile.WriteInt(section, "Score", scores[i].score);
+    }
+    
+    iniFile.Close();
+    return TRUE;
+}</code></pre>
+
+            <h3>Error Handling</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>GS_IniFile iniFile;
+
+// Always check if file opened successfully
+if (!iniFile.Open("config.ini"))
+{
+    GS_Error::Report(__FILE__, __LINE__, "Failed to open config file!");
+    // Use default settings
+    UseDefaultSettings();
+    return FALSE;
+}
+
+// Read with appropriate defaults
+int value = iniFile.ReadInt("Settings", "SomeValue", -1);
+
+// Check if value was actually in the file
+if (value == -1)
+{
+    // Key didn't exist, using default
+    // Optionally write the default to file
+    iniFile.WriteInt("Settings", "SomeValue", DEFAULT_VALUE);
+}
+
+iniFile.Close();</code></pre>
+
+            <h3>Organizing Settings by Section</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Organize related settings into logical sections
+GS_IniFile iniFile;
+iniFile.Open("game.ini");
+
+// Graphics settings
+iniFile.WriteInt("Graphics", "Resolution", 1920);
+iniFile.WriteInt("Graphics", "Quality", 2);  // 0=Low, 1=Medium, 2=High
+iniFile.WriteInt("Graphics", "AntiAliasing", 1);
+
+// Audio settings
+iniFile.WriteFloat("Audio", "Master", 1.0f);
+iniFile.WriteFloat("Audio", "Music", 0.7f);
+iniFile.WriteFloat("Audio", "SFX", 0.9f);
+
+// Gameplay settings
+iniFile.WriteString("Gameplay", "Difficulty", "Normal");
+iniFile.WriteInt("Gameplay", "AutoSave", 1);
+
+// Controls (store as key codes)
+iniFile.WriteInt("Controls", "Jump", 32);      // Space
+iniFile.WriteInt("Controls", "Fire", 13);      // Enter
+iniFile.WriteInt("Controls", "Crouch", 16);    // Shift
+
+iniFile.Close();</code></pre>
+
+            <h3>Tips and Recommendations</h3>
+            <ul>
+                <li><strong>Use Full Paths:</strong> Always use full paths to avoid issues with current directory</li>
+                <li><strong>Provide Defaults:</strong> Always specify sensible default values for read operations</li>
+                <li><strong>Organize Sections:</strong> Group related settings into logical sections</li>
+                <li><strong>Document Values:</strong> Add comments to INI files explaining valid ranges</li>
+                <li><strong>Validate Input:</strong> Check read values are within acceptable ranges</li>
+                <li><strong>Handle Missing Files:</strong> Gracefully handle missing INI files with defaults</li>
+                <li><strong>Close Files:</strong> Always close files when done to ensure data is flushed</li>
+                <li><strong>Copy Strings:</strong> Copy returned strings to your own buffers if needed long-term</li>
+            </ul>
+
+            <h3>Common Patterns</h3>
+            <ul>
+                <li><strong>Settings Management:</strong> Load on startup, save on exit or settings change</li>
+                <li><strong>Progress Saving:</strong> Write after significant game events (level complete, checkpoint)</li>
+                <li><strong>High Scores:</strong> Read on game start, write when new high score achieved</li>
+                <li><strong>User Preferences:</strong> Update immediately when user changes options</li>
+                <li><strong>Debug Configuration:</strong> Read once at startup for development settings</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Platform Notes -->
+    <section class="api-section">
+        <h2>Platform-Specific Notes</h2>
+        <div class="endpoint">
+            <h3>Windows</h3>
+            <ul>
+                <li>Uses native <code>GetPrivateProfileString()</code> and <code>WritePrivateProfileString()</code> APIs</li>
+                <li>Changes are written immediately to disk</li>
+                <li>Supports full Windows API features (caching, etc.)</li>
+                <li>Path separators: backslash (<code>\</code>)</li>
+            </ul>
+
+            <h3>Linux / macOS (SDL2)</h3>
+            <ul>
+                <li>Custom implementation using STL (std::map, std::ifstream, std::ofstream)</li>
+                <li>File is cached in memory and rewritten entirely on changes</li>
+                <li>Paths are automatically normalized to forward slash (<code>/</code>)</li>
+                <li>Maintains Windows INI format compatibility</li>
+                <li>Whitespace trimming and comment support (lines starting with <code>;</code> or <code>#</code>)</li>
+            </ul>
+
+            <h3>Cross-Platform Compatibility</h3>
+            <p>The <code>GS_IniFile</code> class ensures INI files are compatible across platforms:</p>
+            <ul>
+                <li>Same API on all platforms - no code changes needed</li>
+                <li>INI files can be shared between Windows and Unix systems</li>
+                <li>Path normalization handled transparently</li>
+                <li>Text format is human-readable and editable on any platform</li>
+            </ul>
+
+            <div style="background-color: #d4edda; padding: 15px; border-left: 4px solid #28a745; margin: 20px 0;">
+                <h4 style="margin-top: 0;">✅ Best Practice</h4>
+                <p style="margin-bottom: 0;">Use forward slashes (<code>/</code>) in paths when possible, as they work on all platforms. The class will handle platform-specific conversions automatically.</p>
+            </div>
+        </div>
+    </section>
+</body>
+
+</html>

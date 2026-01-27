@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GS_OGLColor Structure</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+
+<body class="endpoint-page">
+    <!-- GS_OGLColor Methods Index -->
+    <section class="api-section">
+        <h2>GS_OGLColor Structure Reference</h2>
+        <p><strong>File:</strong> <code>gs_ogl_color.h</code> (header-only structure)</p>
+        
+        <div class="endpoint-index">
+            <h3>Member Variables</h3>
+            <ul>
+                <li><a href="#fred">fRed <span class="endpoint-desc">- Red color component (0.0 - 1.0)</span></a></li>
+                <li><a href="#fgreen">fGreen <span class="endpoint-desc">- Green color component (0.0 - 1.0)</span></a></li>
+                <li><a href="#fblue">fBlue <span class="endpoint-desc">- Blue color component (0.0 - 1.0)</span></a></li>
+                <li><a href="#falpha">fAlpha <span class="endpoint-desc">- Alpha/transparency component (0.0 - 1.0)</span></a></li>
+            </ul>
+
+            <h3>Constructors</h3>
+            <ul>
+                <li><a href="#default-constructor">GS_OGLColor() <span class="endpoint-desc">- Default constructor (black, opaque)</span></a></li>
+                <li><a href="#rgb-constructor">GS_OGLColor(r, g, b) <span class="endpoint-desc">- RGB constructor</span></a></li>
+                <li><a href="#rgba-constructor">GS_OGLColor(r, g, b, a) <span class="endpoint-desc">- RGBA constructor</span></a></li>
+                <li><a href="#copy-constructor">GS_OGLColor(const GS_OGLColor&) <span class="endpoint-desc">- Copy constructor</span></a></li>
+            </ul>
+
+            <h3>Operators</h3>
+            <ul>
+                <li><a href="#assignment">operator= <span class="endpoint-desc">- Assignment operator</span></a></li>
+            </ul>
+
+            <h3>Utility Macros</h3>
+            <ul>
+                <li><a href="#bytetofloat">ByteToFloat() <span class="endpoint-desc">- Convert byte (0-255) to float (0.0-1.0)</span></a></li>
+                <li><a href="#floattobyte">FloatToByte() <span class="endpoint-desc">- Convert float (0.0-1.0) to byte (0-255)</span></a></li>
+            </ul>
+        </div>
+    </section>
+    
+    <!-- Structure Overview -->
+    <section class="api-section">
+        <h2>Structure Overview</h2>
+        <div class="endpoint">
+            <h3>About GS_OGLColor</h3>
+            <p>The <code>GS_OGLColor</code> structure provides a convenient way to represent and manipulate RGBA colors in OpenGL applications. It stores color components as floating-point values in the range 0.0 to 1.0, which matches OpenGL's native color format.</p>
+
+            <p>This structure is used throughout the GameSystem library for color modulation of sprites, fonts, particles, and other rendered objects. It supports standard color operations and provides constructors for easy initialization from various color representations.</p>
+
+            <h3>Key Features</h3>
+            <ul>
+                <li><strong>OpenGL-Native Format:</strong> Uses float values (0.0-1.0) matching OpenGL's color system</li>
+                <li><strong>RGBA Support:</strong> Full support for red, green, blue, and alpha (transparency) channels</li>
+                <li><strong>Multiple Constructors:</strong> Create colors from RGB, RGBA, or copy existing colors</li>
+                <li><strong>Conversion Macros:</strong> Easy conversion between byte (0-255) and float (0.0-1.0) formats</li>
+                <li><strong>Lightweight:</strong> Simple POD-style structure with minimal overhead</li>
+                <li><strong>Assignment Support:</strong> Copy colors with standard assignment operator</li>
+            </ul>
+
+            <h3>Color Format</h3>
+            <p>GS_OGLColor uses normalized float values where:</p>
+            <ul>
+                <li><code>0.0</code> = Minimum intensity (black for RGB, transparent for alpha)</li>
+                <li><code>1.0</code> = Maximum intensity (full color for RGB, opaque for alpha)</li>
+                <li>Values between 0.0 and 1.0 represent intermediate intensities</li>
+            </ul>
+
+            <div style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; margin: 15px 0;">
+                <h4 style="margin-top: 0;">Float vs Byte Format</h4>
+                <p>OpenGL uses float values (0.0-1.0), but many image formats and color pickers use bytes (0-255). The provided macros make conversion easy:</p>
+                <ul style="margin-bottom: 0;">
+                    <li><code>ByteToFloat(255)</code> → <code>0.996...</code> (approximately 1.0)</li>
+                    <li><code>FloatToByte(1.0f)</code> → <code>255</code></li>
+                    <li><code>ByteToFloat(128)</code> → <code>0.5</code></li>
+                    <li><code>FloatToByte(0.5f)</code> → <code>127</code></li>
+                </ul>
+            </div>
+
+            <h3>Structure Definition</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>typedef struct GS_OGLColor
+{
+    float fRed;    // Red component (0.0 - 1.0)
+    float fGreen;  // Green component (0.0 - 1.0)
+    float fBlue;   // Blue component (0.0 - 1.0)
+    float fAlpha;  // Alpha/transparency (0.0 = transparent, 1.0 = opaque)
+    
+    GS_OGLColor();                           // Default constructor
+    GS_OGLColor(float r, float g, float b);  // RGB constructor
+    GS_OGLColor(float r, float g, float b, float a); // RGBA constructor
+    GS_OGLColor(const GS_OGLColor &c);      // Copy constructor
+    GS_OGLColor &operator=(const GS_OGLColor &c); // Assignment
+} GS_OGLColor;</code></pre>
+
+            <h3>Common Color Values</h3>
+            <p>Here are some commonly used color combinations:</p>
+
+            <table style="width: 100%; border-collapse: collapse; margin: 1em 0;">
+                <thead>
+                    <tr style="background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Color</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Red</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Green</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Blue</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Alpha</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><span style="display:inline-block;width:20px;height:20px;background:#000;border:1px solid #ccc;vertical-align:middle;"></span> Black</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">0.0</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">0.0</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">0.0</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">1.0</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><span style="display:inline-block;width:20px;height:20px;background:#fff;border:1px solid #ccc;vertical-align:middle;"></span> White</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">1.0</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">1.0</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">1.0</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">1.0</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><span style="display:inline-block;width:20px;height:20px;background:#f00;border:1px solid #ccc;vertical-align:middle;"></span> Red</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">1.0</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">0.0</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">0.0</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">1.0</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><span style="display:inline-block;width:20px;height:20px;background:#0f0;border:1px solid #ccc;vertical-align:middle;"></span> Green</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">0.0</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">1.0</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">0.0</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">1.0</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><span style="display:inline-block;width:20px;height:20px;background:#00f;border:1px solid #ccc;vertical-align:middle;"></span> Blue</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">0.0</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">0.0</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">1.0</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">1.0</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><span style="display:inline-block;width:20px;height:20px;background:#ff0;border:1px solid #ccc;vertical-align:middle;"></span> Yellow</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">1.0</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">1.0</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">0.0</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">1.0</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><span style="display:inline-block;width:20px;height:20px;background:#0ff;border:1px solid #ccc;vertical-align:middle;"></span> Cyan</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">0.0</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">1.0</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">1.0</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">1.0</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><span style="display:inline-block;width:20px;height:20px;background:#f0f;border:1px solid #ccc;vertical-align:middle;"></span> Magenta</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">1.0</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">0.0</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">1.0</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">1.0</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><span style="display:inline-block;width:20px;height:20px;background:#888;border:1px solid #ccc;vertical-align:middle;"></span> Gray (50%)</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">0.5</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">0.5</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">0.5</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">1.0</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 10px; border: 1px solid #ddd;">Transparent</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">-</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">-</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">-</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">0.0</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Semi-transparent</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">-</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">-</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">-</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">0.5</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Usage in GameSystem</h3>
+            <p>GS_OGLColor is used throughout the library for:</p>
+            <ul>
+                <li><strong>Sprite Tinting:</strong> <code>GS_OGLSprite::SetModulateColor()</code></li>
+                <li><strong>Font Colors:</strong> <code>GS_OGLFont::SetModulateColor()</code></li>
+                <li><strong>Menu Colors:</strong> Text and highlight colors in <code>GS_OGLMenu</code></li>
+                <li><strong>Particle Effects:</strong> Color variation in <code>GS_OGLParticle</code></li>
+                <li><strong>Screen Clearing:</strong> <code>glClearColor()</code> calls</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Member Variables -->
+    <section class="api-section">
+        <h2>Member Variables</h2>
+
+        <div class="endpoint" id="fred">
+            <h3>fRed</h3>
+            <p><strong>Type:</strong> <code>float</code></p>
+            <p>Red color component in the range 0.0 (no red) to 1.0 (full red intensity).</p>
+            
+            <p><strong>Usage:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>GS_OGLColor color;
+color.fRed = 1.0f;  // Full red
+color.fRed = 0.5f;  // Half intensity red
+color.fRed = 0.0f;  // No red</code></pre>
+        </div>
+
+        <div class="endpoint" id="fgreen">
+            <h3>fGreen</h3>
+            <p><strong>Type:</strong> <code>float</code></p>
+            <p>Green color component in the range 0.0 (no green) to 1.0 (full green intensity).</p>
+            
+            <p><strong>Usage:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>GS_OGLColor color;
+color.fGreen = 1.0f;  // Full green
+color.fGreen = 0.5f;  // Half intensity green
+color.fGreen = 0.0f;  // No green</code></pre>
+        </div>
+
+        <div class="endpoint" id="fblue">
+            <h3>fBlue</h3>
+            <p><strong>Type:</strong> <code>float</code></p>
+            <p>Blue color component in the range 0.0 (no blue) to 1.0 (full blue intensity).</p>
+            
+            <p><strong>Usage:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>GS_OGLColor color;
+color.fBlue = 1.0f;  // Full blue
+color.fBlue = 0.5f;  // Half intensity blue
+color.fBlue = 0.0f;  // No blue</code></pre>
+        </div>
+
+        <div class="endpoint" id="falpha">
+            <h3>fAlpha</h3>
+            <p><strong>Type:</strong> <code>float</code></p>
+            <p>Alpha/transparency component in the range 0.0 (fully transparent) to 1.0 (fully opaque).</p>
+            
+            <p><strong>Usage:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>GS_OGLColor color;
+color.fAlpha = 1.0f;  // Fully opaque (default)
+color.fAlpha = 0.5f;  // Semi-transparent (50%)
+color.fAlpha = 0.0f;  // Fully transparent (invisible)</code></pre>
+
+            <p><strong>Note:</strong> Alpha blending must be enabled in OpenGL for transparency to work. GameSystem typically enables this via <code>GS_OGLDisplay::EnableBlending(TRUE)</code>.</p>
+        </div>
+    </section>
+
+    <!-- Constructors -->
+    <section class="api-section">
+        <h2>Constructors</h2>
+
+        <div class="endpoint" id="default-constructor">
+            <h3>GS_OGLColor()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_color.h</code> (inline)</p>
+            <p>Default constructor that initializes the color to black (0, 0, 0) with full opacity (alpha = 1.0).</p>
+            
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Initialization:</strong></p>
+            <ul>
+                <li><code>fRed = 0.0f</code></li>
+                <li><code>fGreen = 0.0f</code></li>
+                <li><code>fBlue = 0.0f</code></li>
+                <li><code>fAlpha = 1.0f</code></li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>GS_OGLColor color;  // Black, opaque
+// color.fRed = 0.0, fGreen = 0.0, fBlue = 0.0, fAlpha = 1.0</code></pre>
+        </div>
+
+        <div class="endpoint" id="rgb-constructor">
+            <h3>GS_OGLColor(float r, float g, float b)</h3>
+            <p><strong>File:</strong> <code>gs_ogl_color.h</code> (inline)</p>
+            <p>RGB constructor that initializes the color with specified red, green, and blue components, and full opacity (alpha = 1.0).</p>
+            
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>r</code> - Red component (0.0 - 1.0)</li>
+                <li><code>g</code> - Green component (0.0 - 1.0)</li>
+                <li><code>b</code> - Blue component (0.0 - 1.0)</li>
+            </ul>
+
+            <p><strong>Initialization:</strong></p>
+            <ul>
+                <li><code>fRed = r</code></li>
+                <li><code>fGreen = g</code></li>
+                <li><code>fBlue = b</code></li>
+                <li><code>fAlpha = 1.0f</code> (automatically set to opaque)</li>
+            </ul>
+
+            <p><strong>Examples:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>GS_OGLColor red(1.0f, 0.0f, 0.0f);      // Pure red
+GS_OGLColor green(0.0f, 1.0f, 0.0f);    // Pure green
+GS_OGLColor blue(0.0f, 0.0f, 1.0f);     // Pure blue
+GS_OGLColor white(1.0f, 1.0f, 1.0f);    // White
+GS_OGLColor gray(0.5f, 0.5f, 0.5f);     // 50% gray
+GS_OGLColor orange(1.0f, 0.5f, 0.0f);   // Orange</code></pre>
+        </div>
+
+        <div class="endpoint" id="rgba-constructor">
+            <h3>GS_OGLColor(float r, float g, float b, float a)</h3>
+            <p><strong>File:</strong> <code>gs_ogl_color.h</code> (inline)</p>
+            <p>RGBA constructor that initializes the color with specified red, green, blue, and alpha components.</p>
+            
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>r</code> - Red component (0.0 - 1.0)</li>
+                <li><code>g</code> - Green component (0.0 - 1.0)</li>
+                <li><code>b</code> - Blue component (0.0 - 1.0)</li>
+                <li><code>a</code> - Alpha/transparency component (0.0 = transparent, 1.0 = opaque)</li>
+            </ul>
+
+            <p><strong>Initialization:</strong></p>
+            <ul>
+                <li><code>fRed = r</code></li>
+                <li><code>fGreen = g</code></li>
+                <li><code>fBlue = b</code></li>
+                <li><code>fAlpha = a</code></li>
+            </ul>
+
+            <p><strong>Examples:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>GS_OGLColor semiRed(1.0f, 0.0f, 0.0f, 0.5f);     // 50% transparent red
+GS_OGLColor transWhite(1.0f, 1.0f, 1.0f, 0.3f);  // 30% visible white
+GS_OGLColor fadeBlue(0.0f, 0.0f, 1.0f, 0.75f);   // 75% opaque blue
+GS_OGLColor invisible(0.0f, 0.0f, 0.0f, 0.0f);   // Fully transparent</code></pre>
+        </div>
+
+        <div class="endpoint" id="copy-constructor">
+            <h3>GS_OGLColor(const GS_OGLColor &c)</h3>
+            <p><strong>File:</strong> <code>gs_ogl_color.h</code> (inline)</p>
+            <p>Copy constructor that creates a new color by copying all components from an existing color.</p>
+            
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>c</code> - Reference to the GS_OGLColor to copy from</li>
+            </ul>
+
+            <p><strong>Initialization:</strong></p>
+            <ul>
+                <li><code>fRed = c.fRed</code></li>
+                <li><code>fGreen = c.fGreen</code></li>
+                <li><code>fBlue = c.fBlue</code></li>
+                <li><code>fAlpha = c.fAlpha</code></li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>GS_OGLColor original(1.0f, 0.5f, 0.0f, 0.8f);  // Orange, 80% opaque
+GS_OGLColor copy(original);                     // Exact copy
+// copy.fRed = 1.0, fGreen = 0.5, fBlue = 0.0, fAlpha = 0.8</code></pre>
+        </div>
+    </section>
+
+    <!-- Operators -->
+    <section class="api-section">
+        <h2>Operators</h2>
+
+        <div class="endpoint" id="assignment">
+            <h3>operator=</h3>
+            <p><strong>File:</strong> <code>gs_ogl_color.h</code> (inline)</p>
+            <p>Assignment operator that copies all color components from another GS_OGLColor.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>GS_OGLColor &operator=(const GS_OGLColor &c)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>c</code> - Reference to the GS_OGLColor to copy from</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Copies all four color components (fRed, fGreen, fBlue, fAlpha)</li>
+                <li>Returns a reference to the modified object</li>
+                <li>Allows chained assignments</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Reference to <code>*this</code> (the modified object)</li>
+            </ul>
+
+            <p><strong>Examples:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>GS_OGLColor color1(1.0f, 0.0f, 0.0f);  // Red
+GS_OGLColor color2;                     // Black (default)
+
+color2 = color1;  // Copy red to color2
+// color2 is now also red
+
+// Chained assignment
+GS_OGLColor c1, c2, c3;
+c1 = c2 = c3 = GS_OGLColor(0.0f, 1.0f, 0.0f);  // All green</code></pre>
+        </div>
+    </section>
+
+    <!-- Utility Macros -->
+    <section class="api-section">
+        <h2>Utility Macros</h2>
+
+        <div class="endpoint" id="bytetofloat">
+            <h3>ByteToFloat(val)</h3>
+            <p><strong>File:</strong> <code>gs_ogl_color.h</code> (macro)</p>
+            <p>Converts a byte value (0-255) to a float value (0.0-1.0) for use with GS_OGLColor.</p>
+            
+            <p><strong>Definition:</strong></p>
+            <pre>#define ByteToFloat(val) (((float)(val))/256.0f)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>val</code> - Byte value (typically 0-255, but can be any integer)</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Float value in the range 0.0 to approximately 1.0</li>
+            </ul>
+
+            <p><strong>Formula:</strong></p>
+            <pre>result = value / 256.0</pre>
+
+            <p><strong>Examples:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Convert common byte values
+float f0   = ByteToFloat(0);    // 0.0
+float f128 = ByteToFloat(128);  // 0.5
+float f255 = ByteToFloat(255);  // 0.996... (approximately 1.0)
+
+// Create color from RGB bytes (like CSS: rgb(255, 128, 64))
+GS_OGLColor color(
+    ByteToFloat(255),  // Red: 255 → 0.996...
+    ByteToFloat(128),  // Green: 128 → 0.5
+    ByteToFloat(64)    // Blue: 64 → 0.25
+);
+
+// From hex color #FF8040 (R=255, G=128, B=64)
+GS_OGLColor hexColor(
+    ByteToFloat(0xFF),  // 255
+    ByteToFloat(0x80),  // 128
+    ByteToFloat(0x40)   // 64
+);</code></pre>
+
+            <div style="background-color: #fff3cd; padding: 15px; border-left: 4px solid #ffc107; margin: 20px 0;">
+                <h4 style="margin-top: 0;">⚠️ Division by 256 vs 255</h4>
+                <p style="margin-bottom: 0;">This macro divides by 256.0 (not 255.0) for performance reasons, resulting in a maximum value of 0.996... instead of exactly 1.0. In practice, this small difference is visually imperceptible and is acceptable for real-time graphics.</p>
+            </div>
+        </div>
+
+        <div class="endpoint" id="floattobyte">
+            <h3>FloatToByte(val)</h3>
+            <p><strong>File:</strong> <code>gs_ogl_color.h</code> (macro)</p>
+            <p>Converts a float value (0.0-1.0) to an unsigned byte (0-255).</p>
+            
+            <p><strong>Definition:</strong></p>
+            <pre>#define FloatToByte(val) ((unsigned char)((val)*255.0f))</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>val</code> - Float value (typically 0.0-1.0, but can be any float)</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Unsigned char (byte) value in the range 0-255</li>
+            </ul>
+
+            <p><strong>Formula:</strong></p>
+            <pre>result = (unsigned char)(value × 255.0)</pre>
+
+            <p><strong>Examples:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Convert float values to bytes
+unsigned char b0   = FloatToByte(0.0f);   // 0
+unsigned char b128 = FloatToByte(0.5f);   // 127
+unsigned char b255 = FloatToByte(1.0f);   // 255
+
+// Extract RGB bytes from GS_OGLColor
+GS_OGLColor color(1.0f, 0.5f, 0.25f);
+
+unsigned char red   = FloatToByte(color.fRed);    // 255
+unsigned char green = FloatToByte(color.fGreen);  // 127
+unsigned char blue  = FloatToByte(color.fBlue);   // 63
+
+// Useful for saving colors to files or interfacing with byte-based APIs
+printf("RGB(%d, %d, %d)\n", red, green, blue);</code></pre>
+
+            <p><strong>Use Cases:</strong></p>
+            <ul>
+                <li>Converting GS_OGLColor to image file formats (TGA, BMP, etc.)</li>
+                <li>Interfacing with APIs that expect byte-based colors</li>
+                <li>Debugging - printing colors in familiar 0-255 format</li>
+                <li>Creating color picker interfaces</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Practical Examples -->
+    <section class="api-section">
+        <h2>Practical Examples</h2>
+        <div class="endpoint">
+            <h3>Basic Color Creation</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Create common colors
+GS_OGLColor black;                           // Default: black, opaque
+GS_OGLColor white(1.0f, 1.0f, 1.0f);        // White
+GS_OGLColor red(1.0f, 0.0f, 0.0f);          // Red
+GS_OGLColor green(0.0f, 1.0f, 0.0f);        // Green
+GS_OGLColor blue(0.0f, 0.0f, 1.0f);         // Blue
+GS_OGLColor yellow(1.0f, 1.0f, 0.0f);       // Yellow
+GS_OGLColor cyan(0.0f, 1.0f, 1.0f);         // Cyan
+GS_OGLColor magenta(1.0f, 0.0f, 1.0f);      // Magenta
+GS_OGLColor gray(0.5f, 0.5f, 0.5f);         // 50% gray</code></pre>
+
+            <h3>Sprite Color Modulation</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>GS_OGLSprite sprite;
+sprite.Create("data/player.tga");
+
+// Tint sprite red
+GS_OGLColor redTint(1.0f, 0.5f, 0.5f);  // Light red
+sprite.SetModulateColor(redTint.fRed, redTint.fGreen, redTint.fBlue, redTint.fAlpha);
+
+// Make sprite semi-transparent
+GS_OGLColor fadeColor(1.0f, 1.0f, 1.0f, 0.5f);  // 50% visible
+sprite.SetModulateColor(fadeColor.fRed, fadeColor.fGreen, 
+                       fadeColor.fBlue, fadeColor.fAlpha);
+
+// Reset to normal (white, opaque)
+GS_OGLColor normal(1.0f, 1.0f, 1.0f, 1.0f);
+sprite.SetModulateColor(normal.fRed, normal.fGreen, normal.fBlue, normal.fAlpha);</code></pre>
+
+            <h3>Menu Color Configuration</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Set up menu colors
+GS_OGLColor menuTextColor(1.0f, 1.0f, 1.0f, 0.3f);   // Faded white
+GS_OGLColor menuHighColor(1.0f, 1.0f, 1.0f, 1.0f);   // Bright white
+GS_OGLColor menuErrorColor(1.0f, 0.2f, 0.2f, 1.0f);  // Red for errors
+
+// Use with menu
+m_gsMenu.Render(menuTextColor, menuHighColor);</code></pre>
+
+            <h3>Fade Effects</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Fade in/out effect
+static float alpha = 0.0f;
+
+// Fade in
+alpha += 0.01f;
+if (alpha > 1.0f) alpha = 1.0f;
+
+// Fade out
+alpha -= 0.01f;
+if (alpha < 0.0f) alpha = 0.0f;
+
+// Apply to sprite
+GS_OGLColor fadeColor(1.0f, 1.0f, 1.0f, alpha);
+sprite.SetModulateColor(fadeColor.fRed, fadeColor.fGreen, 
+                       fadeColor.fBlue, fadeColor.fAlpha);</code></pre>
+
+            <h3>Color from Byte Values</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Create color from RGB bytes (like Photoshop, GIMP, etc.)
+// Example: RGB(255, 128, 64) = Orange
+GS_OGLColor orange(
+    ByteToFloat(255),  // Red channel
+    ByteToFloat(128),  // Green channel
+    ByteToFloat(64)    // Blue channel
+);
+
+// From hexadecimal color #FF8040
+GS_OGLColor hexOrange(
+    ByteToFloat(0xFF),  // Red: 255
+    ByteToFloat(0x80),  // Green: 128
+    ByteToFloat(0x40)   // Blue: 64
+);</code></pre>
+
+            <h3>Color Animation</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Pulsating color effect
+static float pulse = 0.0f;
+pulse += 0.05f;
+
+float intensity = 0.5f + 0.5f * sin(pulse);  // Oscillate 0.0-1.0
+
+GS_OGLColor pulseColor(intensity, intensity, 1.0f);  // Blue with varying brightness
+sprite.SetModulateColor(pulseColor.fRed, pulseColor.fGreen, 
+                       pulseColor.fBlue, pulseColor.fAlpha);
+
+// Rainbow effect
+float hue = fmod(pulse * 10.0f, 360.0f);
+// ... convert HSV to RGB and create GS_OGLColor</code></pre>
+
+            <h3>Damage Flash Effect</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>class Player {
+    GS_OGLSprite m_sprite;
+    int m_damageFlashTimer;
+    
+    void TakeDamage(int amount) {
+        health -= amount;
+        m_damageFlashTimer = 30;  // Flash for 30 frames
+    }
+    
+    void Update() {
+        if (m_damageFlashTimer > 0) {
+            // Flash red
+            GS_OGLColor flashRed(1.0f, 0.3f, 0.3f);
+            m_sprite.SetModulateColor(flashRed.fRed, flashRed.fGreen, 
+                                     flashRed.fBlue, flashRed.fAlpha);
+            m_damageFlashTimer--;
+        } else {
+            // Normal color
+            GS_OGLColor normal(1.0f, 1.0f, 1.0f);
+            m_sprite.SetModulateColor(normal.fRed, normal.fGreen, 
+                                     normal.fBlue, normal.fAlpha);
+        }
+    }
+};</code></pre>
+
+            <h3>Color Interpolation (Lerp)</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Linear interpolation between two colors
+GS_OGLColor ColorLerp(const GS_OGLColor& a, const GS_OGLColor& b, float t)
+{
+    // Clamp t to 0.0-1.0 range
+    if (t < 0.0f) t = 0.0f;
+    if (t > 1.0f) t = 1.0f;
+    
+    return GS_OGLColor(
+        a.fRed   + (b.fRed   - a.fRed)   * t,
+        a.fGreen + (b.fGreen - a.fGreen) * t,
+        a.fBlue  + (b.fBlue  - a.fBlue)  * t,
+        a.fAlpha + (b.fAlpha - a.fAlpha) * t
+    );
+}
+
+// Usage: Fade from red to blue over time
+GS_OGLColor red(1.0f, 0.0f, 0.0f);
+GS_OGLColor blue(0.0f, 0.0f, 1.0f);
+
+static float t = 0.0f;
+t += 0.01f;
+if (t > 1.0f) t = 0.0f;
+
+GS_OGLColor current = ColorLerp(red, blue, t);
+sprite.SetModulateColor(current.fRed, current.fGreen, 
+                       current.fBlue, current.fAlpha);</code></pre>
+
+            <h3>Best Practices</h3>
+            <ul>
+                <li><strong>Use Named Colors:</strong> Create constants for frequently used colors</li>
+                <li><strong>Normalize Values:</strong> Ensure color components stay in 0.0-1.0 range</li>
+                <li><strong>Enable Blending:</strong> Call <code>GS_OGLDisplay::EnableBlending(TRUE)</code> for alpha to work</li>
+                <li><strong>Reset Colors:</strong> Set back to white (1,1,1,1) when you want original appearance</li>
+                <li><strong>Use -1.0 Shortcut:</strong> Some GS functions use -1.0 to mean "don't change this component"</li>
+                <li><strong>Cache Colors:</strong> Store frequently used colors as member variables</li>
+            </ul>
+
+            <div style="background-color: #fffbcc; padding: 15px; border-left: 4px solid #ffcc00; margin: 20px 0;">
+                <h4 style="margin-top: 0;">💡 Pro Tip</h4>
+                <p style="margin-bottom: 0;">When modulating sprites, remember that color modulation multiplies with the texture. White (1,1,1) shows the original texture, while (0.5,0.5,0.5) darkens it by 50%. To tint a sprite, use values above 0.5 for the channels you want to emphasize.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Platform Notes -->
+    <section class="api-section">
+        <h2>Platform-Specific Notes</h2>
+        <div class="endpoint">
+            <h3>Cross-Platform Compatibility</h3>
+            <p>GS_OGLColor is completely platform-agnostic and works identically on all platforms:</p>
+            <ul>
+                <li><strong>Windows</strong> - Full support</li>
+                <li><strong>Linux</strong> - Full support</li>
+                <li><strong>macOS</strong> - Full support</li>
+            </ul>
+
+            <p>The structure uses standard C++ float types and has no platform-specific dependencies.</p>
+
+            <h3>OpenGL Integration</h3>
+            <p>GS_OGLColor values can be used directly with OpenGL functions:</p>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>GS_OGLColor clearColor(0.2f, 0.4f, 0.8f);  // Sky blue
+
+// Use with glClearColor
+glClearColor(clearColor.fRed, clearColor.fGreen, 
+             clearColor.fBlue, clearColor.fAlpha);
+
+// Use with glColor4f
+GS_OGLColor drawColor(1.0f, 0.0f, 0.0f);
+glColor4f(drawColor.fRed, drawColor.fGreen, 
+          drawColor.fBlue, drawColor.fAlpha);</code></pre>
+
+            <h3>Memory Layout</h3>
+            <p>The structure contains four consecutive float values (16 bytes total on most platforms):</p>
+            <ul>
+                <li>Offset 0: fRed (4 bytes)</li>
+                <li>Offset 4: fGreen (4 bytes)</li>
+                <li>Offset 8: fBlue (4 bytes)</li>
+                <li>Offset 12: fAlpha (4 bytes)</li>
+            </ul>
+
+            <p>This layout is compatible with OpenGL's RGBA float arrays.</p>
+
+            <div style="background-color: #d4edda; padding: 15px; border-left: 4px solid #28a745; margin: 20px 0;">
+                <h4 style="margin-top: 0;">✅ Best Practice</h4>
+                <p style="margin-bottom: 0;">GS_OGLColor provides a type-safe, self-documenting way to handle colors. While you could pass raw floats to rendering functions, using GS_OGLColor makes your code more maintainable and less error-prone.</p>
+            </div>
+        </div>
+    </section>
+</body>
+
+</html>

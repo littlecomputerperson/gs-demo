@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GameSystem Entry Point</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+
+<body class="endpoint-page">
+    <!-- Entry Point Reference -->
+    <section class="api-section">
+        <h2>GameSystem Entry Point Reference</h2>
+        <p><strong>Files:</strong> <code>gs_main.h</code>, <code>gs_main.cpp</code></p>
+        
+        <div class="endpoint-index">
+            <h3>Entry Point Functions</h3>
+            <ul>
+                <li><a href="#winmain">WinMain() <span class="endpoint-desc">- Windows application entry point</span></a></li>
+                <li><a href="#main">main() <span class="endpoint-desc">- SDL2/Unix application entry point</span></a></li>
+            </ul>
+
+            <h3>Global Variables</h3>
+            <ul>
+                <li><a href="#g_pgsapp">g_pGSApp <span class="endpoint-desc">- Global application instance pointer</span></a></li>
+            </ul>
+
+            <h3>Header Includes</h3>
+            <ul>
+                <li><a href="#platform">Platform Headers <span class="endpoint-desc">- Platform abstraction and OS-specific includes</span></a></li>
+                <li><a href="#gsincludes">GameSystem Headers <span class="endpoint-desc">- All GS library components</span></a></li>
+            </ul>
+        </div>
+    </section>
+    
+    <!-- Overview -->
+    <section class="api-section">
+        <h2>Overview</h2>
+        <div class="endpoint">
+            <h3>About gs_main Files</h3>
+            <p>The <code>gs_main.cpp</code> and <code>gs_main.h</code> files serve as the entry point for GameSystem applications. They provide the platform-specific main function that bootstraps your game, and the master header file that includes all GameSystem library components.</p>
+
+            <p>These files handle the fundamental program startup sequence:</p>
+            <ol>
+                <li>Platform-specific entry point (<code>WinMain</code> or <code>main</code>)</li>
+                <li>Verification that a game instance exists</li>
+                <li>Execution of the game's <code>Run()</code> method</li>
+                <li>Return of exit code to the operating system</li>
+            </ol>
+
+            <h3>Key Features</h3>
+            <ul>
+                <li><strong>Cross-Platform Entry:</strong> Unified startup code for Windows and SDL2 platforms</li>
+                <li><strong>Master Header:</strong> Single include point for all GameSystem components</li>
+                <li><strong>Error Handling:</strong> Validates application instance before execution</li>
+                <li><strong>Platform Abstraction:</strong> Conditional compilation for platform-specific code</li>
+                <li><strong>Minimal Boilerplate:</strong> Simple, clean entry point with error reporting</li>
+            </ul>
+
+            <h3>File Structure</h3>
+            <p>The entry point files are organized as follows:</p>
+
+            <table style="width: 100%; border-collapse: collapse; margin: 1em 0;">
+                <thead>
+                    <tr style="background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">File</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Purpose</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Contents</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>gs_main.h</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Master header file</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Includes all platform headers, standard libraries, and GS components</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>gs_main.cpp</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Application entry point</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Platform-specific main functions (WinMain/main)</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Platform Differences</h3>
+            <p>The entry point implementation varies by platform:</p>
+
+            <table style="width: 100%; border-collapse: collapse; margin: 1em 0;">
+                <thead>
+                    <tr style="background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Platform</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Entry Function</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Signature</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><strong>Windows</strong></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>WinMain()</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>int APIENTRY WinMain(HINSTANCE, HINSTANCE, LPSTR, int)</code></td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><strong>Linux/macOS</strong></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>main()</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>int main(int argc, char* argv[])</code></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Usage in Your Game</h3>
+            <p>You typically don't need to modify these files. Instead:</p>
+
+            <ol>
+                <li>Create your game class inheriting from <code>GS_Application</code></li>
+                <li>Declare a global instance of your game class</li>
+                <li>The entry point automatically finds and runs it</li>
+            </ol>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// In your game class file (e.g., gs_demo.cpp)
+#include "gs_main.h"
+
+class GS_Demo : public GS_Application {
+    // Your game implementation
+};
+
+// Global instance - this is what gs_main.cpp looks for
+GS_Demo g_gsDemo;
+
+// Required: expose the instance as GS_Application*
+GS_Application* g_pGSApp = &g_gsDemo;</code></pre>
+
+            <h3>Program Flow</h3>
+            <p>When your game starts, the execution follows this sequence:</p>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;">
+1. OS calls WinMain() or main()
+   ↓
+2. Entry function checks if g_pGSApp exists
+   ↓
+3. If valid, calls g_pGSApp->Run()
+   ↓
+4. GS_Application::Run() executes game loop
+   ↓
+5. Run() returns exit code
+   ↓
+6. Exit code returned to operating system
+</pre>
+        </div>
+    </section>
+
+    <!-- Entry Point Functions -->
+    <section class="api-section">
+        <h2>Entry Point Functions</h2>
+
+        <div class="endpoint" id="winmain">
+            <h3>WinMain()</h3>
+            <p><strong>File:</strong> <code>gs_main.cpp</code> (Windows only)</p>
+            <p>The Windows-specific application entry point. Called by the Windows operating system when the program starts.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>int APIENTRY WinMain(HINSTANCE hInstance, 
+                     HINSTANCE hPrevInstance, 
+                     LPSTR lpCmdLine, 
+                     int nCmdShow)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>hInstance</code> - Handle to the current instance of the application (unused)</li>
+                <li><code>hPrevInstance</code> - Always NULL in modern Windows (legacy parameter)</li>
+                <li><code>lpCmdLine</code> - Command-line arguments as a string (unused)</li>
+                <li><code>nCmdShow</code> - How the window should be shown initially (unused)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Checks if <code>g_pGSApp</code> global pointer is valid</li>
+                <li>If NULL, reports an error via <code>GS_Error::Report()</code> and returns 0</li>
+                <li>If valid, calls <code>g_pGSApp->Run()</code> to start the game loop</li>
+                <li>Returns the exit code from <code>Run()</code> to Windows</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>0</code> - Application failed to start (no instance created)</li>
+                <li>Exit code from <code>Run()</code> - Application ran successfully (typically 0)</li>
+            </ul>
+
+            <p><strong>Platform:</strong></p>
+            <ul>
+                <li>Windows only</li>
+                <li>Compiled when <code>GS_PLATFORM_WINDOWS</code> is defined</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Windows entry point (automatic - you don't call this)
+// The OS calls WinMain when your .exe starts
+
+// If your game instance exists:
+WinMain() → g_pGSApp->Run() → [Game Loop] → return exit_code
+
+// If no game instance:
+WinMain() → Error Report → return 0</code></pre>
+        </div>
+
+        <div class="endpoint" id="main">
+            <h3>main()</h3>
+            <p><strong>File:</strong> <code>gs_main.cpp</code> (Linux/macOS only)</p>
+            <p>The standard C/C++ entry point for SDL2 platforms (Linux, macOS). Called by the operating system when the program starts.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>int main(int argc, char* argv[])</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>argc</code> - Number of command-line arguments (unused but suppressed)</li>
+                <li><code>argv</code> - Array of command-line argument strings (unused but suppressed)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Uses <code>(void)argc; (void)argv;</code> to suppress unused parameter warnings</li>
+                <li>Checks if <code>g_pGSApp</code> global pointer is valid</li>
+                <li>If NULL, reports an error via <code>GS_Error::Report()</code> and returns 0</li>
+                <li>If valid, calls <code>g_pGSApp->Run()</code> to start the game loop</li>
+                <li>Returns the exit code from <code>Run()</code> to the shell</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>0</code> - Application failed to start (no instance created)</li>
+                <li>Exit code from <code>Run()</code> - Application ran successfully (typically 0)</li>
+            </ul>
+
+            <p><strong>Platform:</strong></p>
+            <ul>
+                <li>Linux and macOS</li>
+                <li>Compiled when <code>GS_PLATFORM_WINDOWS</code> is NOT defined</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// SDL2 entry point (automatic - you don't call this)
+// The OS calls main() when your executable starts
+
+// If your game instance exists:
+main() → g_pGSApp->Run() → [Game Loop] → return exit_code
+
+// If no game instance:
+main() → Error Report → return 0</code></pre>
+
+            <p><strong>Note:</strong> SDL2 has its own <code>SDL_main</code> mechanism, but GameSystem uses the standard <code>main()</code> function directly.</p>
+        </div>
+    </section>
+
+    <!-- Global Variables -->
+    <section class="api-section">
+        <h2>Global Variables</h2>
+
+        <div class="endpoint" id="g_pgsapp">
+            <h3>g_pGSApp</h3>
+            <p><strong>File:</strong> <code>gs_main.cpp</code></p>
+            <p>External reference to the global application instance pointer.</p>
+            
+            <p><strong>Declaration:</strong></p>
+            <pre>extern GS_Application* g_pGSApp;</pre>
+
+            <p><strong>Type:</strong></p>
+            <ul>
+                <li><code>GS_Application*</code> - Pointer to base application class</li>
+            </ul>
+
+            <p><strong>Purpose:</strong></p>
+            <ul>
+                <li>Provides access to the game instance from the entry point</li>
+                <li>Declared as <code>extern</code> because it's defined in your game file</li>
+                <li>Must point to your game class instance (which inherits from <code>GS_Application</code>)</li>
+                <li>Used by <code>WinMain()</code>/<code>main()</code> to start the game</li>
+            </ul>
+
+            <p><strong>Usage Pattern:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// In your game implementation file (gs_demo.cpp)
+GS_Demo g_gsDemo;  // Create instance of your game class
+
+// REQUIRED: Expose it as GS_Application* so gs_main can find it
+GS_Application* g_pGSApp = &g_gsDemo;</code></pre>
+
+            <p><strong>Error Handling:</strong></p>
+            <p>If <code>g_pGSApp</code> is NULL when the program starts, the entry point will:</p>
+            <ul>
+                <li>Report error: "Failed to start application, no instance created!"</li>
+                <li>Include file and line number (GS_MAIN.CPP, line 44)</li>
+                <li>Return 0 to the operating system</li>
+                <li>Prevent the game from running</li>
+            </ul>
+
+            <div style="background-color: #fff3cd; padding: 15px; border-left: 4px solid #ffc107; margin: 20px 0;">
+                <h4 style="margin-top: 0;">⚠️ Critical Requirement</h4>
+                <p style="margin-bottom: 0;">You <strong>must</strong> define <code>g_pGSApp</code> in your game implementation file and point it to your game instance. Without this, your program will fail to start with an error message.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Header Includes -->
+    <section class="api-section">
+        <h2>Header Includes (gs_main.h)</h2>
+
+        <div class="endpoint" id="platform">
+            <h3>Platform Headers</h3>
+            <p><strong>File:</strong> <code>gs_main.h</code></p>
+            <p>Platform-specific headers and standard library includes.</p>
+
+            <h4>Platform Abstraction</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>#include "gs_platform.h"</code></pre>
+            <p>The master platform abstraction header that provides:</p>
+            <ul>
+                <li>Platform detection macros (<code>GS_PLATFORM_WINDOWS</code>)</li>
+                <li>Type definitions (HWND, HDC, etc.)</li>
+                <li>Platform-neutral function wrappers</li>
+            </ul>
+
+            <h4>Windows-Specific Headers</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>#ifdef GS_PLATFORM_WINDOWS
+    #include &lt;windowsx.h&gt;  // Windows extended macros
+    #include &lt;mmsystem.h&gt;  // Multimedia system APIs
+#endif</code></pre>
+            <p>Included only on Windows platforms for:</p>
+            <ul>
+                <li><code>windowsx.h</code> - Mouse coordinate extraction (GET_X_LPARAM, GET_Y_LPARAM)</li>
+                <li><code>mmsystem.h</code> - Multimedia timer functions</li>
+            </ul>
+
+            <h4>Standard C Library Headers</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>#include &lt;assert.h&gt;   // Debug assertions
+#include &lt;stdio.h&gt;    // Standard input/output
+#include &lt;stdarg.h&gt;   // Variable argument lists</code></pre>
+            <p>Core C library functionality used throughout GameSystem:</p>
+            <ul>
+                <li><code>assert.h</code> - Runtime assertions for debugging</li>
+                <li><code>stdio.h</code> - File I/O and formatted output (printf, sprintf)</li>
+                <li><code>stdarg.h</code> - Variable argument list support (va_list, va_start, va_end)</li>
+            </ul>
+        </div>
+
+        <div class="endpoint" id="gsincludes">
+            <h3>GameSystem Headers</h3>
+            <p><strong>File:</strong> <code>gs_main.h</code></p>
+            <p>All GameSystem library components in organized groups.</p>
+
+            <h4>Core Framework</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>#include "gs_app.h"        // Application framework
+#include "gs_error.h"      // Error reporting
+#include "gs_timer.h"      // Frame timing</code></pre>
+
+            <h4>File I/O & Configuration</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>#include "gs_file.h"       // File operations
+#include "gs_ini_file.h"   // INI configuration files</code></pre>
+
+            <h4>Input Handling</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>#include "gs_keyboard.h"   // Keyboard input
+#include "gs_mouse.h"      // Mouse input</code></pre>
+
+            <h4>OpenGL Rendering System</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>#include "gs_ogl_collide.h"   // Collision detection
+#include "gs_ogl_display.h"   // Display and rendering setup
+#include "gs_ogl_font.h"      // Bitmap font rendering
+#include "gs_ogl_image.h"     // Image loading (TGA/PCX)
+#include "gs_ogl_map.h"       // Tile-based maps
+#include "gs_ogl_menu.h"      // Menu system
+#include "gs_ogl_particle.h"  // Particle effects
+#include "gs_ogl_sprite.h"    // Basic sprite rendering
+#include "gs_ogl_sprite_ex.h" // Animated sprite rendering
+#include "gs_ogl_texture.h"   // Texture management</code></pre>
+
+            <h4>Audio System (Conditional)</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>#ifdef GS_USE_SDL_MIXER
+    #include "gs_sdl_mixer_sound.h"  // SDL2_mixer audio (recommended)
+#else
+    #include "gs_fmod_sound.h"       // FMOD audio (legacy)
+#endif</code></pre>
+            <p>Includes the appropriate audio backend based on configuration:</p>
+            <ul>
+                <li><strong>SDL2_mixer:</strong> Cross-platform, actively maintained, recommended for new projects</li>
+                <li><strong>FMOD:</strong> Legacy audio system, Windows-focused, deprecated</li>
+            </ul>
+
+            <h4>Include Order</h4>
+            <p>The headers are included in a specific order to resolve dependencies:</p>
+            <ol>
+                <li>Platform abstraction and standard libraries</li>
+                <li>Core framework components</li>
+                <li>Utility classes (file, timer, error)</li>
+                <li>Input systems</li>
+                <li>Rendering components</li>
+                <li>Audio system (last due to dependencies)</li>
+            </ol>
+
+            <div style="background-color: #d4edda; padding: 15px; border-left: 4px solid #28a745; margin: 20px 0;">
+                <h4 style="margin-top: 0;">✅ Single Include</h4>
+                <p style="margin-bottom: 0;">You only need to include <code>gs_main.h</code> in your game files to access the entire GameSystem library. All dependencies and platform-specific headers are handled automatically.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Best Practices -->
+    <section class="api-section">
+        <h2>Best Practices</h2>
+        <div class="endpoint">
+            <h3>Proper Game Instance Setup</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// gs_demo.cpp - Your game implementation
+#include "gs_main.h"
+
+class GS_Demo : public GS_Application
+{
+    // Your game class
+};
+
+// REQUIRED: Create global instance
+GS_Demo g_gsDemo;
+
+// REQUIRED: Expose to entry point
+GS_Application* g_pGSApp = &g_gsDemo;</code></pre>
+
+            <h3>Don't Modify gs_main Files</h3>
+            <p>The <code>gs_main.*</code> files are part of the framework and should not be modified. They provide:</p>
+            <ul>
+                <li>Standard entry point for all GameSystem games</li>
+                <li>Consistent error handling</li>
+                <li>Platform abstraction</li>
+                <li>Complete library includes</li>
+            </ul>
+
+            <h3>Understanding the Startup Sequence</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// When your game starts:
+
+1. OS calls WinMain() or main()
+   └─ Entry point in gs_main.cpp
+
+2. Checks g_pGSApp != NULL
+   └─ Your instance pointer
+
+3. Calls g_pGSApp->Run()
+   └─ GS_Application::Run() in gs_app.cpp
+
+4. Run() calls your overrides:
+   ├─ GameSetup()  - Configure settings
+   ├─ GameInit()   - Load resources
+   └─ GameLoop()   - Main loop until exit
+
+5. Returns exit code to OS</code></pre>
+
+            <h3>Error: "Failed to start application"</h3>
+            <p>If you see this error, it means <code>g_pGSApp</code> is NULL. Common causes:</p>
+            <ul>
+                <li>Forgot to create global game instance</li>
+                <li>Forgot to assign <code>g_pGSApp = &yourGameInstance;</code></li>
+                <li>Game instance created inside a function (goes out of scope)</li>
+                <li>Multiple translation units with conflicting definitions</li>
+            </ul>
+
+            <p><strong>Solution:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Correct pattern (in gs_demo.cpp):
+GS_Demo g_gsDemo;              // Global scope - persists
+GS_Application* g_pGSApp = &g_gsDemo;
+
+// WRONG - Don't do this:
+int main() {
+    GS_Demo game;             // Local scope - destroyed after main()
+    g_pGSApp = &game;         // Pointer becomes invalid!
+    return g_pGSApp->Run();
+}</code></pre>
+
+            <h3>Multiple Games in One Project</h3>
+            <p>If you have multiple game classes, only one can be active:</p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// game1.cpp
+GS_Game1 g_gsGame1;
+
+// game2.cpp
+GS_Game2 g_gsGame2;
+
+// Choose which one to run
+#if CURRENT_GAME == 1
+    GS_Application* g_pGSApp = &g_gsGame1;
+#else
+    GS_Application* g_pGSApp = &g_gsGame2;
+#endif</code></pre>
+
+            <h3>Command-Line Arguments</h3>
+            <p>Currently, GameSystem doesn't process command-line arguments in the entry point. To add support:</p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Add a method to GS_Application
+class GS_Application {
+public:
+    virtual void ProcessCommandLine(int argc, char* argv[]) { }
+};
+
+// Modify main() to call it:
+int main(int argc, char* argv[])
+{
+    if (!g_pGSApp) { /* error */ }
+    
+    // Process command-line args before running
+    g_pGSApp->ProcessCommandLine(argc, argv);
+    
+    return g_pGSApp->Run();
+}</code></pre>
+        </div>
+    </section>
+
+    <!-- Platform Notes -->
+    <section class="api-section">
+        <h2>Platform-Specific Notes</h2>
+        <div class="endpoint">
+            <h3>Windows (WinMain)</h3>
+            <ul>
+                <li>Entry point signature must match Windows requirements</li>
+                <li><code>APIENTRY</code> expands to <code>__stdcall</code> calling convention</li>
+                <li>Parameters are provided by Windows loader but typically unused</li>
+                <li>Console window won't appear unless you link with <code>/SUBSYSTEM:CONSOLE</code></li>
+                <li>No command-line parsing in default implementation</li>
+            </ul>
+
+            <h3>Linux/macOS (main)</h3>
+            <ul>
+                <li>Standard C/C++ entry point</li>
+                <li>Command-line arguments available but suppressed to avoid warnings</li>
+                <li>SDL2 doesn't hijack <code>main()</code> in this implementation</li>
+                <li>Terminal output works normally (printf, stderr)</li>
+                <li>No special linking requirements</li>
+            </ul>
+
+            <h3>Cross-Platform Compatibility</h3>
+            <p>The entry point code is designed to work identically on all platforms:</p>
+            <ul>
+                <li>Same logic for checking <code>g_pGSApp</code></li>
+                <li>Same error reporting mechanism</li>
+                <li>Same call to <code>Run()</code></li>
+                <li>Same return value handling</li>
+            </ul>
+
+            <div style="background-color: #fffbcc; padding: 15px; border-left: 4px solid #ffcc00; margin: 20px 0;">
+                <h4 style="margin-top: 0;">💡 Pro Tip</h4>
+                <p style="margin-bottom: 0;">The entry point files rarely need modification. If you find yourself wanting to change them, consider whether your changes belong in <code>GS_Application</code> or your game class instead.</p>
+            </div>
+        </div>
+    </section>
+</body>
+
+</html>

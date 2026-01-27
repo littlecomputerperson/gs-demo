@@ -1,0 +1,1275 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GS_OGLParticle Class</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+
+<body class="endpoint-page">
+    <!-- GS_OGLParticle Methods Index -->
+    <section class="api-section">
+        <h2>GS_OGLParticle Class Reference</h2>
+        <p><strong>Files:</strong> <code>gs_ogl_particle.h</code>, <code>gs_ogl_particle.cpp</code></p>
+        <p><strong>Inherits from:</strong> <code>GS_Object</code></p>
+        
+        <div class="endpoint-index">
+            <h3>Constructor & Destructor</h3>
+            <ul>
+                <li><a href="#constructor">GS_OGLParticle() <span class="endpoint-desc">- Constructor</span></a></li>
+                <li><a href="#destructor">~GS_OGLParticle() <span class="endpoint-desc">- Destructor</span></a></li>
+            </ul>
+
+            <h3>Creation Methods</h3>
+            <ul>
+                <li><a href="#create-file">Create(pathname, count) <span class="endpoint-desc">- Create from image file</span></a></li>
+                <li><a href="#create-texture">Create(texture, count) <span class="endpoint-desc">- Create from existing texture</span></a></li>
+                <li><a href="#destroy">Destroy() <span class="endpoint-desc">- Destroy particle system</span></a></li>
+            </ul>
+
+            <h3>Rendering Methods</h3>
+            <ul>
+                <li><a href="#beginrender">BeginRender() <span class="endpoint-desc">- Setup for particle rendering</span></a></li>
+                <li><a href="#endrender">EndRender() <span class="endpoint-desc">- Cleanup after rendering</span></a></li>
+                <li><a href="#render">Render() <span class="endpoint-desc">- Render all active particles</span></a></li>
+            </ul>
+
+            <h3>Status Methods</h3>
+            <ul>
+                <li><a href="#isready">IsReady() <span class="endpoint-desc">- Check if system is initialized</span></a></li>
+                <li><a href="#isactive">IsActive() <span class="endpoint-desc">- Check if particle is active</span></a></li>
+                <li><a href="#activate">Activate() <span class="endpoint-desc">- Enable/disable particles</span></a></li>
+            </ul>
+
+            <h3>Particle Count Methods</h3>
+            <ul>
+                <li><a href="#getnumparticles">GetNumParticles() <span class="endpoint-desc">- Get active particle count</span></a></li>
+                <li><a href="#setnumparticles">SetNumParticles() <span class="endpoint-desc">- Set active particle count</span></a></li>
+            </ul>
+
+            <h3>Position Methods</h3>
+            <ul>
+                <li><a href="#getdestxy">GetDestX/Y() <span class="endpoint-desc">- Get particle position</span></a></li>
+                <li><a href="#setdestxy">SetDestX/Y() <span class="endpoint-desc">- Set particle position</span></a></li>
+                <li><a href="#adddestxy">AddDestX/Y() <span class="endpoint-desc">- Move particle by offset</span></a></li>
+            </ul>
+
+            <h3>Rotation Methods</h3>
+            <ul>
+                <li><a href="#getrotate">GetRotateX/Y/Z() <span class="endpoint-desc">- Get rotation angles</span></a></li>
+                <li><a href="#setrotate">SetRotateX/Y/Z() <span class="endpoint-desc">- Set rotation angles</span></a></li>
+                <li><a href="#addrotate">AddRotateX/Y/Z() <span class="endpoint-desc">- Rotate by angle</span></a></li>
+            </ul>
+
+            <h3>Scaling Methods</h3>
+            <ul>
+                <li><a href="#getscale">GetScaleX/Y() <span class="endpoint-desc">- Get scale factors</span></a></li>
+                <li><a href="#setscale">SetScaleX/Y() <span class="endpoint-desc">- Set scale factors</span></a></li>
+                <li><a href="#addscale">AddScaleX/Y() <span class="endpoint-desc">- Modify scale</span></a></li>
+                <li><a href="#getwidth">GetWidth/Height() <span class="endpoint-desc">- Get texture dimensions</span></a></li>
+                <li><a href="#getscaledwidth">GetScaledWidth/Height() <span class="endpoint-desc">- Get scaled dimensions</span></a></li>
+                <li><a href="#setscaledwidth">SetScaledWidth/Height() <span class="endpoint-desc">- Set by pixel size</span></a></li>
+            </ul>
+
+            <h3>Color Methods</h3>
+            <ul>
+                <li><a href="#getmodulatecolor">GetModulateColor() <span class="endpoint-desc">- Get particle color tint</span></a></li>
+                <li><a href="#setmodulatecolor">SetModulateColor() <span class="endpoint-desc">- Set particle color tint</span></a></li>
+            </ul>
+
+            <h3>Collision Methods</h3>
+            <ul>
+                <li><a href="#getdestrect">GetDestRect() <span class="endpoint-desc">- Get bounding rectangle</span></a></li>
+            </ul>
+        </div>
+    </section>
+    
+    <!-- Class Overview -->
+    <section class="api-section">
+        <h2>Class Overview</h2>
+        <div class="endpoint">
+            <h3>About GS_OGLParticle</h3>
+            <p>The <code>GS_OGLParticle</code> class provides a complete particle system for creating visual effects like explosions, smoke, fire, sparks, rain, snow, and other dynamic effects. It manages up to 1000 individual particles, each with independent position, rotation, scale, and color properties.</p>
+
+            <p>This class is optimized for rendering large numbers of textured quads with additive blending, making it ideal for creating glowing, translucent effects commonly used in 2D games.</p>
+
+            <h3>Key Features</h3>
+            <ul>
+                <li><strong>Mass Particle Management:</strong> Control up to 1000 particles simultaneously</li>
+                <li><strong>Individual Properties:</strong> Each particle has its own position, rotation, scale, and color</li>
+                <li><strong>Additive Blending:</strong> Built-in additive blending for glowing effects</li>
+                <li><strong>Batch Operations:</strong> Set properties for all particles at once or individually</li>
+                <li><strong>3D Rotation:</strong> Rotate particles on X, Y, and Z axes</li>
+                <li><strong>Color Modulation:</strong> Tint and fade particles with RGBA color control</li>
+                <li><strong>Shared Texture:</strong> All particles use the same texture for efficiency</li>
+                <li><strong>Automatic Rendering:</strong> Handles OpenGL state management for particles</li>
+                <li><strong>Center-Based Positioning:</strong> Particles rotate around their center point</li>
+                <li><strong>Cross-Platform:</strong> Works identically on Windows, Linux, and macOS</li>
+            </ul>
+
+            <h3>Particle System Structure</h3>
+            <div style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; margin: 15px 0;">
+                <h4 style="margin-top: 0;">Particle Definition</h4>
+                <pre style="margin: 0; font-family: 'Courier New', monospace;">
+typedef struct GS_PARTICLE {
+    BOOL    bIsActive;   // Is particle visible/active?
+    GLint   gliDestX;    // X position (bottom-left corner)
+    GLint   gliDestY;    // Y position (bottom-left corner)
+    GLfloat glfRotateX;  // X-axis rotation (degrees)
+    GLfloat glfRotateY;  // Y-axis rotation (degrees)
+    GLfloat glfRotateZ;  // Z-axis rotation (degrees)
+    GLfloat glfScaleX;   // Horizontal scale (1.0 = normal)
+    GLfloat glfScaleY;   // Vertical scale (1.0 = normal)
+    GLfloat glfR;        // Red component (0.0-1.0)
+    GLfloat glfG;        // Green component (0.0-1.0)
+    GLfloat glfB;        // Blue component (0.0-1.0)
+    GLfloat glfA;        // Alpha component (0.0-1.0)
+} GS_Particle;
+</pre>
+            </div>
+
+            <h3>Member Variables</h3>
+            <p>All member variables are private:</p>
+
+            <table style="width: 100%; border-collapse: collapse; margin: 1em 0;">
+                <thead>
+                    <tr style="background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Variable</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Type</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_gsTexture</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">GS_OGLTexture</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Internal texture object (if loaded from file)</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_gluTexture</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">GLuint</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">OpenGL texture ID</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_nNumParticles</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">int</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Number of active particles</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_bIsReady</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">BOOL</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Initialization state flag</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_bLightingEnabled</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">BOOL</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Saved lighting state</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_bDepthTestEnabled</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">BOOL</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Saved depth test state</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_gliWidth</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">GLint</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Texture width in pixels</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_gliHeight</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">GLint</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Texture height in pixels</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_gsParticles[1000]</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">GS_Particle[]</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Array of particle data</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Rendering Characteristics</h3>
+            <ul>
+                <li><strong>Blending Mode:</strong> Uses additive blending (GL_SRC_ALPHA, GL_ONE)</li>
+                <li><strong>Rendering Order:</strong> Particles rendered in index order (0 to N-1)</li>
+                <li><strong>Z-Ordering:</strong> No automatic depth sorting - use particle order for layering</li>
+                <li><strong>Center Pivot:</strong> All transformations (rotation, scale) use center point</li>
+                <li><strong>Batch Rendering:</strong> All particles rendered in a single pass</li>
+            </ul>
+
+            <h3>Usage Pattern</h3>
+            <p>Typical workflow for using GS_OGLParticle:</p>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Create particle system with 100 particles
+GS_OGLParticle explosion;
+explosion.Create("data/particle.tga", 100, TRUE);
+
+// Initialize particle properties
+for (int i = 0; i < 100; i++)
+{
+    explosion.SetDestX(i, centerX + RandomRange(-50, 50));
+    explosion.SetDestY(i, centerY + RandomRange(-50, 50));
+    explosion.SetScaleX(i, 0.5f);
+    explosion.SetScaleY(i, 0.5f);
+    explosion.SetModulateColor(i, 1.0f, 0.5f, 0.0f, 1.0f); // Orange
+}
+
+// In game loop - update particles
+for (int i = 0; i < explosion.GetNumParticles(); i++)
+{
+    if (explosion.IsActive(i))
+    {
+        // Move particle
+        explosion.AddDestY(i, velocityY[i]);
+        
+        // Rotate particle
+        explosion.AddRotateZ(i, 5.0f);
+        
+        // Fade out
+        float alpha = explosion.GetModulateColor(i).fAlpha;
+        alpha -= 0.02f;
+        if (alpha <= 0.0f)
+            explosion.Activate(i, FALSE);  // Deactivate
+        else
+            explosion.SetModulateColor(i, -1.0f, -1.0f, -1.0f, alpha);
+    }
+}
+
+// Render particles
+m_gsDisplay.BeginRender2D(GetWindow());
+explosion.Render(GetWindow());
+m_gsDisplay.EndRender2D();</code></pre>
+
+            <h3>Common Effect Patterns</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin: 20px 0;">
+                <div style="border: 1px solid #ddd; padding: 12px; border-radius: 5px;">
+                    <h4>💥 Explosion</h4>
+                    <ul style="font-size: 0.9em;">
+                        <li>Radial velocity from center</li>
+                        <li>Fade out over time</li>
+                        <li>Yellow-orange-red gradient</li>
+                        <li>Random rotation</li>
+                    </ul>
+                </div>
+                <div style="border: 1px solid #ddd; padding: 12px; border-radius: 5px;">
+                    <h4>✨ Sparkles</h4>
+                    <ul style="font-size: 0.9em;">
+                        <li>Small particles</li>
+                        <li>High brightness</li>
+                        <li>Random positions</li>
+                        <li>Quick fade in/out</li>
+                    </ul>
+                </div>
+                <div style="border: 1px solid #ddd; padding: 12px; border-radius: 5px;">
+                    <h4>🔥 Fire</h4>
+                    <ul style="font-size: 0.9em;">
+                        <li>Upward movement</li>
+                        <li>Red to yellow to white</li>
+                        <li>Scale increases</li>
+                        <li>Fade at top</li>
+                    </ul>
+                </div>
+                <div style="border: 1px solid #ddd; padding: 12px; border-radius: 5px;">
+                    <h4>💨 Smoke</h4>
+                    <ul style="font-size: 0.9em;">
+                        <li>Slow upward drift</li>
+                        <li>Horizontal spread</li>
+                        <li>Gray colors</li>
+                        <li>Gradual fade</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Constructor & Destructor -->
+    <section class="api-section">
+        <h2>Constructor & Destructor</h2>
+
+        <div class="endpoint" id="constructor">
+            <h3>GS_OGLParticle()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_particle.cpp</code></p>
+            <p>Constructor that initializes all member variables to default values.</p>
+            
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Initialization:</strong></p>
+            <ul>
+                <li><code>m_gluTexture = 0</code> - No texture assigned</li>
+                <li><code>m_nNumParticles = 0</code> - No active particles</li>
+                <li><code>m_bIsReady = FALSE</code> - System not initialized</li>
+                <li><code>m_bLightingEnabled = FALSE</code></li>
+                <li><code>m_bDepthTestEnabled = FALSE</code></li>
+                <li><code>m_gliWidth = 0, m_gliHeight = 0</code></li>
+                <li>All 1000 particles initialized to defaults (inactive, position 0, white color, etc.)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>GS_OGLParticle particles;  // Ready for Create() call</pre>
+        </div>
+
+        <div class="endpoint" id="destructor">
+            <h3>~GS_OGLParticle()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_particle.cpp</code></p>
+            <p>Destructor that ensures proper cleanup.</p>
+            
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Calls <code>Destroy()</code> to clean up resources</li>
+                <li>Safe to call even if not initialized</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Creation Methods -->
+    <section class="api-section">
+        <h2>Creation Methods</h2>
+
+        <div class="endpoint" id="create-file">
+            <h3>Create() - From File</h3>
+            <p><strong>File:</strong> <code>gs_ogl_particle.cpp</code></p>
+            <p>Creates a particle system by loading a texture from an image file.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL Create(const char* pszPathname, int nNumParticles, 
+            BOOL bFiltered = TRUE, BOOL bMipmap = FALSE)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>pszPathname</code> - Path to particle texture (TGA, PCX, or BMP)</li>
+                <li><code>nNumParticles</code> - Number of active particles (0-1000)</li>
+                <li><code>bFiltered</code> - TRUE for bilinear filtering (default), FALSE for nearest</li>
+                <li><code>bMipmap</code> - TRUE to generate mipmaps (default: FALSE)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Loads texture using GS_OGLTexture internally</li>
+                <li>Activates first N particles (where N = nNumParticles)</li>
+                <li>Remaining particles are inactive</li>
+                <li>If already created, destroys previous system first</li>
+                <li>Particle count clamped to 0-1000 range</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - System created successfully</li>
+                <li><code>FALSE</code> - Creation failed (invalid path or NULL pathname)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>GS_OGLParticle fire;
+
+// Create 200 filtered particles for smooth fire effect
+if (!fire.Create("data/fire_particle.tga", 200, TRUE))
+{
+    GS_Error::Report(__FILE__, __LINE__, "Failed to create fire particles!");
+    return FALSE;
+}
+
+// Create 500 unfiltered particles for pixelated effect
+GS_OGLParticle pixelDust;
+pixelDust.Create("data/dust.tga", 500, FALSE);</code></pre>
+        </div>
+
+        <div class="endpoint" id="create-texture">
+            <h3>Create() - From Existing Texture</h3>
+            <p><strong>File:</strong> <code>gs_ogl_particle.cpp</code></p>
+            <p>Creates a particle system using an existing OpenGL texture ID.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL Create(GLuint glTexture, int nWidth, int nHeight, int nNumParticles)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>glTexture</code> - OpenGL texture ID (from GS_OGLTexture::GetID())</li>
+                <li><code>nWidth</code> - Texture width in pixels</li>
+                <li><code>nHeight</code> - Texture height in pixels</li>
+                <li><code>nNumParticles</code> - Number of active particles (0-1000)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Uses provided texture instead of loading from file</li>
+                <li>Texture must remain valid for lifetime of particle system</li>
+                <li>Useful for sharing textures between multiple particle systems</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - System created successfully</li>
+                <li><code>FALSE</code> - Creation failed (invalid texture ID)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Share one texture among multiple particle systems
+GS_OGLTexture sharedTexture;
+sharedTexture.Create("data/glow.tga", GS_IMAGE2D, GL_LINEAR, GL_LINEAR);
+
+GS_OGLParticle explosion1;
+explosion1.Create(sharedTexture.GetID(), 
+                  sharedTexture.GetWidth(),
+                  sharedTexture.GetHeight(), 100);
+
+GS_OGLParticle explosion2;
+explosion2.Create(sharedTexture.GetID(),
+                  sharedTexture.GetWidth(),
+                  sharedTexture.GetHeight(), 100);</code></pre>
+        </div>
+
+        <div class="endpoint" id="destroy">
+            <h3>Destroy()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_particle.cpp</code></p>
+            <p>Destroys the particle system and releases resources.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void Destroy()</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Destroys internal texture (if loaded from file)</li>
+                <li>Resets all particles to default state</li>
+                <li>Clears texture ID and dimensions</li>
+                <li>Sets particle count to 0</li>
+                <li>Sets <code>m_bIsReady = FALSE</code></li>
+                <li>Safe to call multiple times</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>None (void)</li>
+            </ul>
+
+            <p><strong>Note:</strong> Called automatically by destructor.</p>
+        </div>
+    </section>
+
+    <!-- Rendering Methods -->
+    <section class="api-section">
+        <h2>Rendering Methods</h2>
+
+        <div class="endpoint" id="beginrender">
+            <h3>BeginRender()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_particle.cpp</code></p>
+            <p>Prepares OpenGL state for particle rendering.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL BeginRender(HWND hWnd)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>hWnd</code> - Window handle (used to get client area dimensions)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Saves current depth test and lighting state</li>
+                <li>Disables depth testing for correct particle blending</li>
+                <li>Disables lighting for color modulation</li>
+                <li>Sets up orthographic projection matching window size</li>
+                <li>Configures projection depth based on window dimensions</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Setup successful</li>
+                <li><code>FALSE</code> - Not ready or NULL window</li>
+            </ul>
+
+            <p><strong>Note:</strong> Called automatically by <code>Render()</code> if window handle provided.</p>
+        </div>
+
+        <div class="endpoint" id="endrender">
+            <h3>EndRender()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_particle.cpp</code></p>
+            <p>Restores OpenGL state after particle rendering.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void EndRender()</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Restores projection matrix</li>
+                <li>Restores modelview matrix</li>
+                <li>Re-enables depth testing if it was enabled before</li>
+                <li>Re-enables lighting if it was enabled before</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>None (void)</li>
+            </ul>
+
+            <p><strong>Note:</strong> Called automatically by <code>Render()</code> if window handle provided.</p>
+        </div>
+
+        <div class="endpoint" id="render">
+            <h3>Render()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_particle.cpp</code></p>
+            <p>Renders all active particles with additive blending.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL Render(HWND hWnd = NULL)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>hWnd</code> - Optional window handle (if NULL, assumes BeginRender2D already called)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>If hWnd provided, calls BeginRender()/EndRender() automatically</li>
+                <li>Saves current blending state</li>
+                <li>Sets additive blending (GL_SRC_ALPHA, GL_ONE)</li>
+                <li>For each active particle:
+                    <ul>
+                        <li>Applies position, rotation, and scale</li>
+                        <li>Applies color modulation</li>
+                        <li>Renders as centered textured quad</li>
+                    </ul>
+                </li>
+                <li>Restores previous blending state</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Rendering successful</li>
+                <li><code>FALSE</code> - Not ready</li>
+            </ul>
+
+            <p><strong>Examples:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Automatic setup (includes BeginRender2D)
+particles.Render(GetWindow());
+
+// Manual setup (you handle BeginRender2D)
+m_gsDisplay.BeginRender2D(GetWindow());
+particles.Render();  // No window handle
+// ...render other sprites...
+m_gsDisplay.EndRender2D();</code></pre>
+        </div>
+    </section>
+
+    <!-- Status Methods -->
+    <section class="api-section">
+        <h2>Status Methods</h2>
+
+        <div class="endpoint" id="isready">
+            <h3>IsReady()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_particle.cpp</code></p>
+            <p>Checks if the particle system has been created.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL IsReady()</pre>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - System is initialized</li>
+                <li><code>FALSE</code> - System not created</li>
+            </ul>
+        </div>
+
+        <div class="endpoint" id="isactive">
+            <h3>IsActive()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_particle.cpp</code></p>
+            <p>Checks if a specific particle is active and will be rendered.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL IsActive(int nParticleIndex)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>nParticleIndex</code> - Particle index (0-based, clamped to valid range)</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Particle is active</li>
+                <li><code>FALSE</code> - Particle is inactive</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Update only active particles
+for (int i = 0; i < particles.GetNumParticles(); i++)
+{
+    if (particles.IsActive(i))
+    {
+        // Update this particle
+    }
+}</code></pre>
+        </div>
+
+        <div class="endpoint" id="activate">
+            <h3>Activate()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_particle.cpp</code></p>
+            <p>Enables or disables individual particles or all particles.</p>
+            
+            <p><strong>Signatures:</strong></p>
+            <pre>void Activate(int nParticleIndex, BOOL bActivate = TRUE)
+void Activate(BOOL bActivate = TRUE)</pre>
+
+            <p><strong>Parameters (individual):</strong></p>
+            <ul>
+                <li><code>nParticleIndex</code> - Particle index (clamped to valid range)</li>
+                <li><code>bActivate</code> - TRUE to activate, FALSE to deactivate</li>
+            </ul>
+
+            <p><strong>Parameters (all particles):</strong></p>
+            <ul>
+                <li><code>bActivate</code> - TRUE to activate all, FALSE to deactivate all</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Deactivate faded particles
+if (alpha <= 0.0f)
+    particles.Activate(i, FALSE);
+
+// Pause entire effect
+particles.Activate(FALSE);  // All particles inactive
+
+// Resume effect
+particles.Activate(TRUE);   // All particles active</code></pre>
+        </div>
+    </section>
+
+    <!-- Particle Count Methods -->
+    <section class="api-section">
+        <h2>Particle Count Methods</h2>
+
+        <div class="endpoint" id="getnumparticles">
+            <h3>GetNumParticles()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_particle.cpp</code></p>
+            <p>Gets the number of particles in the system.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>int GetNumParticles()</pre>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Number of particles (0-1000)</li>
+            </ul>
+        </div>
+
+        <div class="endpoint" id="setnumparticles">
+            <h3>SetNumParticles()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_particle.cpp</code></p>
+            <p>Changes the number of active particles in the system.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void SetNumParticles(int nNumParticles)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>nNumParticles</code> - New particle count (clamped to 0-1000)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Does NOT activate/deactivate particles</li>
+                <li>Just changes the count for iteration purposes</li>
+                <li>Use Activate() to actually enable/disable particles</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Gradually increase particle count for effect buildup
+static int particleCount = 0;
+if (particleCount < 100)
+{
+    particleCount += 2;
+    particles.SetNumParticles(particleCount);
+}</code></pre>
+        </div>
+    </section>
+
+    <!-- Position, Rotation, Scale, Color Methods -->
+    <section class="api-section">
+        <h2>Position Methods</h2>
+        <div class="endpoint" id="getdestxy">
+            <h3>GetDestX() / GetDestY()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_particle.cpp</code></p>
+            <p>Gets the position of a particle.</p>
+            
+            <p><strong>Signatures:</strong></p>
+            <pre>GLint GetDestX(int nParticleIndex)
+GLint GetDestY(int nParticleIndex)</pre>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>X or Y coordinate (bottom-left corner of particle)</li>
+            </ul>
+        </div>
+
+        <div class="endpoint" id="setdestxy">
+            <h3>SetDestX() / SetDestY()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_particle.cpp</code></p>
+            <p>Sets the position of one particle or all particles.</p>
+            
+            <p><strong>Signatures:</strong></p>
+            <pre>void SetDestX(int nParticleIndex, GLint gliDestX)
+void SetDestX(GLint gliDestX)
+void SetDestY(int nParticleIndex, GLint gliDestY)
+void SetDestY(GLint gliDestY)</pre>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Set individual particle position
+particles.SetDestX(0, 100);
+particles.SetDestY(0, 200);
+
+// Set all particles to same position (burst origin)
+particles.SetDestX(explosionX);
+particles.SetDestY(explosionY);</code></pre>
+        </div>
+
+        <div class="endpoint" id="adddestxy">
+            <h3>AddDestX() / AddDestY()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_particle.cpp</code></p>
+            <p>Moves particles by a relative offset.</p>
+            
+            <p><strong>Signatures:</strong></p>
+            <pre>void AddDestX(int nParticleIndex, GLint gliAddX)
+void AddDestX(GLint gliAddX)
+void AddDestY(int nParticleIndex, GLint gliAddY)
+void AddDestY(GLint gliAddY)</pre>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Move particle by velocity
+particles.AddDestX(i, velocityX[i]);
+particles.AddDestY(i, velocityY[i]);
+
+// Move all particles together (e.g., camera shake)
+particles.AddDestX(shakeOffsetX);
+particles.AddDestY(shakeOffsetY);</code></pre>
+        </div>
+    </section>
+
+    <section class="api-section">
+        <h2>Rotation Methods</h2>
+        <div class="endpoint" id="getrotate">
+            <h3>GetRotateX/Y/Z()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_particle.cpp</code></p>
+            <p>Gets rotation angles for a particle.</p>
+            
+            <p><strong>Signatures:</strong></p>
+            <pre>GLfloat GetRotateX(int nParticleIndex)
+GLfloat GetRotateY(int nParticleIndex)
+GLfloat GetRotateZ(int nParticleIndex)</pre>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Rotation angle in degrees</li>
+            </ul>
+        </div>
+
+        <div class="endpoint" id="setrotate">
+            <h3>SetRotateX/Y/Z()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_particle.cpp</code></p>
+            <p>Sets rotation angles for particles.</p>
+            
+            <p><strong>Signatures:</strong></p>
+            <pre>void SetRotateX/Y/Z(int nParticleIndex, GLfloat glfRotate)
+void SetRotateX/Y/Z(GLfloat glfRotate)</pre>
+
+            <p><strong>Example:</strong></p>
+            <pre>particles.SetRotateZ(i, RandomRange(0.0f, 360.0f));</pre>
+        </div>
+
+        <div class="endpoint" id="addrotate">
+            <h3>AddRotateX/Y/Z()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_particle.cpp</code></p>
+            <p>Rotates particles by an angle delta.</p>
+            
+            <p><strong>Signatures:</strong></p>
+            <pre>void AddRotateX/Y/Z(int nParticleIndex, GLfloat glfRotate)
+void AddRotateX/Y/Z(GLfloat glfRotate)</pre>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Spin particle continuously
+particles.AddRotateZ(i, 5.0f * deltaTime);</code></pre>
+        </div>
+    </section>
+
+    <section class="api-section">
+        <h2>Scaling Methods</h2>
+        <div class="endpoint" id="getscale">
+            <h3>GetScaleX/Y()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_particle.cpp</code></p>
+            <p>Gets scale factors for a particle.</p>
+            
+            <p><strong>Signatures:</strong></p>
+            <pre>GLfloat GetScaleX(int nParticleIndex)
+GLfloat GetScaleY(int nParticleIndex)</pre>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Scale factor (1.0 = normal size)</li>
+            </ul>
+        </div>
+
+        <div class="endpoint" id="setscale">
+            <h3>SetScaleX/Y()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_particle.cpp</code></p>
+            <p>Sets scale factors for particles.</p>
+            
+            <p><strong>Signatures:</strong></p>
+            <pre>void SetScaleX/Y(int nParticleIndex, GLfloat glfScale)
+void SetScaleX/Y(GLfloat glfScale)</pre>
+
+            <p><strong>Example:</strong></p>
+            <pre>particles.SetScaleX(i, 0.5f);  // Half size</pre>
+        </div>
+
+        <div class="endpoint" id="addscale">
+            <h3>AddScaleX/Y()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_particle.cpp</code></p>
+            <p>Modifies scale factors by a delta.</p>
+            
+            <p><strong>Signatures:</strong></p>
+            <pre>void AddScaleX/Y(int nParticleIndex, GLfloat glfScale)
+void AddScaleX/Y(GLfloat glfScale)</pre>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Grow particle over time
+particles.AddScaleX(i, 0.01f);
+particles.AddScaleY(i, 0.01f);</code></pre>
+        </div>
+
+        <div class="endpoint" id="getwidth">
+            <h3>GetWidth() / GetHeight()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_particle.cpp</code></p>
+            <p>Gets texture dimensions.</p>
+            
+            <p><strong>Signatures:</strong></p>
+            <pre>GLint GetWidth()
+GLint GetHeight()</pre>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Texture width or height in pixels</li>
+            </ul>
+        </div>
+
+        <div class="endpoint" id="getscaledwidth">
+            <h3>GetScaledWidth() / GetScaledHeight()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_particle.cpp</code></p>
+            <p>Gets scaled dimensions of a particle.</p>
+            
+            <p><strong>Signatures:</strong></p>
+            <pre>GLfloat GetScaledWidth(int nParticleIndex)
+GLfloat GetScaledHeight(int nParticleIndex)</pre>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Width or height × scale factor</li>
+            </ul>
+        </div>
+
+        <div class="endpoint" id="setscaledwidth">
+            <h3>SetScaledWidth() / SetScaledHeight()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_particle.cpp</code></p>
+            <p>Sets particle size by specifying pixel dimensions.</p>
+            
+            <p><strong>Signatures:</strong></p>
+            <pre>void SetScaledWidth(int nParticleIndex, GLint gliWidth)
+void SetScaledWidth(GLint gliWidth)
+void SetScaledHeight(int nParticleIndex, GLint gliHeight)
+void SetScaledHeight(GLint gliHeight)</pre>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Calculates and sets appropriate scale factor</li>
+                <li>Example: 32×32 texture scaled to 16 pixels wide = scale 0.5</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>particles.SetScaledWidth(i, 8);   // 8 pixels wide
+particles.SetScaledHeight(i, 8);  // 8 pixels tall</pre>
+        </div>
+    </section>
+
+    <section class="api-section">
+        <h2>Color Methods</h2>
+
+        <div class="endpoint" id="getmodulatecolor">
+            <h3>GetModulateColor()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_particle.h</code></p>
+            <p>Gets the color modulation for a particle.</p>
+            
+            <p><strong>Note:</strong> Not yet implemented in current version. Color values stored in particle struct can be accessed via member array.</p>
+        </div>
+
+        <div class="endpoint" id="setmodulatecolor">
+            <h3>SetModulateColor()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_particle.cpp</code></p>
+            <p>Sets color tint and transparency for particles.</p>
+            
+            <p><strong>Signatures:</strong></p>
+            <pre>void SetModulateColor(int nParticleIndex, GS_OGLColor gsColor)
+void SetModulateColor(GS_OGLColor gsColor)
+void SetModulateColor(int nParticleIndex, float fRed=-1.0f, float fGreen=-1.0f,
+                      float fBlue=-1.0f, float fAlpha=-1.0f)
+void SetModulateColor(float fRed=-1.0f, float fGreen=-1.0f, 
+                      float fBlue=-1.0f, float fAlpha=-1.0f)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>nParticleIndex</code> - Particle index (optional)</li>
+                <li><code>gsColor</code> - GS_OGLColor object</li>
+                <li><code>fRed/Green/Blue/Alpha</code> - Color components (0.0-1.0), -1.0 to keep current</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Set particle to orange color, full opacity
+particles.SetModulateColor(i, 1.0f, 0.5f, 0.0f, 1.0f);
+
+// Fade particle (keep color, change alpha only)
+particles.SetModulateColor(i, -1.0f, -1.0f, -1.0f, alpha);
+
+// Set all particles to white
+particles.SetModulateColor(GS_OGLColor(1.0f, 1.0f, 1.0f, 1.0f));</code></pre>
+        </div>
+    </section>
+
+    <section class="api-section">
+        <h2>Collision Methods</h2>
+
+        <div class="endpoint" id="getdestrect">
+            <h3>GetDestRect()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_particle.cpp</code></p>
+            <p>Gets the bounding rectangle of a particle.</p>
+            
+            <p><strong>Signatures:</strong></p>
+            <pre>void GetDestRect(int nParticleIndex, long* pLeft, long* pTop, 
+                 long* pRight, long* pBottom)
+void GetDestRect(int nParticleIndex, RECT* pDestRect)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>nParticleIndex</code> - Particle index</li>
+                <li><code>pLeft/Top/Right/Bottom</code> - Pointers to receive rectangle coordinates</li>
+                <li><code>pDestRect</code> - Pointer to RECT structure</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Returns axis-aligned bounding box</li>
+                <li>Includes scale but NOT rotation</li>
+                <li>Useful for simple collision detection</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>RECT particleRect;
+particles.GetDestRect(i, &particleRect);
+
+if (m_gsCollide.RectsCollide(particleRect, playerRect))
+{
+    // Particle hit player
+}</code></pre>
+        </div>
+    </section>
+
+    <!-- Practical Examples -->
+    <section class="api-section">
+        <h2>Practical Examples</h2>
+        <div class="endpoint">
+            <h3>Explosion Effect</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Create explosion particle system
+GS_OGLParticle explosion;
+explosion.Create("data/fire_particle.tga", 50, TRUE);
+
+// Initialize explosion at center point
+int centerX = 400;
+int centerY = 300;
+
+for (int i = 0; i < explosion.GetNumParticles(); i++)
+{
+    // Random direction
+    float angle = RandomRange(0.0f, 360.0f);
+    float speed = RandomRange(2.0f, 8.0f);
+    
+    velocityX[i] = cos(angle * 3.14159f / 180.0f) * speed;
+    velocityY[i] = sin(angle * 3.14159f / 180.0f) * speed;
+    
+    // Start at center
+    explosion.SetDestX(i, centerX);
+    explosion.SetDestY(i, centerY);
+    
+    // Random size
+    float scale = RandomRange(0.5f, 1.5f);
+    explosion.SetScaleX(i, scale);
+    explosion.SetScaleY(i, scale);
+    
+    // Yellow-orange color
+    explosion.SetModulateColor(i, 1.0f, RandomRange(0.5f, 1.0f), 0.0f, 1.0f);
+    
+    // Random rotation
+    explosion.SetRotateZ(i, RandomRange(0.0f, 360.0f));
+}
+
+// Update explosion each frame
+for (int i = 0; i < explosion.GetNumParticles(); i++)
+{
+    if (explosion.IsActive(i))
+    {
+        // Move outward
+        explosion.AddDestX(i, velocityX[i]);
+        explosion.AddDestY(i, velocityY[i]);
+        
+        // Apply gravity
+        velocityY[i] -= 0.2f;
+        
+        // Spin
+        explosion.AddRotateZ(i, RandomRange(-5.0f, 5.0f));
+        
+        // Fade and shrink
+        float scale = explosion.GetScaleX(i);
+        scale *= 0.98f;
+        explosion.SetScaleX(i, scale);
+        explosion.SetScaleY(i, scale);
+        
+        // Change color from yellow to red
+        explosion.SetModulateColor(i, 1.0f, scale * 0.5f, 0.0f, scale);
+        
+        // Deactivate when too small
+        if (scale < 0.1f)
+            explosion.Activate(i, FALSE);
+    }
+}
+
+// Render
+explosion.Render(GetWindow());</code></pre>
+
+            <h3>Fire Effect</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Continuous fire emitter
+GS_OGLParticle fire;
+fire.Create("data/smoke_particle.tga", 100, TRUE);
+
+int fireX = 300;
+int fireY = 100;  // Ground level
+
+// Initialize particles
+for (int i = 0; i < fire.GetNumParticles(); i++)
+{
+    ResetFireParticle(i);
+}
+
+void ResetFireParticle(int index)
+{
+    // Start at fire base with random spread
+    fire.SetDestX(index, fireX + RandomRange(-10, 10));
+    fire.SetDestY(index, fireY);
+    
+    // Upward velocity with randomness
+    velocityY[index] = RandomRange(2.0f, 4.0f);
+    velocityX[index] = RandomRange(-0.5f, 0.5f);
+    
+    // Start small
+    fire.SetScaleX(index, 0.3f);
+    fire.SetScaleY(index, 0.3f);
+    
+    // Yellow-orange at base
+    fire.SetModulateColor(index, 1.0f, 1.0f, 0.0f, 1.0f);
+    
+    lifeTime[index] = 0.0f;
+}
+
+// Update fire
+for (int i = 0; i < fire.GetNumParticles(); i++)
+{
+    // Move upward
+    fire.AddDestY(i, velocityY[i]);
+    fire.AddDestX(i, velocityX[i]);
+    
+    // Grow as it rises
+    fire.AddScaleX(i, 0.02f);
+    fire.AddScaleY(i, 0.02f);
+    
+    // Slow down
+    velocityY[i] *= 0.98f;
+    
+    // Color transition: yellow → orange → red → transparent
+    lifeTime[i] += 0.02f;
+    float life = lifeTime[i];
+    
+    if (life < 0.3f)
+        fire.SetModulateColor(i, 1.0f, 1.0f, 0.0f, 1.0f);  // Yellow
+    else if (life < 0.6f)
+        fire.SetModulateColor(i, 1.0f, 0.5f, 0.0f, 1.0f);  // Orange
+    else if (life < 0.9f)
+        fire.SetModulateColor(i, 1.0f, 0.0f, 0.0f, 1.0f - life);  // Red, fading
+    else
+        ResetFireParticle(i);  // Reset at top
+}</code></pre>
+
+            <h3>Rain Effect</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>GS_OGLParticle rain;
+rain.Create("data/raindrop.tga", 200, TRUE);
+
+// Initialize rain across top of screen
+for (int i = 0; i < rain.GetNumParticles(); i++)
+{
+    rain.SetDestX(i, RandomRange(0, SCREEN_WIDTH));
+    rain.SetDestY(i, RandomRange(SCREEN_HEIGHT, SCREEN_HEIGHT + 100));
+    
+    // Vertical streaks (tall and thin)
+    rain.SetScaleX(i, 0.2f);
+    rain.SetScaleY(i, 1.5f);
+    
+    // Blue-white color, semi-transparent
+    rain.SetModulateColor(i, 0.7f, 0.8f, 1.0f, 0.6f);
+    
+    velocityY[i] = RandomRange(-15.0f, -10.0f);  // Fall speed
+}
+
+// Update rain
+for (int i = 0; i < rain.GetNumParticles(); i++)
+{
+    rain.AddDestY(i, velocityY[i]);
+    
+    // Reset when hitting ground
+    if (rain.GetDestY(i) < 0)
+    {
+        rain.SetDestX(i, RandomRange(0, SCREEN_WIDTH));
+        rain.SetDestY(i, SCREEN_HEIGHT + RandomRange(0, 50));
+    }
+}</code></pre>
+
+            <h3>Trail Effect</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Rocket trail following player
+GS_OGLParticle trail;
+trail.Create("data/smoke.tga", 50, TRUE);
+
+int currentParticle = 0;
+
+// Emit trail particles every few frames
+if (frameCount % 3 == 0)
+{
+    trail.SetDestX(currentParticle, player.GetX());
+    trail.SetDestY(currentParticle, player.GetY());
+    trail.SetScaleX(currentParticle, 0.5f);
+    trail.SetScaleY(currentParticle, 0.5f);
+    trail.SetModulateColor(currentParticle, 1.0f, 1.0f, 1.0f, 1.0f);
+    trail.Activate(currentParticle, TRUE);
+    
+    currentParticle = (currentParticle + 1) % trail.GetNumParticles();
+}
+
+// Update trail particles
+for (int i = 0; i < trail.GetNumParticles(); i++)
+{
+    if (trail.IsActive(i))
+    {
+        // Expand
+        trail.AddScaleX(i, 0.05f);
+        trail.AddScaleY(i, 0.05f);
+        
+        // Fade out
+        float scale = trail.GetScaleX(i);
+        trail.SetModulateColor(i, -1.0f, -1.0f, -1.0f, 1.0f - (scale / 3.0f));
+        
+        // Deactivate when large and faded
+        if (scale > 3.0f)
+            trail.Activate(i, FALSE);
+    }
+}</code></pre>
+
+            <h3>Best Practices</h3>
+            <ul>
+                <li><strong>Reuse Particles:</strong> Reset and reactivate instead of creating new systems</li>
+                <li><strong>Deactivate When Done:</strong> Deactivate faded/offscreen particles to save processing</li>
+                <li><strong>Use Additive Blending:</strong> Automatic in Render() - perfect for glowing effects</li>
+                <li><strong>Optimize Texture:</strong> Use small textures (16×16 or 32×32) for particles</li>
+                <li><strong>Limit Count:</strong> Start with fewer particles and increase as needed</li>
+                <li><strong>Pool Velocities:</strong> Store velocity data externally for physics updates</li>
+                <li><strong>Batch Updates:</strong> Update all particles in one loop for cache efficiency</li>
+            </ul>
+
+            <div style="background-color: #fffbcc; padding: 15px; border-left: 4px solid #ffcc00; margin: 20px 0;">
+                <h4 style="margin-top: 0;">💡 Pro Tip</h4>
+                <p style="margin-bottom: 0;">For complex effects, create multiple particle systems with different textures and blend modes. Layer smoke, sparks, and glow particles together for rich, professional-looking effects.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Platform Notes -->
+    <section class="api-section">
+        <h2>Platform-Specific Notes</h2>
+        <div class="endpoint">
+            <h3>Cross-Platform Compatibility</h3>
+            <p>GS_OGLParticle is completely cross-platform and works identically on all platforms:</p>
+            <ul>
+                <li><strong>Windows</strong> - Full support with native OpenGL</li>
+                <li><strong>Linux</strong> - Full support via SDL2 + OpenGL</li>
+                <li><strong>macOS</strong> - Full support via SDL2 + OpenGL</li>
+            </ul>
+
+            <p>There are no platform-specific implementations or behavior differences.</p>
+
+            <h3>Performance Characteristics</h3>
+            <ul>
+                <li><strong>Rendering Speed:</strong> 1000 particles @ 60 FPS on modern GPUs (typical)</li>
+                <li><strong>Additive Blending:</strong> GPU-accelerated blending, minimal CPU overhead</li>
+                <li><strong>Texture Binding:</strong> Single texture bind per Render() call</li>
+                <li><strong>Quad Rendering:</strong> 4 vertices + 2 triangles per active particle</li>
+                <li><strong>State Changes:</strong> Minimal OpenGL state changes for efficient rendering</li>
+            </ul>
+
+            <h3>Memory Usage</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;">
+Particle Struct Size:
+- 1 BOOL (4 bytes) + 2 GLint (8 bytes) + 7 GLfloat (28 bytes) = 40 bytes
+
+Total Memory for 1000 Particles:
+- 40 bytes × 1000 = 40,000 bytes (~39 KB)
+
+Plus Texture Memory:
+- 32×32 RGBA texture = 4,096 bytes (~4 KB)
+
+Total: ~43 KB per particle system
+</pre>
+
+            <h3>Optimization Tips</h3>
+            <ul>
+                <li><strong>Deactivate Invisible Particles:</strong> Skip faded or offscreen particles</li>
+                <li><strong>Reduce Particle Count:</strong> 50-200 particles often sufficient for good effects</li>
+                <li><strong>Share Textures:</strong> Use Create(texture, ...) to share between systems</li>
+                <li><strong>Update Frequency:</strong> Update physics every frame, but can render less often</li>
+                <li><strong>Texture Size:</strong> Smaller textures (16×16, 32×32) are faster</li>
+                <li><strong>Batch Systems:</strong> Render multiple particle systems together</li>
+            </ul>
+
+            <h3>Common Pitfalls</h3>
+            <div style="background-color: #fff3cd; padding: 15px; border-left: 4px solid #ffc107; margin: 20px 0;">
+                <h4 style="margin-top: 0;">⚠️ Watch Out For</h4>
+                <ul style="margin-bottom: 0;">
+                    <li><strong>Index Clamping:</strong> Indices automatically clamped - no errors for out-of-range</li>
+                    <li><strong>Active vs Count:</strong> SetNumParticles() doesn't activate particles automatically</li>
+                    <li><strong>Rotation Center:</strong> Particles rotate around their center, not corner</li>
+                    <li><strong>Additive Blending:</strong> White particles add to background brightness</li>
+                    <li><strong>No Depth Sorting:</strong> Particles rendered in index order regardless of Z</li>
+                    <li><strong>Shared Texture Lifetime:</strong> External textures must outlive particle system</li>
+                </ul>
+            </div>
+
+            <div style="background-color: #d4edda; padding: 15px; border-left: 4px solid #28a745; margin: 20px 0;">
+                <h4 style="margin-top: 0;">✅ Best Performance</h4>
+                <p style="margin-bottom: 0;">GS_OGLParticle excels at rendering many small, glowing particles with additive blending. Use it for explosions, fire, sparks, magic effects, and other translucent phenomena. For opaque sprites or sprites requiring different blend modes, use GS_OGLSprite instead.</p>
+            </div>
+        </div>
+    </section>
+</body>
+
+</html>

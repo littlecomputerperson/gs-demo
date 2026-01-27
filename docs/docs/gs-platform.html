@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GS_Platform Namespace</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+
+<body class="endpoint-page">
+    <!-- GS_Platform Methods Index -->
+    <section class="api-section">
+        <h2>GS_Platform Namespace Reference</h2>
+        <p><strong>Files:</strong> <code>gs_platform.h</code>, <code>gs_platform.cpp</code></p>
+        <p><strong>Purpose:</strong> Platform abstraction layer for cross-platform compatibility</p>
+        
+        <div class="endpoint-index">
+            <h3>Type Definitions</h3>
+            <ul>
+                <li><a href="#types">Platform Types <span class="endpoint-desc">- Windows-compatible type definitions</span></a></li>
+                <li><a href="#constants">Platform Constants <span class="endpoint-desc">- Message and window constants</span></a></li>
+                <li><a href="#structures">Platform Structures <span class="endpoint-desc">- RECT, POINT, MSG structures</span></a></li>
+            </ul>
+
+            <h3>Utility Functions</h3>
+            <ul>
+                <li><a href="#gettickcount">GetTickCount() <span class="endpoint-desc">- Get milliseconds since initialization</span></a></li>
+                <li><a href="#sleep">Sleep() <span class="endpoint-desc">- Delay execution</span></a></li>
+                <li><a href="#getclientrect">GetClientRect() <span class="endpoint-desc">- Get window dimensions</span></a></li>
+                <li><a href="#setrect">SetRect() <span class="endpoint-desc">- Initialize rectangle coordinates</span></a></li>
+                <li><a href="#ptinrect">PtInRect() <span class="endpoint-desc">- Test if point is in rectangle</span></a></li>
+                <li><a href="#outputdebugstring">OutputDebugString() <span class="endpoint-desc">- Output debug message</span></a></li>
+                <li><a href="#messagebox">MessageBox() <span class="endpoint-desc">- Display message dialog</span></a></li>
+                <li><a href="#getcurrentdirectory">GetCurrentDirectory() <span class="endpoint-desc">- Get executable directory</span></a></li>
+                <li><a href="#normalizepath">NormalizePath() <span class="endpoint-desc">- Convert path separators</span></a></li>
+            </ul>
+
+            <h3>Global Functions</h3>
+            <ul>
+                <li><a href="#postquitmessage">PostQuitMessage() <span class="endpoint-desc">- Post application quit event</span></a></li>
+            </ul>
+        </div>
+    </section>
+    
+    <!-- Namespace Overview -->
+    <section class="api-section">
+        <h2>Namespace Overview</h2>
+        <div class="endpoint">
+            <h3>About GS_Platform</h3>
+            <p>The <code>GS_Platform</code> namespace provides a comprehensive platform abstraction layer that enables GameSystem applications to compile and run on both Windows and SDL2-based platforms (Linux, macOS) using the same codebase. It bridges the gap between Windows API and SDL2 by providing type definitions, constants, and utility functions that work identically across all platforms.</p>
+
+            <p>This abstraction layer is crucial for cross-platform game development, as it allows developers to write code once and deploy it on multiple operating systems without platform-specific conditional compilation scattered throughout the game logic.</p>
+
+            <h3>Key Features</h3>
+            <ul>
+                <li><strong>Type Compatibility:</strong> Windows-compatible type definitions (BOOL, DWORD, HWND, etc.) on all platforms</li>
+                <li><strong>Constant Definitions:</strong> Windows message and window style constants for SDL2 platforms</li>
+                <li><strong>Structure Definitions:</strong> RECT, POINT, MSG structures for cross-platform use</li>
+                <li><strong>Utility Functions:</strong> Platform-agnostic implementations of common Windows API functions</li>
+                <li><strong>Path Normalization:</strong> Automatic conversion between Windows and Unix path separators</li>
+                <li><strong>Transparent Macros:</strong> Seamless redirection of Windows API calls to SDL2 equivalents</li>
+                <li><strong>Compile-Time Selection:</strong> Automatic platform detection via preprocessor directives</li>
+            </ul>
+
+            <h3>Platform Detection</h3>
+            <p>The platform abstraction layer uses preprocessor directives to detect the target platform:</p>
+
+            <div style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; margin: 15px 0;">
+                <pre style="margin: 0; font-family: 'Courier New', monospace;">
+#if defined(_WIN32) || defined(_WIN64)
+    #define GS_PLATFORM_WINDOWS
+#elif defined(__linux__)
+    #define GS_PLATFORM_LINUX
+#elif defined(__APPLE__)
+    #define GS_PLATFORM_MACOS
+#endif
+</pre>
+            </div>
+
+            <p>Based on the detected platform, appropriate headers and implementations are included:</p>
+            <ul>
+                <li><strong>Windows:</strong> Includes <code>&lt;windows.h&gt;</code> and uses native Windows API</li>
+                <li><strong>Linux/macOS:</strong> Includes <code>&lt;SDL2/SDL.h&gt;</code> and provides SDL2-based implementations</li>
+            </ul>
+
+            <h3>Architecture</h3>
+            <div style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; margin: 15px 0;">
+                <h4 style="margin-top: 0;">Abstraction Layers</h4>
+                <pre style="margin: 0; font-family: 'Courier New', monospace;">
+Your Game Code
+     ↓
+GS_Application / GS_Demo
+     ↓
+GS_Platform Namespace ← Platform abstraction layer
+     ↓
+┌─────────────────┬─────────────────┐
+│   Windows API   │      SDL2       │
+│  (windows.h)    │ (SDL2/SDL.h)    │
+└─────────────────┴─────────────────┘
+</pre>
+            </div>
+
+            <h3>Usage in GameSystem</h3>
+            <p>The platform abstraction is transparent to game developers. GameSystem classes use the abstraction layer internally, so you typically don't need to call GS_Platform functions directly. However, understanding the abstraction helps when debugging platform-specific issues or extending the framework.</p>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Example: These calls work identically on all platforms
+RECT clientRect;
+GetClientRect(window, &clientRect);
+
+MessageBox(NULL, "Hello!", "Greeting", MB_OK);
+
+DWORD ticks = GS_Platform::GetTickCount();</code></pre>
+
+            <h3>Type Definitions</h3>
+            <p>On non-Windows platforms, GS_Platform defines Windows-compatible types using standard C++ types:</p>
+
+            <table style="width: 100%; border-collapse: collapse; margin: 1em 0;">
+                <thead>
+                    <tr style="background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Windows Type</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Cross-Platform Definition</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>BOOL</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>int32_t</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Boolean type (TRUE/FALSE)</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>BYTE</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>uint8_t</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">8-bit unsigned integer</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>DWORD</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>uint32_t</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">32-bit unsigned integer</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>INT</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>int32_t</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">32-bit signed integer</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>HWND</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>void*</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Window handle (SDL_Window*)</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>HDC</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>void*</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Device context (SDL_Window*)</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>LPCTSTR</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>const char*</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Constant string pointer</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>WPARAM</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>uint32_t</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Message parameter</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>LPARAM</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>int32_t</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Message parameter</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Constant Definitions</h3>
+            <p>GS_Platform provides Windows constants for SDL2 platforms, including:</p>
+
+            <ul>
+                <li><strong>Boolean Constants:</strong> TRUE (1), FALSE (0), NULL (0)</li>
+                <li><strong>Path Constants:</strong> _MAX_PATH (maximum path length)</li>
+                <li><strong>Message Box Flags:</strong> MB_OK, MB_YESNO, MB_ICONERROR, MB_ICONQUESTION</li>
+                <li><strong>Message Box Return Values:</strong> IDOK, IDCANCEL, IDYES, IDNO</li>
+                <li><strong>Window Messages:</strong> WM_KEYDOWN, WM_KEYUP, WM_MOUSEMOVE, WM_LBUTTONDOWN, etc.</li>
+                <li><strong>Window Styles:</strong> WS_OVERLAPPED, WS_POPUP, WS_CAPTION, WS_SYSMENU, etc.</li>
+            </ul>
+
+            <h3>Macro Wrappers</h3>
+            <p>On non-Windows platforms, common Windows API calls are redirected via macros:</p>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// These macros redirect Windows API calls to GS_Platform implementations
+#define MessageBox(hwnd, text, caption, type) \
+        GS_Platform::MessageBox(hwnd, text, caption, type)
+
+#define GetCurrentDirectory(buflen, buffer) \
+        GS_Platform::GetCurrentDirectory(buflen, buffer)
+
+#define SetRect(rect, l, t, r, b) \
+        GS_Platform::SetRect(rect, l, t, r, b)
+
+#define SwapBuffers(hdc) \
+        SDL_GL_SwapWindow((SDL_Window*)g_pGSApp->GetWindow())</code></pre>
+        </div>
+    </section>
+
+    <!-- Type Definitions Section -->
+    <section class="api-section">
+        <h2>Type Definitions</h2>
+
+        <div class="endpoint" id="types">
+            <h3>Platform Types</h3>
+            <p><strong>File:</strong> <code>gs_platform.h</code></p>
+            <p>Complete list of Windows-compatible type definitions available on all platforms.</p>
+
+            <h4>Integer Types</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>typedef uint8_t  BYTE;      // 8-bit unsigned
+typedef int16_t  SHORT;     // 16-bit signed
+typedef uint16_t USHORT;    // 16-bit unsigned
+typedef uint16_t WORD;      // 16-bit unsigned
+typedef int32_t  INT;       // 32-bit signed
+typedef uint32_t UINT;      // 32-bit unsigned
+typedef uint32_t DWORD;     // 32-bit unsigned
+typedef int32_t  BOOL;      // Boolean (TRUE/FALSE)
+typedef int64_t  LONG;      // 64-bit signed
+typedef uint64_t ULONG;     // 64-bit unsigned</code></pre>
+
+            <h4>Pointer and Handle Types</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>typedef void*    HWND;       // Window handle
+typedef void*    HDC;        // Device context
+typedef void*    HINSTANCE;  // Instance handle
+typedef void*    HANDLE;     // Generic handle
+typedef void*    HMENU;      // Menu handle
+typedef void*    HACCEL;     // Accelerator handle
+typedef void*    LPVOID;     // Generic pointer</code></pre>
+
+            <h4>String Types</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>typedef char        TCHAR;   // Character type
+typedef char*       LPSTR;   // String pointer
+typedef const char* LPCTSTR; // Constant string pointer
+typedef wchar_t     WCHAR;   // Wide character</code></pre>
+
+            <h4>Message Types</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>typedef uint32_t WPARAM;     // Message parameter (unsigned)
+typedef int32_t  LPARAM;     // Message parameter (signed)
+typedef int32_t  LRESULT;    // Message result</code></pre>
+        </div>
+
+        <div class="endpoint" id="constants">
+            <h3>Platform Constants</h3>
+            <p><strong>File:</strong> <code>gs_platform.h</code></p>
+            
+            <h4>Boolean and NULL Constants</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>#define TRUE  1
+#define FALSE 0
+#define NULL  0
+#define INVALID_HANDLE_VALUE ((HANDLE)-1)</code></pre>
+
+            <h4>Path Constants</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>#define _MAX_PATH PATH_MAX  // Maximum path length</code></pre>
+
+            <h4>Message Box Flags</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>#define MB_OK              0x00000000  // OK button only
+#define MB_YESNO           0x00000004  // Yes and No buttons
+#define MB_ICONERROR       0x00000010  // Error icon
+#define MB_ICONINFORMATION 0x00000040  // Info icon
+#define MB_ICONQUESTION    0x00000020  // Question icon</code></pre>
+
+            <h4>Message Box Return Values</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>#define IDOK     1  // OK button clicked
+#define IDCANCEL 2  // Cancel button clicked
+#define IDYES    6  // Yes button clicked
+#define IDNO     7  // No button clicked</code></pre>
+
+            <h4>Window Messages</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>#define WM_CHAR          0x0102  // Character input
+#define WM_KEYDOWN       0x0100  // Key pressed
+#define WM_KEYUP         0x0101  // Key released
+#define WM_SYSKEYDOWN    0x0104  // System key pressed
+#define WM_SYSKEYUP      0x0105  // System key released
+#define WM_MOUSEMOVE     0x0200  // Mouse moved
+#define WM_LBUTTONDOWN   0x0201  // Left button down
+#define WM_LBUTTONUP     0x0202  // Left button up
+#define WM_RBUTTONDOWN   0x0204  // Right button down
+#define WM_RBUTTONUP     0x0205  // Right button up
+#define WM_MBUTTONDOWN   0x0207  // Middle button down
+#define WM_MBUTTONUP     0x0208  // Middle button up</code></pre>
+        </div>
+
+        <div class="endpoint" id="structures">
+            <h3>Platform Structures</h3>
+            <p><strong>File:</strong> <code>gs_platform.h</code></p>
+
+            <h4>RECT Structure</h4>
+            <p>Defines a rectangle by its corner coordinates.</p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>typedef struct tagRECT {
+    int32_t left;    // X-coordinate of top-left corner
+    int32_t top;     // Y-coordinate of top-left corner
+    int32_t right;   // X-coordinate of bottom-right corner
+    int32_t bottom;  // Y-coordinate of bottom-right corner
+} RECT;</code></pre>
+
+            <h4>POINT Structure</h4>
+            <p>Defines a point in 2D space.</p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>typedef struct tagPOINT {
+    int32_t x;  // X-coordinate
+    int32_t y;  // Y-coordinate
+} POINT;</code></pre>
+
+            <h4>MSG Structure</h4>
+            <p>Contains message information from the message queue.</p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>typedef struct tagMSG {
+    HWND   hwnd;     // Window handle
+    UINT   message;  // Message identifier
+    WPARAM wParam;   // Additional message info
+    LPARAM lParam;   // Additional message info
+    DWORD  time;     // Message post time
+    POINT  pt;       // Cursor position
+} MSG;</code></pre>
+        </div>
+    </section>
+
+    <!-- Utility Functions Section -->
+    <section class="api-section">
+        <h2>Utility Functions</h2>
+
+        <div class="endpoint" id="gettickcount">
+            <h3>GetTickCount()</h3>
+            <p><strong>File:</strong> <code>gs_platform.cpp</code></p>
+            <p>Returns the number of milliseconds that have elapsed since the system started or SDL was initialized.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>unsigned long GS_Platform::GetTickCount()</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Implementation:</strong></p>
+            <ul>
+                <li><strong>Windows:</strong> Calls native <code>GetTickCount()</code></li>
+                <li><strong>SDL2:</strong> Calls <code>SDL_GetTicks()</code></li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>unsigned long</code> - Milliseconds elapsed</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>unsigned long startTime = GS_Platform::GetTickCount();
+// Do some work...
+unsigned long elapsed = GS_Platform::GetTickCount() - startTime;
+printf("Operation took %lu ms\n", elapsed);</code></pre>
+        </div>
+
+        <div class="endpoint" id="sleep">
+            <h3>Sleep()</h3>
+            <p><strong>File:</strong> <code>gs_platform.cpp</code></p>
+            <p>Suspends execution of the current thread for the specified number of milliseconds.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void GS_Platform::Sleep(unsigned long milliseconds)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>milliseconds</code> - Number of milliseconds to sleep</li>
+            </ul>
+
+            <p><strong>Implementation:</strong></p>
+            <ul>
+                <li><strong>Windows:</strong> Calls native <code>Sleep()</code></li>
+                <li><strong>SDL2:</strong> Calls <code>SDL_Delay()</code></li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>None (void)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Wait 100 milliseconds
+GS_Platform::Sleep(100);
+
+// Frame limiting
+if (frameTime < 16)  // 60 FPS = ~16ms per frame
+{
+    GS_Platform::Sleep(16 - frameTime);
+}</code></pre>
+        </div>
+
+        <div class="endpoint" id="getclientrect">
+            <h3>GetClientRect()</h3>
+            <p><strong>File:</strong> <code>gs_platform.cpp</code></p>
+            <p>Retrieves the dimensions of the client area of the specified window.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>bool GS_Platform::GetClientRect(HWND hwnd, RECT* rect)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>hwnd</code> - Handle to the window (SDL_Window* on SDL2 platforms)</li>
+                <li><code>rect</code> - Pointer to RECT structure to receive the dimensions</li>
+            </ul>
+
+            <p><strong>Implementation:</strong></p>
+            <ul>
+                <li><strong>Windows:</strong> Calls native <code>GetClientRect()</code></li>
+                <li><strong>SDL2:</strong> Calls <code>SDL_GetWindowSize()</code> and fills rect structure</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>true</code> - Success</li>
+                <li><code>false</code> - Invalid window handle or null rect pointer</li>
+            </ul>
+
+            <p><strong>Note:</strong> The returned rectangle's left and top are always 0; right and bottom contain the width and height.</p>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>RECT clientArea;
+if (GS_Platform::GetClientRect(window, &clientArea))
+{
+    int width = clientArea.right - clientArea.left;
+    int height = clientArea.bottom - clientArea.top;
+    printf("Window size: %dx%d\n", width, height);
+}</code></pre>
+        </div>
+
+        <div class="endpoint" id="setrect">
+            <h3>SetRect()</h3>
+            <p><strong>File:</strong> <code>gs_platform.cpp</code></p>
+            <p>Sets the coordinates of the specified rectangle.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void GS_Platform::SetRect(RECT* rect, int left, int top, int right, int bottom)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>rect</code> - Pointer to RECT structure to initialize</li>
+                <li><code>left</code> - X-coordinate of top-left corner</li>
+                <li><code>top</code> - Y-coordinate of top-left corner</li>
+                <li><code>right</code> - X-coordinate of bottom-right corner</li>
+                <li><code>bottom</code> - Y-coordinate of bottom-right corner</li>
+            </ul>
+
+            <p><strong>Implementation:</strong></p>
+            <ul>
+                <li><strong>Windows:</strong> Calls native <code>SetRect()</code></li>
+                <li><strong>SDL2:</strong> Directly sets the structure members</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>None (void)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>RECT spriteArea;
+SetRect(&spriteArea, 0, 0, 64, 64);  // 64x64 rectangle at origin
+
+// Can also use GS_Platform:: explicitly
+GS_Platform::SetRect(&spriteArea, 100, 100, 200, 200);</code></pre>
+        </div>
+
+        <div class="endpoint" id="ptinrect">
+            <h3>PtInRect()</h3>
+            <p><strong>File:</strong> <code>gs_platform.cpp</code></p>
+            <p>Determines whether the specified point lies within the specified rectangle.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>bool GS_Platform::PtInRect(const RECT* rect, POINT pt)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>rect</code> - Pointer to RECT structure</li>
+                <li><code>pt</code> - POINT structure containing the point to test</li>
+            </ul>
+
+            <p><strong>Implementation:</strong></p>
+            <ul>
+                <li><strong>Windows:</strong> Calls native <code>PtInRect()</code></li>
+                <li><strong>SDL2:</strong> Performs boundary check: <code>pt.x >= left && pt.x < right && pt.y >= top && pt.y < bottom</code></li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>true</code> - Point is inside the rectangle</li>
+                <li><code>false</code> - Point is outside the rectangle or rect is NULL</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>RECT buttonArea;
+SetRect(&buttonArea, 100, 200, 250, 250);
+
+POINT mousePos = { m_gsMouse.GetX(), m_gsMouse.GetY() };
+
+if (GS_Platform::PtInRect(&buttonArea, mousePos))
+{
+    // Mouse is over the button
+    printf("Button hovered!\n");
+}</code></pre>
+        </div>
+
+        <div class="endpoint" id="outputdebugstring">
+            <h3>OutputDebugString()</h3>
+            <p><strong>File:</strong> <code>gs_platform.cpp</code></p>
+            <p>Sends a string to the debugger for display.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void GS_Platform::OutputDebugString(const char* message)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>message</code> - Null-terminated string to output</li>
+            </ul>
+
+            <p><strong>Implementation:</strong></p>
+            <ul>
+                <li><strong>Windows:</strong> Calls native <code>OutputDebugString()</code> (visible in Visual Studio Output window)</li>
+                <li><strong>SDL2:</strong> Prints to <code>std::cout</code> with newline</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>None (void)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>GS_Platform::OutputDebugString("Game initialized successfully");
+
+char debugMsg[256];
+sprintf(debugMsg, "Player score: %d", score);
+GS_Platform::OutputDebugString(debugMsg);</code></pre>
+        </div>
+
+        <div class="endpoint" id="messagebox">
+            <h3>MessageBox()</h3>
+            <p><strong>File:</strong> <code>gs_platform.cpp</code></p>
+            <p>Displays a modal dialog box containing a system icon, text, and buttons.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>int GS_Platform::MessageBox(void* hwnd, const char* text, 
+                            const char* caption, unsigned int type)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>hwnd</code> - Handle to the owner window (can be NULL)</li>
+                <li><code>text</code> - Message text to display</li>
+                <li><code>caption</code> - Dialog box title</li>
+                <li><code>type</code> - Dialog box style (MB_OK, MB_YESNO, etc.)</li>
+            </ul>
+
+            <p><strong>Implementation:</strong></p>
+            <ul>
+                <li><strong>Windows:</strong> Calls native <code>MessageBox()</code></li>
+                <li><strong>SDL2:</strong> Calls <code>SDL_ShowMessageBox()</code> with appropriate configuration</li>
+            </ul>
+
+            <p><strong>Supported Flags:</strong></p>
+            <ul>
+                <li><code>MB_OK</code> - OK button only</li>
+                <li><code>MB_YESNO</code> - Yes and No buttons</li>
+                <li><code>MB_ICONERROR</code> - Error icon</li>
+                <li><code>MB_ICONQUESTION</code> - Question icon</li>
+                <li><code>MB_ICONINFORMATION</code> - Information icon</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>IDOK</code> - OK button clicked</li>
+                <li><code>IDYES</code> - Yes button clicked</li>
+                <li><code>IDNO</code> - No button clicked</li>
+                <li><code>IDCANCEL</code> - Error occurred or dialog closed</li>
+            </ul>
+
+            <p><strong>Examples:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Simple notification
+MessageBox(NULL, "Game saved successfully!", "Success", MB_OK);
+
+// Question dialog
+int result = MessageBox(NULL, 
+                        "Would you like to run in fullscreen mode?",
+                        "Display Mode", 
+                        MB_YESNO | MB_ICONQUESTION);
+
+if (result == IDYES)
+{
+    // User chose fullscreen
+    SetMode(1920, 1080, 32, FALSE);
+}
+
+// Error notification
+MessageBox(NULL, 
+           "Failed to load configuration file!",
+           "Error", 
+           MB_OK | MB_ICONERROR);</code></pre>
+        </div>
+
+        <div class="endpoint" id="getcurrentdirectory">
+            <h3>GetCurrentDirectory()</h3>
+            <p><strong>File:</strong> <code>gs_platform.cpp</code></p>
+            <p>Retrieves the directory where the executable is located.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void GS_Platform::GetCurrentDirectory(int buflen, char* buffer)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>buflen</code> - Size of the buffer in characters</li>
+                <li><code>buffer</code> - Pointer to buffer to receive the directory path</li>
+            </ul>
+
+            <p><strong>Implementation:</strong></p>
+            <ul>
+                <li><strong>Windows:</strong> Calls native <code>GetCurrentDirectory()</code></li>
+                <li><strong>SDL2:</strong> Uses <code>SDL_GetBasePath()</code> to get executable directory, removes trailing path separator</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Returns the directory containing the executable</li>
+                <li>Removes trailing slash or backslash</li>
+                <li>Falls back to current working directory if SDL_GetBasePath() fails</li>
+                <li>Buffer is null-terminated</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>None (void) - Result stored in buffer</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>char exePath[_MAX_PATH];
+GetCurrentDirectory(_MAX_PATH, exePath);
+
+// Build path to data file
+char dataPath[_MAX_PATH];
+strcpy(dataPath, exePath);
+strcat(dataPath, "/data/config.ini");
+
+// On Windows: C:\Games\MyGame\data\config.ini
+// On Linux:   /home/user/games/MyGame/data/config.ini</code></pre>
+        </div>
+
+        <div class="endpoint" id="normalizepath">
+            <h3>NormalizePath()</h3>
+            <p><strong>File:</strong> <code>gs_platform.cpp</code></p>
+            <p>Converts Windows-style backslashes to forward slashes for cross-platform path compatibility.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void GS_Platform::NormalizePath(char* path)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>path</code> - Null-terminated path string to normalize (modified in place)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Replaces all backslashes (\) with forward slashes (/)</li>
+                <li>Modifies the path in place</li>
+                <li>No-op on Windows (both separators work)</li>
+                <li>Essential on Unix systems where backslash is not a path separator</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>None (void) - Path modified in place</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>char path[_MAX_PATH] = "data\\textures\\player.tga";
+GS_Platform::NormalizePath(path);
+// Result: "data/textures/player.tga"
+
+// Use when loading files with hardcoded paths
+char imagePath[_MAX_PATH];
+strcpy(imagePath, "data\\images\\background.pcx");
+GS_Platform::NormalizePath(imagePath);
+if (!sprite.Create(imagePath))
+{
+    // Path works on all platforms
+}</code></pre>
+        </div>
+    </section>
+
+    <!-- Global Functions Section -->
+    <section class="api-section">
+        <h2>Global Functions</h2>
+
+        <div class="endpoint" id="postquitmessage">
+            <h3>PostQuitMessage()</h3>
+            <p><strong>File:</strong> <code>gs_platform.cpp</code></p>
+            <p>Indicates to the system that the application wishes to terminate.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void PostQuitMessage(int nExitCode)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>nExitCode</code> - Application exit code (typically 0 for success)</li>
+            </ul>
+
+            <p><strong>Implementation:</strong></p>
+            <ul>
+                <li><strong>Windows:</strong> Calls native <code>PostQuitMessage()</code> which posts WM_QUIT to message queue</li>
+                <li><strong>SDL2:</strong> Pushes SDL_QUIT event to event queue via <code>SDL_PushEvent()</code></li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Signals the main message loop to exit</li>
+                <li>Does not immediately terminate the application</li>
+                <li>Exit code parameter is currently unused on SDL2 platforms</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>None (void)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Normal application exit
+PostQuitMessage(0);
+
+// In message handler
+LRESULT GS_Demo::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+    switch (uMsg)
+    {
+    case WM_CLOSE:
+        PostQuitMessage(0);
+        return 0;
+    }
+    return GS_Application::MsgProc(hWnd, uMsg, wParam, lParam);
+}</code></pre>
+        </div>
+    </section>
+
+    <!-- Usage Examples Section -->
+    <section class="api-section">
+        <h2>Practical Examples</h2>
+        <div class="endpoint">
+            <h3>Cross-Platform File Loading</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Build platform-independent file paths
+char basePath[_MAX_PATH];
+GetCurrentDirectory(_MAX_PATH, basePath);
+
+char configPath[_MAX_PATH];
+strcpy(configPath, basePath);
+strcat(configPath, "/settings.ini");
+GS_Platform::NormalizePath(configPath);
+
+// Load configuration
+GS_IniFile settings;
+if (settings.Open(configPath))
+{
+    int width = settings.ReadInt("Display", "Width", 800);
+    // ...
+}</code></pre>
+
+            <h3>Collision Detection with PtInRect</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Check if mouse cursor is over a button
+RECT buttonArea;
+SetRect(&buttonArea, 100, 200, 300, 250);
+
+POINT mousePos;
+mousePos.x = m_gsMouse.GetX();
+mousePos.y = m_gsMouse.GetY();
+
+if (GS_Platform::PtInRect(&buttonArea, mousePos))
+{
+    // Mouse is over button - highlight it
+    button.SetModulateColor(1.0f, 1.0f, 0.5f, 1.0f);
+    
+    if (m_gsMouse.IsLeftPressed())
+    {
+        // Button clicked!
+        OnButtonClick();
+    }
+}
+else
+{
+    // Reset button color
+    button.SetModulateColor(1.0f, 1.0f, 1.0f, 1.0f);
+}</code></pre>
+
+            <h3>Performance Measurement</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Measure loading time
+unsigned long startTime = GS_Platform::GetTickCount();
+
+// Load resources
+m_gsBackSprite.Create("data/background.pcx");
+m_gsPlayerSprite.Create("data/player.tga");
+m_gsFont.Create(fontTexture.GetID(), 256, 256, 16, 16, 16);
+
+unsigned long loadTime = GS_Platform::GetTickCount() - startTime;
+
+char message[256];
+sprintf(message, "Resources loaded in %lu ms", loadTime);
+GS_Platform::OutputDebugString(message);</code></pre>
+
+            <h3>User Confirmation Dialog</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Confirm before quitting
+int result = MessageBox(GetWindow(),
+                        "Are you sure you want to quit?",
+                        "Confirm Exit",
+                        MB_YESNO | MB_ICONQUESTION);
+
+if (result == IDYES)
+{
+    // Save game state
+    SaveProgress();
+    
+    // Exit application
+    PostQuitMessage(0);
+}
+// else continue playing</code></pre>
+
+            <h3>Frame Rate Limiting</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>const unsigned long TARGET_FRAME_TIME = 16;  // ~60 FPS
+
+unsigned long frameStart = GS_Platform::GetTickCount();
+
+// Render frame
+RenderGame();
+
+unsigned long frameTime = GS_Platform::GetTickCount() - frameStart;
+
+if (frameTime < TARGET_FRAME_TIME)
+{
+    // Sleep to maintain consistent frame rate
+    GS_Platform::Sleep(TARGET_FRAME_TIME - frameTime);
+}</code></pre>
+
+            <h3>Window Size Adaptation</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Adapt UI to window size
+RECT clientArea;
+if (GS_Platform::GetClientRect(GetWindow(), &clientArea))
+{
+    int windowWidth = clientArea.right - clientArea.left;
+    int windowHeight = clientArea.bottom - clientArea.top;
+    
+    // Center sprite in window
+    sprite.SetDestX((windowWidth - sprite.GetScaledWidth()) / 2);
+    sprite.SetDestY((windowHeight - sprite.GetScaledHeight()) / 2);
+}</code></pre>
+
+            <h3>Best Practices</h3>
+            <ul>
+                <li><strong>Use NormalizePath():</strong> Always normalize hardcoded paths for cross-platform compatibility</li>
+                <li><strong>Prefer GetCurrentDirectory():</strong> Use SDL_GetBasePath() behavior over working directory</li>
+                <li><strong>Check Return Values:</strong> Validate results from GetClientRect() and PtInRect()</li>
+                <li><strong>Use Platform Namespace:</strong> Explicitly use GS_Platform:: for clarity in cross-platform code</li>
+                <li><strong>Avoid Direct SDL Calls:</strong> Use GS_Platform abstractions instead of mixing SDL and Windows API</li>
+                <li><strong>Test on All Platforms:</strong> Verify path handling and message boxes work correctly</li>
+            </ul>
+
+            <div style="background-color: #fffbcc; padding: 15px; border-left: 4px solid #ffcc00; margin: 20px 0;">
+                <h4 style="margin-top: 0;">💡 Pro Tip</h4>
+                <p style="margin-bottom: 0;">The platform abstraction layer is designed to be transparent. In most cases, you can use Windows API conventions (RECT, MessageBox, GetCurrentDirectory) without worrying about the underlying platform. The framework handles the translation automatically through macros and the GS_Platform namespace.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Platform Notes -->
+    <section class="api-section">
+        <h2>Platform-Specific Notes</h2>
+        <div class="endpoint">
+            <h3>Windows Platform</h3>
+            <ul>
+                <li><strong>Native API:</strong> All functions use Windows API directly (windows.h)</li>
+                <li><strong>No Overhead:</strong> GS_Platform namespace unused; macros don't apply</li>
+                <li><strong>MessageBox:</strong> Native Win32 MessageBox with full icon and button support</li>
+                <li><strong>OutputDebugString:</strong> Appears in Visual Studio Output window (Debug→Windows→Output)</li>
+                <li><strong>Paths:</strong> Backslashes and forward slashes both work natively</li>
+            </ul>
+
+            <h3>SDL2 Platforms (Linux/macOS)</h3>
+            <ul>
+                <li><strong>Type Mapping:</strong> Windows types mapped to standard C++ types via typedefs</li>
+                <li><strong>Function Redirection:</strong> Windows API calls redirected to SDL2 via macros</li>
+                <li><strong>MessageBox:</strong> Uses SDL_ShowMessageBox() with limited button configurations</li>
+                <li><strong>OutputDebugString:</strong> Prints to stdout/stderr (visible in terminal)</li>
+                <li><strong>Paths:</strong> Forward slashes only; use NormalizePath() for Windows-style paths</li>
+                <li><strong>Window Handles:</strong> HWND is actually SDL_Window* pointer</li>
+            </ul>
+
+            <h3>Limitations on SDL2</h3>
+            <div style="background-color: #fff3cd; padding: 15px; border-left: 4px solid #ffc107; margin: 20px 0;">
+                <h4 style="margin-top: 0;">⚠️ Known Limitations</h4>
+                <ul style="margin-bottom: 0;">
+                    <li><strong>MessageBox Buttons:</strong> Only MB_OK and MB_YESNO supported (not MB_OKCANCEL, MB_RETRYCANCEL)</li>
+                    <li><strong>MessageBox Icons:</strong> Limited icon types (error, warning, information)</li>
+                    <li><strong>Window Styles:</strong> Window style constants defined but not used (SDL manages windows differently)</li>
+                    <li><strong>Device Context:</strong> HDC is just another pointer to SDL_Window (not a separate DC)</li>
+                    <li><strong>Exit Code:</strong> PostQuitMessage() exit code parameter ignored on SDL2</li>
+                </ul>
+            </div>
+
+            <h3>Debugging Platform Issues</h3>
+            <p>If you encounter platform-specific problems:</p>
+            <ul>
+                <li>Check that paths use forward slashes or are normalized</li>
+                <li>Verify MessageBox flags are supported on SDL2 (MB_OK or MB_YESNO only)</li>
+                <li>Test OutputDebugString() appears in console when running from terminal</li>
+                <li>Ensure window handles are valid before calling platform functions</li>
+                <li>Use GS_Platform:: prefix explicitly if macro redirection isn't working</li>
+            </ul>
+
+            <div style="background-color: #d4edda; padding: 15px; border-left: 4px solid #28a745; margin: 20px 0;">
+                <h4 style="margin-top: 0;">✅ Testing Cross-Platform Code</h4>
+                <p>To ensure your game works on all platforms:</p>
+                <ul style="margin-bottom: 0;">
+                    <li>Test all file loading with both backslash and forward slash paths</li>
+                    <li>Verify MessageBox dialogs display correctly on Linux/macOS</li>
+                    <li>Check that debug output appears in both Visual Studio and terminal</li>
+                    <li>Test window resizing and client area calculations</li>
+                    <li>Validate collision detection with PtInRect() on all platforms</li>
+                    <li>Ensure timing functions (GetTickCount, Sleep) behave consistently</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+</body>
+
+</html>

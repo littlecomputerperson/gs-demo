@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GS_List Template Class</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+
+<body class="endpoint-page">
+    <!-- GS_List Methods Index -->
+    <section class="api-section">
+        <h2>GS_List Template Class Reference</h2>
+        <p><strong>File:</strong> <code>gs_list.h</code> (header-only template class)</p>
+        
+        <div class="endpoint-index">
+            <h3>Constructor & Destructor</h3>
+            <ul>
+                <li><a href="#constructor">GS_List() <span class="endpoint-desc">- Constructor with optional initial size</span></a></li>
+                <li><a href="#destructor">~GS_List() <span class="endpoint-desc">- Destructor, frees allocated memory</span></a></li>
+            </ul>
+
+            <h3>Add Methods</h3>
+            <ul>
+                <li><a href="#additem">AddItem() <span class="endpoint-desc">- Add item to end of list</span></a></li>
+                <li><a href="#insertitem">InsertItem() <span class="endpoint-desc">- Insert item at specific position</span></a></li>
+            </ul>
+
+            <h3>Remove Methods</h3>
+            <ul>
+                <li><a href="#removeitem">RemoveItem() <span class="endpoint-desc">- Remove all matching items</span></a></li>
+                <li><a href="#removeindex">RemoveIndex() <span class="endpoint-desc">- Remove item at index</span></a></li>
+                <li><a href="#removeemptyitems">RemoveEmptyItems() <span class="endpoint-desc">- Remove all null/zero items</span></a></li>
+                <li><a href="#removeallitems">RemoveAllItems() <span class="endpoint-desc">- Clear entire list</span></a></li>
+            </ul>
+
+            <h3>Find Methods</h3>
+            <ul>
+                <li><a href="#finditem">FindItem() <span class="endpoint-desc">- Find index of item in list</span></a></li>
+            </ul>
+
+            <h3>Get/Set Methods</h3>
+            <ul>
+                <li><a href="#operator">operator[] <span class="endpoint-desc">- Array-style access (const)</span></a></li>
+                <li><a href="#getitem">GetItem() <span class="endpoint-desc">- Get item at index</span></a></li>
+                <li><a href="#setitem">SetItem() <span class="endpoint-desc">- Set item at index</span></a></li>
+                <li><a href="#getnumitems">GetNumItems() <span class="endpoint-desc">- Get item count</span></a></li>
+                <li><a href="#setnumitems">SetNumItems() <span class="endpoint-desc">- Resize list</span></a></li>
+            </ul>
+
+            <h3>Status Methods</h3>
+            <ul>
+                <li><a href="#isempty">IsEmpty() <span class="endpoint-desc">- Check if list is empty</span></a></li>
+            </ul>
+        </div>
+    </section>
+    
+    <!-- Class Overview -->
+    <section class="api-section">
+        <h2>Class Overview</h2>
+        <div class="endpoint">
+            <h3>About GS_List</h3>
+            <p>The <code>GS_List</code> template class provides a dynamic, type-safe array container for GameSystem applications. It's a C++ template that can store any data type (primitives, pointers, objects, or structures) in a dynamically resizable array with automatic memory management.</p>
+
+            <p>This class serves as a lightweight alternative to <code>std::vector</code>, providing essential list operations with a simple, easy-to-understand interface. It's particularly useful for managing collections of game objects, textures, sounds, or other resources.</p>
+
+            <h3>Key Features</h3>
+            <ul>
+                <li><strong>Template-Based:</strong> Works with any data type (int, float, pointers, structs, classes)</li>
+                <li><strong>Dynamic Resizing:</strong> Automatically grows as items are added</li>
+                <li><strong>Type Safety:</strong> Compile-time type checking ensures correct usage</li>
+                <li><strong>Memory Management:</strong> Automatic allocation and deallocation</li>
+                <li><strong>Array-Style Access:</strong> Use <code>[]</code> operator like standard arrays</li>
+                <li><strong>Flexible Operations:</strong> Add, insert, remove, find items easily</li>
+                <li><strong>Efficient Storage:</strong> Contiguous memory layout for cache efficiency</li>
+                <li><strong>Safe Bounds Checking:</strong> Assertions prevent out-of-bounds access</li>
+            </ul>
+
+            <h3>Template Declaration</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>template&lt;class type&gt;
+class GS_List
+{
+    // ...
+};</code></pre>
+
+            <h3>Member Variables</h3>
+            <p>All member variables are private:</p>
+
+            <table style="width: 100%; border-collapse: collapse; margin: 1em 0;">
+                <thead>
+                    <tr style="background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Variable</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Type</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_ptArray</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">type*</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Pointer to dynamically allocated array</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_nNumItems</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">int</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Number of items currently in the list</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_nNumAllocated</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">int</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Number of items for which memory is allocated</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Usage Examples</h3>
+
+            <h4>Creating Lists of Different Types</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// List of integers
+GS_List&lt;int&gt; scores;
+
+// List of floats
+GS_List&lt;float&gt; velocities;
+
+// List of pointers to textures
+GS_List&lt;GS_OGLTexture*&gt; textures;
+
+// List of sprite objects
+GS_List&lt;GS_OGLSprite&gt; sprites;
+
+// List of FMOD sound modules
+GS_List&lt;FMUSIC_MODULE*&gt; musicList;</code></pre>
+
+            <h4>Basic Operations</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Create a list of integers
+GS_List&lt;int&gt; numbers;
+
+// Add items
+numbers.AddItem(10);
+numbers.AddItem(20);
+numbers.AddItem(30);
+
+// Access items
+int first = numbers[0];        // 10
+int second = numbers.GetItem(1); // 20
+
+// Find item
+int index = numbers.FindItem(20); // Returns 1
+
+// Remove item
+numbers.RemoveItem(20);
+
+// Check size
+int count = numbers.GetNumItems(); // 2
+
+// Clear all
+numbers.RemoveAllItems();</code></pre>
+
+            <h3>Common Use Cases</h3>
+            <ul>
+                <li><strong>Resource Management:</strong> Store lists of textures, sounds, or sprites</li>
+                <li><strong>Game Objects:</strong> Manage collections of enemies, bullets, or particles</li>
+                <li><strong>Level Data:</strong> Store tile maps, waypoints, or spawn locations</li>
+                <li><strong>UI Components:</strong> Manage menu items or buttons</li>
+                <li><strong>Audio Playlists:</strong> Store music tracks or sound effects</li>
+            </ul>
+
+            <h3>Performance Characteristics</h3>
+            <table style="width: 100%; border-collapse: collapse; margin: 1em 0;">
+                <thead>
+                    <tr style="background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Operation</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Complexity</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;">AddItem()</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">O(n) worst, O(1) amortized</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">May require reallocation</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;">GetItem() / operator[]</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">O(1)</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Direct array access</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;">RemoveIndex()</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">O(n)</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Requires shifting elements</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;">FindItem()</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">O(n)</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Linear search</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- Constructor & Destructor -->
+    <section class="api-section">
+        <h2>Constructor & Destructor</h2>
+
+        <div class="endpoint" id="constructor">
+            <h3>GS_List()</h3>
+            <p><strong>File:</strong> <code>gs_list.h</code></p>
+            <p>Constructor that initializes an empty list with optional pre-allocation.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>GS_List(int size = 0)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>size</code> - Number of items to pre-allocate space for (default: 0)</li>
+            </ul>
+
+            <p><strong>Initialization:</strong></p>
+            <ul>
+                <li>Sets <code>m_ptArray</code> to NULL</li>
+                <li>Sets <code>m_nNumItems</code> to 0</li>
+                <li>Sets <code>m_nNumAllocated</code> to 0</li>
+                <li>If size > 0, calls <code>SetNumItems()</code> to pre-allocate</li>
+            </ul>
+
+            <p><strong>Examples:</strong></p>
+            <pre>// Empty list, no pre-allocation
+GS_List&lt;int&gt; scores;
+
+// Pre-allocate space for 100 items
+GS_List&lt;float&gt; particles(100);
+
+// List of texture pointers
+GS_List&lt;GS_OGLTexture*&gt; textures(10);</pre>
+        </div>
+
+        <div class="endpoint" id="destructor">
+            <h3>~GS_List()</h3>
+            <p><strong>File:</strong> <code>gs_list.h</code></p>
+            <p>Destructor that frees all allocated memory.</p>
+            
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Deletes the internal array if allocated</li>
+                <li>Automatically called when list goes out of scope</li>
+                <li><strong>Note:</strong> Does NOT delete objects pointed to by pointers in the list</li>
+            </ul>
+
+            <p><strong>Important:</strong> If storing pointers to dynamically allocated objects, you must delete them before the list is destroyed:</p>
+
+            <pre>// Clean up pointer list
+for (int i = 0; i &lt; textures.GetNumItems(); i++)
+{
+    delete textures[i];
+}
+textures.RemoveAllItems();</pre>
+        </div>
+    </section>
+
+    <!-- Add Methods -->
+    <section class="api-section">
+        <h2>Add Methods</h2>
+
+        <div class="endpoint" id="additem">
+            <h3>AddItem()</h3>
+            <p><strong>File:</strong> <code>gs_list.h</code></p>
+            <p>Adds an item to the end of the list. Automatically resizes if necessary.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void AddItem(type tData)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>tData</code> - Item to add to the list</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>If no space allocated, allocates space for 1 item</li>
+                <li>If list is full, allocates space for 1 additional item</li>
+                <li>Appends item to the end of the list</li>
+                <li>Increments item count</li>
+            </ul>
+
+            <p><strong>Examples:</strong></p>
+            <pre>GS_List&lt;int&gt; numbers;
+numbers.AddItem(10);
+numbers.AddItem(20);
+numbers.AddItem(30);
+// List now contains: [10, 20, 30]
+
+GS_List&lt;GS_OGLTexture*&gt; textures;
+GS_OGLTexture* pTexture = new GS_OGLTexture();
+textures.AddItem(pTexture);</pre>
+        </div>
+
+        <div class="endpoint" id="insertitem">
+            <h3>InsertItem()</h3>
+            <p><strong>File:</strong> <code>gs_list.h</code></p>
+            <p>Inserts an item at a specific position in the list.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void InsertItem(int nIndex, type tData)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>nIndex</code> - Position to insert at (0-based)</li>
+                <li><code>tData</code> - Item to insert</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Returns without action if index is invalid</li>
+                <li>If index equals list size, calls <code>AddItem()</code></li>
+                <li>Otherwise, shifts all items from index onward one position forward</li>
+                <li>Inserts new item at the specified position</li>
+                <li>Increments item count</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>GS_List&lt;int&gt; numbers;
+numbers.AddItem(10);
+numbers.AddItem(30);
+numbers.InsertItem(1, 20);
+// List now contains: [10, 20, 30]</pre>
+        </div>
+    </section>
+
+    <!-- Remove Methods -->
+    <section class="api-section">
+        <h2>Remove Methods</h2>
+
+        <div class="endpoint" id="removeitem">
+            <h3>RemoveItem()</h3>
+            <p><strong>File:</strong> <code>gs_list.h</code></p>
+            <p>Removes all items matching the specified value from the list.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void RemoveItem(const type tData)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>tData</code> - Item value to remove</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Searches the entire list for matching items</li>
+                <li>Removes ALL occurrences of the item</li>
+                <li>Uses <code>==</code> operator for comparison</li>
+                <li>Does not resize allocated memory</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>GS_List&lt;int&gt; numbers;
+numbers.AddItem(10);
+numbers.AddItem(20);
+numbers.AddItem(10);
+numbers.RemoveItem(10);
+// List now contains: [20]</pre>
+        </div>
+
+        <div class="endpoint" id="removeindex">
+            <h3>RemoveIndex()</h3>
+            <p><strong>File:</strong> <code>gs_list.h</code></p>
+            <p>Removes the item at a specific index.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void RemoveIndex(int nIndex)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>nIndex</code> - Index of item to remove (0-based)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Returns without action if index is invalid</li>
+                <li>Shifts all items after the removed item one position backward</li>
+                <li>Decrements item count</li>
+                <li>Uses <code>memmove()</code> for efficient memory shifting</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>GS_List&lt;int&gt; numbers;
+numbers.AddItem(10);
+numbers.AddItem(20);
+numbers.AddItem(30);
+numbers.RemoveIndex(1);
+// List now contains: [10, 30]</pre>
+        </div>
+
+        <div class="endpoint" id="removeemptyitems">
+            <h3>RemoveEmptyItems()</h3>
+            <p><strong>File:</strong> <code>gs_list.h</code></p>
+            <p>Removes all items that equal zero or NULL from the list.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void RemoveEmptyItems()</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Iterates backwards through the list</li>
+                <li>Removes all items that equal 0 (for numbers) or NULL (for pointers)</li>
+                <li>Uses <code>==</code> operator comparison with 0</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>GS_List&lt;int*&gt; pointers;
+pointers.AddItem(new int(10));
+pointers.AddItem(NULL);
+pointers.AddItem(new int(20));
+pointers.RemoveEmptyItems();
+// List now contains only non-NULL pointers</pre>
+        </div>
+
+        <div class="endpoint" id="removeallitems">
+            <h3>RemoveAllItems()</h3>
+            <p><strong>File:</strong> <code>gs_list.h</code></p>
+            <p>Clears the entire list and frees all allocated memory.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void RemoveAllItems()</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Sets item count to 0</li>
+                <li>Deletes the internal array</li>
+                <li>Sets allocated count to 0</li>
+                <li>List becomes completely empty</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>GS_List&lt;int&gt; numbers;
+numbers.AddItem(10);
+numbers.AddItem(20);
+numbers.RemoveAllItems();
+// List is now empty, memory freed</pre>
+        </div>
+    </section>
+
+    <!-- Find Methods -->
+    <section class="api-section">
+        <h2>Find Methods</h2>
+
+        <div class="endpoint" id="finditem">
+            <h3>FindItem()</h3>
+            <p><strong>File:</strong> <code>gs_list.h</code></p>
+            <p>Searches for an item in the list and returns its index.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>int FindItem(const type tData)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>tData</code> - Item to search for</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Performs linear search from start to end</li>
+                <li>Uses <code>==</code> operator for comparison</li>
+                <li>Returns index of FIRST matching item found</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Index of item (0-based) if found</li>
+                <li><code>-1</code> if item not found</li>
+            </ul>
+
+            <p><strong>Examples:</strong></p>
+            <pre>GS_List&lt;int&gt; numbers;
+numbers.AddItem(10);
+numbers.AddItem(20);
+numbers.AddItem(30);
+
+int index = numbers.FindItem(20);  // Returns 1
+int notFound = numbers.FindItem(99); // Returns -1
+
+// Check if item exists
+if (numbers.FindItem(20) != -1)
+{
+    // Item is in the list
+}</pre>
+        </div>
+    </section>
+
+    <!-- Get/Set Methods -->
+    <section class="api-section">
+        <h2>Get/Set Methods</h2>
+
+        <div class="endpoint" id="operator">
+            <h3>operator[]</h3>
+            <p><strong>File:</strong> <code>gs_list.h</code> (inline)</p>
+            <p>Array-style subscript operator for accessing items (const version).</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>inline type operator [] (int nIndex) const</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>nIndex</code> - Index of item to access (0-based)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Asserts if index is out of bounds (debug builds)</li>
+                <li>Returns item at specified index</li>
+                <li>Const version - cannot modify returned value</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Copy of the item at the specified index</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>GS_List&lt;int&gt; numbers;
+numbers.AddItem(10);
+numbers.AddItem(20);
+
+int first = numbers[0];   // 10
+int second = numbers[1];  // 20</pre>
+        </div>
+
+        <div class="endpoint" id="getitem">
+            <h3>GetItem()</h3>
+            <p><strong>File:</strong> <code>gs_list.h</code> (inline)</p>
+            <p>Retrieves an item at a specific index.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>inline type GetItem(int nIndex)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>nIndex</code> - Index of item to retrieve (0-based)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Asserts if index is out of bounds (debug builds)</li>
+                <li>Functionally equivalent to <code>operator[]</code></li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Copy of the item at the specified index</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>int value = numbers.GetItem(0);</pre>
+        </div>
+
+        <div class="endpoint" id="setitem">
+            <h3>SetItem()</h3>
+            <p><strong>File:</strong> <code>gs_list.h</code></p>
+            <p>Sets the value of an item at a specific index.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void SetItem(int nIndex, type tData)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>nIndex</code> - Index of item to modify (0-based)</li>
+                <li><code>tData</code> - New value for the item</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Returns without action if index is invalid</li>
+                <li>Overwrites the item at the specified index</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>GS_List&lt;int&gt; numbers;
+numbers.AddItem(10);
+numbers.SetItem(0, 99);
+// First item is now 99</pre>
+        </div>
+
+        <div class="endpoint" id="getnumitems">
+            <h3>GetNumItems()</h3>
+            <p><strong>File:</strong> <code>gs_list.h</code> (inline)</p>
+            <p>Returns the number of items currently in the list.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>inline int GetNumItems()</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Number of items in the list</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>GS_List&lt;int&gt; numbers;
+numbers.AddItem(10);
+numbers.AddItem(20);
+
+int count = numbers.GetNumItems();  // Returns 2
+
+// Iterate through list
+for (int i = 0; i &lt; numbers.GetNumItems(); i++)
+{
+    printf("%d\n", numbers[i]);
+}</pre>
+        </div>
+
+        <div class="endpoint" id="setnumitems">
+            <h3>SetNumItems()</h3>
+            <p><strong>File:</strong> <code>gs_list.h</code></p>
+            <p>Resizes the list to a specific number of items.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void SetNumItems(int nNumToAllocate)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>nNumToAllocate</code> - New size for the list</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>If size is 0, deletes the array entirely</li>
+                <li>Otherwise, allocates space for the specified number of items</li>
+                <li>Sets item count to the new size</li>
+                <li>Existing items are preserved if new size is larger</li>
+                <li>Items beyond new size are lost if new size is smaller</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>// Pre-allocate space for 100 items
+GS_List&lt;float&gt; particles;
+particles.SetNumItems(100);
+
+// All 100 slots now exist (but may contain garbage)
+for (int i = 0; i &lt; 100; i++)
+{
+    particles.SetItem(i, 0.0f);
+}</pre>
+        </div>
+    </section>
+
+    <!-- Status Methods -->
+    <section class="api-section">
+        <h2>Status Methods</h2>
+
+        <div class="endpoint" id="isempty">
+            <h3>IsEmpty()</h3>
+            <p><strong>File:</strong> <code>gs_list.h</code> (inline)</p>
+            <p>Checks if the list contains no items.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>inline BOOL IsEmpty()</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - List has no items</li>
+                <li><code>FALSE</code> - List contains one or more items</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>GS_List&lt;int&gt; numbers;
+
+if (numbers.IsEmpty())
+{
+    printf("List is empty\n");
+}
+
+numbers.AddItem(10);
+
+if (!numbers.IsEmpty())
+{
+    printf("List has items\n");
+}</pre>
+        </div>
+    </section>
+
+    <!-- Best Practices -->
+    <section class="api-section">
+        <h2>Best Practices & Examples</h2>
+        <div class="endpoint">
+            <h3>Managing Game Objects</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Store pointers to enemy objects
+GS_List&lt;Enemy*&gt; enemies;
+
+// Add enemies
+for (int i = 0; i &lt; 10; i++)
+{
+    Enemy* pEnemy = new Enemy();
+    pEnemy->SetPosition(rand() % 800, rand() % 600);
+    enemies.AddItem(pEnemy);
+}
+
+// Update all enemies
+for (int i = 0; i &lt; enemies.GetNumItems(); i++)
+{
+    enemies[i]->Update();
+}
+
+// Remove dead enemies (iterate backwards!)
+for (int i = enemies.GetNumItems() - 1; i >= 0; i--)
+{
+    if (enemies[i]->IsDead())
+    {
+        delete enemies[i];
+        enemies.RemoveIndex(i);
+    }
+}
+
+// Clean up remaining enemies
+for (int i = 0; i &lt; enemies.GetNumItems(); i++)
+{
+    delete enemies[i];
+}
+enemies.RemoveAllItems();</code></pre>
+
+            <h3>Audio Playlist Management</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Using GS_List with FMOD music modules
+GS_List&lt;FMUSIC_MODULE*&gt; m_gsMusicList;
+
+// Add music tracks
+FMUSIC_MODULE* track1 = FMUSIC_LoadSong("music/track1.mod");
+m_gsMusicList.AddItem(track1);
+
+FMUSIC_MODULE* track2 = FMUSIC_LoadSong("music/track2.xm");
+m_gsMusicList.AddItem(track2);
+
+// Play a specific track
+int trackIndex = 0;
+if (trackIndex < m_gsMusicList.GetNumItems())
+{
+    FMUSIC_PlaySong(m_gsMusicList[trackIndex]);
+}
+
+// Clean up music
+for (int i = 0; i &lt; m_gsMusicList.GetNumItems(); i++)
+{
+    FMUSIC_FreeSong(m_gsMusicList[i]);
+}
+m_gsMusicList.RemoveAllItems();</code></pre>
+
+            <h3>Texture Management</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Manage texture resources
+GS_List&lt;GS_OGLTexture*&gt; textures;
+
+// Load textures
+const char* files[] = { "sprite1.tga", "sprite2.tga", "sprite3.tga" };
+for (int i = 0; i &lt; 3; i++)
+{
+    GS_OGLTexture* pTex = new GS_OGLTexture();
+    if (pTex->Create(files[i]))
+    {
+        textures.AddItem(pTex);
+    }
+    else
+    {
+        delete pTex;
+    }
+}
+
+// Find a specific texture
+GS_OGLTexture* pTarget = /* some texture */;
+int index = textures.FindItem(pTarget);
+if (index != -1)
+{
+    printf("Texture found at index %d\n", index);
+}
+
+// Clean up
+for (int i = 0; i &lt; textures.GetNumItems(); i++)
+{
+    delete textures[i];
+}
+textures.RemoveAllItems();</code></pre>
+
+            <h3>Storing Value Types</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Store player scores
+GS_List&lt;int&gt; highScores;
+
+// Add scores
+highScores.AddItem(50000);
+highScores.AddItem(75000);
+highScores.AddItem(100000);
+
+// Sort scores (simple bubble sort)
+for (int i = 0; i &lt; highScores.GetNumItems() - 1; i++)
+{
+    for (int j = 0; j &lt; highScores.GetNumItems() - i - 1; j++)
+    {
+        if (highScores[j] < highScores[j + 1])
+        {
+            int temp = highScores[j];
+            highScores.SetItem(j, highScores[j + 1]);
+            highScores.SetItem(j + 1, temp);
+        }
+    }
+}
+
+// Display top 10 scores
+for (int i = 0; i &lt; min(10, highScores.GetNumItems()); i++)
+{
+    printf("%d. %d\n", i + 1, highScores[i]);
+}</code></pre>
+
+            <h3>Important Tips</h3>
+            <ul>
+                <li><strong>Iterate Backwards When Removing:</strong> When removing items during iteration, go backwards to avoid index shifting issues</li>
+                <li><strong>Pointer Cleanup:</strong> Remember to delete objects before removing pointers from the list</li>
+                <li><strong>Pre-allocation:</strong> Use constructor parameter or <code>SetNumItems()</code> to pre-allocate if you know the size</li>
+                <li><strong>Bounds Checking:</strong> Always check indices before accessing items, especially with user input</li>
+                <li><strong>Type Requirements:</strong> Stored type must support <code>==</code> operator for Find and Remove operations</li>
+                <li><strong>Memory Efficiency:</strong> List grows by one item at a time; pre-allocate for better performance</li>
+            </ul>
+
+            <h3>Common Patterns</h3>
+            <ul>
+                <li><strong>Resource Lists:</strong> Use for textures, sounds, sprites, fonts</li>
+                <li><strong>Object Pools:</strong> Pre-allocate and reuse objects like bullets or particles</li>
+                <li><strong>Dynamic Collections:</strong> Enemies, pickups, UI elements</li>
+                <li><strong>Configuration Data:</strong> Level waypoints, spawn locations</li>
+            </ul>
+
+            <div style="background-color: #fff3cd; padding: 15px; border-left: 4px solid #ffc107; margin: 20px 0;">
+                <h4 style="margin-top: 0;">⚠️ Memory Management Warning</h4>
+                <p style="margin-bottom: 0;">GS_List only manages the memory for the array itself. If you store pointers to dynamically allocated objects, <strong>you are responsible for deleting those objects</strong> before removing them from the list or destroying the list. Failing to do so will cause memory leaks.</p>
+            </div>
+        </div>
+    </section>
+</body>
+
+</html>

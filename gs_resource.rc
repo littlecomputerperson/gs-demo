@@ -1,0 +1,66 @@
+//==============================================================================================
+// Include resource header files.
+// ---------------------------------------------------------------------------------------------
+// #include "afxres.h" // For Visual C++
+#include "gs_resource.h"
+#include <windows.h>
+//==============================================================================================
+
+//==============================================================================================
+// Icon resources.
+// ---------------------------------------------------------------------------------------------
+// NOTES: Icon with lowest ID value placed first to ensure application icon remains consistent
+//        on all systems.
+// ---------------------------------------------------------------------------------------------
+IDI_MAIN ICON DISCARDABLE "GameSystem.ico"
+//==============================================================================================
+
+//==============================================================================================
+// Accelerator resources.
+// ---------------------------------------------------------------------------------------------
+IDR_MAIN_ACCEL ACCELERATORS DISCARDABLE
+   BEGIN
+      "X",       IDM_QUIT,       VIRTKEY, ALT, NOINVERT
+      VK_RETURN, IDM_CHANGEMODE, VIRTKEY, ALT, NOINVERT
+   END
+//==============================================================================================
+
+//==============================================================================================
+// Menu resources.
+// ---------------------------------------------------------------------------------------------
+IDR_MENU MENU DISCARDABLE
+BEGIN
+    POPUP "&Program "
+    BEGIN
+        MENUITEM "Next Demonstration\tSpacebar", IDM_NEXTDEMO
+        MENUITEM "Toggle Turbo Mode\tT",         IDM_TURBO
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit\tAlt+X",                 IDM_QUIT
+    END
+    POPUP "&Display "
+    BEGIN
+        MENUITEM "Toggle Full-Screen\tAlt+Enter", IDM_CHANGEMODE
+        MENUITEM SEPARATOR
+        MENUITEM "Toggle Blending\tB", IDM_BLENDING
+        MENUITEM "Toggle Lighting\tL", IDM_LIGHTING
+        MENUITEM "Toggle VSync\tV"   , IDM_VSYNC
+        MENUITEM SEPARATOR
+        MENUITEM "320x240\tF1",  IDM_320X240
+        MENUITEM "400x300\tF2",  IDM_400X300
+        MENUITEM "640x480\tF3",  IDM_640X480
+        MENUITEM "800x600\tF4",  IDM_800X600
+        MENUITEM "1024x768\tF5", IDM_1024X768
+    END
+    POPUP "&Sound "
+    BEGIN
+        MENUITEM "Increase Volume\t+", IDM_VOL_PLUS
+        MENUITEM "Decrease Volume\t-", IDM_VOL_MINUS
+        MENUITEM SEPARATOR
+        MENUITEM "Play Sample 1\t1", IDM_SAMPLE_1
+        MENUITEM "Play Sample 2\t2", IDM_SAMPLE_2
+        MENUITEM "Play Sample 3\t3", IDM_SAMPLE_3
+        MENUITEM "Play Sample 4\t4", IDM_SAMPLE_4
+        MENUITEM "Play Sample 5\t5", IDM_SAMPLE_5
+    END
+END
+//==============================================================================================

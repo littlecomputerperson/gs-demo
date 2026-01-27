@@ -1,0 +1,2427 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GS_OGLMap Class</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+
+<body class="endpoint-page">
+    <!-- GS_OGLMap Methods Index -->
+    <section class="api-section">
+        <h2>GS_OGLMap Class Reference</h2>
+        <p><strong>Files:</strong> <code>gs_ogl_map.h</code>, <code>gs_ogl_map.cpp</code></p>
+        <p><strong>Inherits from:</strong> <code>GS_Object</code></p>
+        
+        <div class="endpoint-index">
+            <h3>Constructor & Destructor</h3>
+            <ul>
+                <li><a href="#constructor">GS_OGLMap() <span class="endpoint-desc">- Constructor</span></a></li>
+                <li><a href="#destructor">~GS_OGLMap() <span class="endpoint-desc">- Destructor</span></a></li>
+            </ul>
+
+            <h3>Creation Methods</h3>
+            <ul>
+                <li><a href="#create-file">Create(pathname) <span class="endpoint-desc">- Create map from image file</span></a></li>
+                <li><a href="#create-texture">Create(texture) <span class="endpoint-desc">- Create map from existing texture</span></a></li>
+                <li><a href="#destroy">Destroy() <span class="endpoint-desc">- Destroy map and free resources</span></a></li>
+            </ul>
+
+            <h3>Rendering Methods</h3>
+            <ul>
+                <li><a href="#render-coords">Render(x, y) <span class="endpoint-desc">- Render map at specific coordinates</span></a></li>
+                <li><a href="#render">Render() <span class="endpoint-desc">- Render map at current position</span></a></li>
+            </ul>
+
+            <h3>ClipBox Methods</h3>
+            <ul>
+                <li><a href="#setclipbox">SetClipBox() <span class="endpoint-desc">- Set rendering viewport</span></a></li>
+                <li><a href="#getclipbox">GetClipBox() <span class="endpoint-desc">- Get viewport rectangle</span></a></li>
+                <li><a href="#getclipboxleft">GetClipBoxLeft() <span class="endpoint-desc">- Get left edge</span></a></li>
+                <li><a href="#getclipboxright">GetClipBoxRight() <span class="endpoint-desc">- Get right edge</span></a></li>
+                <li><a href="#getclipboxbottom">GetClipBoxBottom() <span class="endpoint-desc">- Get bottom edge</span></a></li>
+                <li><a href="#getclipboxtop">GetClipBoxTop() <span class="endpoint-desc">- Get top edge</span></a></li>
+                <li><a href="#getclipboxwidth">GetClipBoxWidth() <span class="endpoint-desc">- Get viewport width</span></a></li>
+                <li><a href="#getclipboxheight">GetClipBoxHeight() <span class="endpoint-desc">- Get viewport height</span></a></li>
+            </ul>
+
+            <h3>Map Management Methods</h3>
+            <ul>
+                <li><a href="#loadmap">LoadMap() <span class="endpoint-desc">- Load map from text file</span></a></li>
+                <li><a href="#savemap">SaveMap() <span class="endpoint-desc">- Save map to text file</span></a></li>
+                <li><a href="#setmapx">SetMapX() <span class="endpoint-desc">- Set horizontal position</span></a></li>
+                <li><a href="#setmapy">SetMapY() <span class="endpoint-desc">- Set vertical position</span></a></li>
+                <li><a href="#getmapx">GetMapX() <span class="endpoint-desc">- Get horizontal position</span></a></li>
+                <li><a href="#getmapy">GetMapY() <span class="endpoint-desc">- Get vertical position</span></a></li>
+                <li><a href="#getmapwidth">GetMapWidth() <span class="endpoint-desc">- Get total map width</span></a></li>
+                <li><a href="#getmapheight">GetMapHeight() <span class="endpoint-desc">- Get total map height</span></a></li>
+            </ul>
+
+            <h3>Scrolling Methods</h3>
+            <ul>
+                <li><a href="#setlimitx">SetLimitX() <span class="endpoint-desc">- Enable/disable horizontal limits</span></a></li>
+                <li><a href="#setlimity">SetLimitY() <span class="endpoint-desc">- Enable/disable vertical limits</span></a></li>
+                <li><a href="#setwrapx">SetWrapX() <span class="endpoint-desc">- Enable/disable horizontal wrapping</span></a></li>
+                <li><a href="#setwrapy">SetWrapY() <span class="endpoint-desc">- Enable/disable vertical wrapping</span></a></li>
+                <li><a href="#scrollx">ScrollX() <span class="endpoint-desc">- Scroll horizontally</span></a></li>
+                <li><a href="#scrolly">ScrollY() <span class="endpoint-desc">- Scroll vertically</span></a></li>
+            </ul>
+
+            <h3>Tile Methods</h3>
+            <ul>
+                <li><a href="#settileid">SetTileID() <span class="endpoint-desc">- Set tile at row/column</span></a></li>
+                <li><a href="#gettileid">GetTileID() <span class="endpoint-desc">- Get tile at row/column</span></a></li>
+                <li><a href="#replacetileid">ReplaceTileID() <span class="endpoint-desc">- Replace all instances of tile</span></a></li>
+                <li><a href="#setcleartileid">SetClearTileID() <span class="endpoint-desc">- Set transparent tile ID</span></a></li>
+                <li><a href="#gettilewidth">GetTileWidth() <span class="endpoint-desc">- Get tile width</span></a></li>
+                <li><a href="#gettileheight">GetTileHeight() <span class="endpoint-desc">- Get tile height</span></a></li>
+                <li><a href="#settotaltiles">SetTotalTiles() <span class="endpoint-desc">- Set tile count</span></a></li>
+                <li><a href="#gettotaltiles">GetTotalTiles() <span class="endpoint-desc">- Get tile count</span></a></li>
+                <li><a href="#settilesperline">SetTilesPerLine() <span class="endpoint-desc">- Set tiles per row</span></a></li>
+                <li><a href="#gettilesperline">GetTilesPerLine() <span class="endpoint-desc">- Get tiles per row</span></a></li>
+            </ul>
+
+            <h3>Conversion Methods</h3>
+            <ul>
+                <li><a href="#maptoid">MapToID() <span class="endpoint-desc">- Get tile ID from map coordinates</span></a></li>
+                <li><a href="#maptocol">MapToCol() <span class="endpoint-desc">- Get column from X coordinate</span></a></li>
+                <li><a href="#maptorow">MapToRow() <span class="endpoint-desc">- Get row from Y coordinate</span></a></li>
+                <li><a href="#screentoid">ScreenToID() <span class="endpoint-desc">- Get tile ID from screen coordinates</span></a></li>
+                <li><a href="#screentocol">ScreenToCol() <span class="endpoint-desc">- Get column from screen X</span></a></li>
+                <li><a href="#screentorow">ScreenToRow() <span class="endpoint-desc">- Get row from screen Y</span></a></li>
+                <li><a href="#maptoscreen">MapToScreen() <span class="endpoint-desc">- Convert map to screen coordinates</span></a></li>
+                <li><a href="#screentomap">ScreenToMap() <span class="endpoint-desc">- Convert screen to map coordinates</span></a></li>
+            </ul>
+
+            <h3>Collision Detection Methods</h3>
+            <ul>
+                <li><a href="#isontile-id">IsOnTile(coords, tileID) <span class="endpoint-desc">- Check point on specific tile type</span></a></li>
+                <li><a href="#isontile-rect">IsOnTile(rect, tileID) <span class="endpoint-desc">- Check rectangle on tile type</span></a></li>
+                <li><a href="#isintile">IsInTile(rect, tileID) <span class="endpoint-desc">- Check if entirely within tile type</span></a></li>
+                <li><a href="#isontile-rowcol">IsOnTile(coords, row, col) <span class="endpoint-desc">- Check point on specific tile</span></a></li>
+                <li><a href="#isonarea">IsOnArea() <span class="endpoint-desc">- Check overlap with map area</span></a></li>
+                <li><a href="#isinarea">IsInArea() <span class="endpoint-desc">- Check if within map area</span></a></li>
+            </ul>
+
+            <h3>Color Methods</h3>
+            <ul>
+                <li><a href="#getmodulatecolor">GetModulateColor() <span class="endpoint-desc">- Get tile tint color</span></a></li>
+                <li><a href="#setmodulatecolor">SetModulateColor() <span class="endpoint-desc">- Set tile tint color</span></a></li>
+            </ul>
+        </div>
+    </section>
+    
+    <!-- Class Overview -->
+    <section class="api-section">
+        <h2>Class Overview</h2>
+        <div class="endpoint">
+            <h3>About GS_OGLMap</h3>
+            <p>The <code>GS_OGLMap</code> class provides a complete tile-based map system for creating scrolling 2D game levels. It manages a grid of tiles, handles rendering with viewport clipping, supports horizontal and vertical scrolling with wrapping or limiting, and provides comprehensive collision detection for tile-based gameplay.</p>
+
+            <p>This class is essential for creating platformers, RPGs, puzzle games, and any game that uses tile-based level design. It efficiently renders only visible tiles, supports map wrapping for infinite scrolling effects, and provides utilities for converting between screen coordinates, map coordinates, and tile indices.</p>
+
+            <h3>Key Features</h3>
+            <ul>
+                <li><strong>Tile-Based Rendering:</strong> Grid-based map system with customizable tile dimensions</li>
+                <li><strong>Viewport Clipping:</strong> Automatic scissor box clipping for efficient rendering</li>
+                <li><strong>Scrolling Support:</strong> Smooth scrolling with optional wrapping or boundary limiting</li>
+                <li><strong>Map File I/O:</strong> Save and load maps from human-readable text files</li>
+                <li><strong>Collision Detection:</strong> Comprehensive tile collision utilities</li>
+                <li><strong>Coordinate Conversion:</strong> Convert between screen, map, and tile coordinates</li>
+                <li><strong>Transparent Tiles:</strong> Support for "clear" tiles that don't render</li>
+                <li><strong>Color Modulation:</strong> Tint all tiles with a single color/alpha value</li>
+                <li><strong>Large Map Support:</strong> Up to 128×128 tiles (16,384 tiles total)</li>
+                <li><strong>ASCII Map Format:</strong> Use alphanumeric characters (0-9, A-Z, a-z) for 62 tile types</li>
+            </ul>
+
+            <h3>Map Structure</h3>
+            <p>A tile map consists of:</p>
+            <ul>
+                <li><strong>Tile Sheet:</strong> A single texture containing all tile graphics arranged in a grid</li>
+                <li><strong>Map Data:</strong> A 2D array storing tile IDs for each grid position</li>
+                <li><strong>ClipBox:</strong> A viewport rectangle defining the visible rendering area</li>
+                <li><strong>Map Position:</strong> Offset coordinates for scrolling the map</li>
+            </ul>
+
+            <div style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; margin: 15px 0;">
+                <h4 style="margin-top: 0;">Coordinate Systems</h4>
+                <p>GS_OGLMap uses three coordinate systems:</p>
+                <ul style="margin-bottom: 0;">
+                    <li><strong>Screen Coordinates:</strong> Pixels on the actual display (0,0 at bottom-left)</li>
+                    <li><strong>Map Coordinates:</strong> Pixels within the map data (0,0 at bottom-left of map)</li>
+                    <li><strong>Tile Coordinates:</strong> Row/column indices into the tile grid</li>
+                </ul>
+                <p style="margin-top: 10px;">Example: Map position (-20, 20) means the map's bottom-left is 20 pixels left and 20 pixels up from the clipbox's bottom-left.</p>
+            </div>
+
+            <h3>Tile Sheet Layout</h3>
+            <p>The tile sheet texture must be organized as a grid:</p>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;">
+Tile Sheet (16 tiles per line, 32×32 pixels per tile):
+┌────┬────┬────┬────┬────┬────┬────┬────┬────┬────┬────┬────┬────┬────┬────┬────┐
+│ 0  │ 1  │ 2  │ 3  │ 4  │ 5  │ 6  │ 7  │ 8  │ 9  │ 10 │ 11 │ 12 │ 13 │ 14 │ 15 │
+├────┼────┼────┼────┼────┼────┼────┼────┼────┼────┼────┼────┼────┼────┼────┼────┤
+│ 16 │ 17 │ 18 │ 19 │ 20 │ 21 │ 22 │ 23 │ 24 │ 25 │ 26 │ 27 │ 28 │ 29 │ 30 │ 31 │
+└────┴────┴────┴────┴────┴────┴────┴────┴────┴────┴────┴────┴────┴────┴────┴────┘
+
+Each cell is 32×32 pixels, tiles numbered left-to-right, top-to-bottom
+</pre>
+
+            <h3>Map File Format</h3>
+            <p>Maps are stored as text files with alphanumeric characters representing tile IDs:</p>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>0000000000000000
+0111111111111110
+0100000000000010
+0100000000000010
+0111111111111110
+0000000000000000</code></pre>
+
+            <p><strong>Character Encoding:</strong></p>
+            <table style="width: 100%; border-collapse: collapse; margin: 1em 0;">
+                <thead>
+                    <tr style="background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Characters</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Tile IDs</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Example</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>0-9</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Tiles 0-9</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">'0' = tile 0, '5' = tile 5</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>A-Z</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Tiles 10-35</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">'A' = tile 10, 'Z' = tile 35</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>a-z</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Tiles 36-61</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">'a' = tile 36, 'z' = tile 61</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 10px; border: 1px solid #ddd;">Other</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">-1 (empty/transparent)</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Space, newline, etc.</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Member Variables</h3>
+            <p>All member variables are private:</p>
+
+            <table style="width: 100%; border-collapse: collapse; margin: 1em 0;">
+                <thead>
+                    <tr style="background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Variable</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Type</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_gsTileSprites</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">GS_OGLSpriteEx</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Animated sprite containing all tile graphics</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_nMap[128][128]</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">int</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">2D array of tile IDs (max 128×128)</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_nNumCols</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">int</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Number of columns in the map</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_nNumRows</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">int</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Number of rows in the map</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_rcClipBox</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">RECT</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Viewport rectangle for rendering</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_nMapCoordX</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">int</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Horizontal scroll position</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_nMapCoordY</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">int</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Vertical scroll position</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_nTileWidth</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">int</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Width of each tile in pixels</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_nTileHeight</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">int</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Height of each tile in pixels</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_nClearTileID</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">int</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Tile ID that won't be rendered (-1 = none)</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_bLimitX</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">BOOL</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Prevent scrolling past horizontal edges</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_bLimitY</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">BOOL</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Prevent scrolling past vertical edges</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_bWrapX</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">BOOL</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Enable horizontal map wrapping</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_bWrapY</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">BOOL</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Enable vertical map wrapping</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_bIsReady</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">BOOL</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Initialization state flag</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Usage Pattern</h3>
+            <p>Typical workflow for using GS_OGLMap:</p>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Create map with 16×16 pixel tiles, 16 tiles per row
+GS_OGLMap map;
+map.Create("data/tileset.tga", 32, 16, 16, 16);
+
+// Load map data from file (20 columns × 15 rows)
+map.LoadMap("data/level1.map", 15, 20);
+
+// Set viewport (where map renders on screen)
+map.SetClipBox(0, 0, 960, 540);
+
+// Enable scroll limiting (prevent empty space)
+map.SetLimitX(TRUE);
+map.SetLimitY(TRUE);
+
+// Scroll the map
+map.ScrollX(-2);  // Move left 2 pixels
+map.ScrollY(3);   // Move up 3 pixels
+
+// Render the map
+m_gsDisplay.BeginRender2D(GetWindow());
+map.Render();
+m_gsDisplay.EndRender2D();</code></pre>
+        </div>
+    </section>
+
+    <!-- Constructor & Destructor -->
+    <section class="api-section">
+        <h2>Constructor & Destructor</h2>
+
+        <div class="endpoint" id="constructor">
+            <h3>GS_OGLMap()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_map.cpp</code></p>
+            <p>Constructor that initializes all member variables to default values.</p>
+            
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Initialization:</strong></p>
+            <ul>
+                <li>Clears map array to -1 (empty tiles)</li>
+                <li><code>m_nNumCols = 0</code>, <code>m_nNumRows = 0</code></li>
+                <li><code>m_rcClipBox = {0, 0, 0, 0}</code></li>
+                <li><code>m_nMapCoordX = 0</code>, <code>m_nMapCoordY = 0</code></li>
+                <li><code>m_nTileWidth = 0</code>, <code>m_nTileHeight = 0</code></li>
+                <li><code>m_nClearTileID = -1</code></li>
+                <li>All limit/wrap flags = FALSE</li>
+                <li><code>m_bIsReady = FALSE</code></li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>GS_OGLMap levelMap;  // Ready for Create() call</pre>
+        </div>
+
+        <div class="endpoint" id="destructor">
+            <h3>~GS_OGLMap()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_map.cpp</code></p>
+            <p>Destructor that ensures proper cleanup of map resources.</p>
+            
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Calls <code>Destroy()</code> to clean up tile sprites and map data</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Creation Methods -->
+    <section class="api-section">
+        <h2>Creation Methods</h2>
+
+        <div class="endpoint" id="create-file">
+            <h3>Create(pathname)</h3>
+            <p><strong>File:</strong> <code>gs_ogl_map.cpp</code></p>
+            <p>Creates a new tile map by loading tile graphics from an image file and initializing the map data.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void Create(LPCTSTR pszFile, int nTileSize, int nCols, int nRows, int nTotalTiles)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>pszFile</code> - Pathname of the image file containing the tile graphics</li>
+                <li><code>nTileSize</code> - Size of each tile in pixels (width and height are the same)</li>
+                <li><code>nCols</code> - Number of columns in the tile sheet</li>
+                <li><code>nRows</code> - Number of rows in the tile sheet</li>
+                <li><code>nTotalTiles</code> - Total number of tiles in the map (must not exceed 16384)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Loads tile graphics from the specified file into an animated sprite</li>
+                <li>Initializes the map data array to -1 (empty tiles)</li>
+                <li>Sets the number of columns and rows based on the tile sheet</li>
+                <li>Calculates the tile width and height from the tile size</li>
+                <li>Marks the map as ready for use</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>None (void)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>map.Create("data/tileset.tga", 32, 16, 16, 16);</pre>
+        </div>
+
+        <div class="endpoint" id="create-texture">
+            <h3>Create(texture)</h3>
+            <p><strong>File:</strong> <code>gs_ogl_map.cpp</code></p>
+            <p>Creates a new tile map from an existing texture object, using the texture's pixel data for the tiles.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void Create(GS_OGLTexture& texture, int nCols, int nRows, int nTotalTiles)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>texture</code> - Reference to an existing GS_OGLTexture object containing the tile graphics</li>
+                <li><code>nCols</code> - Number of columns in the tile sheet</li>
+                <li><code>nRows</code> - Number of rows in the tile sheet</li>
+                <li><code>nTotalTiles</code> - Total number of tiles in the map (must not exceed 16384)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Uses the specified texture's pixel data for the tiles</li>
+                <li>Initializes the map data array to -1 (empty tiles)</li>
+                <li>Sets the number of columns and rows based on the tile sheet</li>
+                <li>Calculates the tile width and height from the texture's size</li>
+                <li>Marks the map as ready for use</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>None (void)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>GS_OGLTexture myTexture;
+myTexture.Load("data/tileset.tga");
+map.Create(myTexture, 16, 16, 256);</pre>
+        </div>
+
+        <div class="endpoint" id="destroy">
+            <h3>Destroy()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_map.cpp</code></p>
+            <p>Destroys the tile map, releasing all resources and resetting member variables to default.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void Destroy()</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Deletes the tile sprite object</li>
+                <li>Clears the map data array</li>
+                <li>Resets all member variables to default values</li>
+                <li>Marks the map as not ready</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>None (void)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>map.Destroy();  // Clean up resources</pre>
+        </div>
+    </section>
+
+    <!-- Rendering Methods -->
+    <section class="api-section">
+        <h2>Rendering Methods</h2>
+
+        <div class="endpoint" id="render-coords">
+            <h3>Render(x, y)</h3>
+            <p><strong>File:</strong> <code>gs_ogl_map.cpp</code></p>
+            <p>Renders the entire map at the specified coordinates, ignoring the current map position.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void Render(int x, int y)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>x</code> - X coordinate to render the map (in screen coordinates)</li>
+                <li><code>y</code> - Y coordinate to render the map (in screen coordinates)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Sets the rendering position to the specified coordinates</li>
+                <li>Renders all visible tiles within the clip box</li>
+                <li>Applies viewport clipping to restrict rendering to the visible area</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>None (void)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>map.Render(100, 50);  // Render map at (100, 50)</pre>
+        </div>
+
+        <div class="endpoint" id="render">
+            <h3>Render()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_map.cpp</code></p>
+            <p>Renders the entire map at its current position, as defined by the map coordinates.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void Render()</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Uses the current map position for rendering</li>
+                <li>Renders all visible tiles within the clip box</li>
+                <li>Applies viewport clipping to restrict rendering to the visible area</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>None (void)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>map.Render();  // Render map at current position</pre>
+        </div>
+    </section>
+
+    <!-- ClipBox Methods -->
+    <section class="api-section">
+        <h2>ClipBox Methods</h2>
+
+        <div class="endpoint" id="setclipbox">
+            <h3>SetClipBox()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_map.cpp</code></p>
+            <p>Sets the rendering viewport for the map, defining the visible area on the screen.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void SetClipBox(int left, int top, int right, int bottom)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>left</code> - Left edge of the clip box (in screen coordinates)</li>
+                <li><code>top</code> - Top edge of the clip box (in screen coordinates)</li>
+                <li><code>right</code> - Right edge of the clip box (in screen coordinates)</li>
+                <li><code>bottom</code> - Bottom edge of the clip box (in screen coordinates)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Defines a rectangular region for rendering the map</li>
+                <li>Only tiles within this region will be rendered</li>
+                <li>Coordinates are in screen space, not map space</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>None (void)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>map.SetClipBox(0, 0, 800, 600);  // Fullscreen clip</pre>
+        </div>
+
+        <div class="endpoint" id="getclipbox">
+            <h3>GetClipBox()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_map.cpp</code></p>
+            <p>Gets the current rendering viewport rectangle for the map.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>RECT GetClipBox()</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>RECT structure defining the current clip box</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>RECT rc = map.GetClipBox();
+int width = rc.right - rc.left;
+int height = rc.bottom - rc.top;</pre>
+        </div>
+
+        <div class="endpoint" id="getclipboxleft">
+            <h3>GetClipBoxLeft()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_map.cpp</code></p>
+            <p>Gets the left edge of the current clip box.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>int GetClipBoxLeft()</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Left edge coordinate of the clip box</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>int left = map.GetClipBoxLeft();</pre>
+        </div>
+
+        <div class="endpoint" id="getclipboxright">
+            <h3>GetClipBoxRight()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_map.cpp</code></p>
+            <p>Gets the right edge of the current clip box.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>int GetClipBoxRight()</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Right edge coordinate of the clip box</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>int right = map.GetClipBoxRight();</pre>
+        </div>
+
+        <div class="endpoint" id="getclipboxbottom">
+            <h3>GetClipBoxBottom()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_map.cpp</code></p>
+            <p>Gets the bottom edge of the current clip box.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>int GetClipBoxBottom()</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Bottom edge coordinate of the clip box</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>int bottom = map.GetClipBoxBottom();</pre>
+        </div>
+
+        <div class="endpoint" id="getclipboxtop">
+            <h3>GetClipBoxTop()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_map.cpp</code></p>
+            <p>Gets the top edge of the current clip box.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>int GetClipBoxTop()</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Top edge coordinate of the clip box</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>int top = map.GetClipBoxTop();</pre>
+        </div>
+
+        <div class="endpoint" id="getclipboxwidth">
+            <h3>GetClipBoxWidth()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_map.cpp</code></p>
+            <p>Gets the width of the current clip box.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>int GetClipBoxWidth()</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Width of the clip box rectangle</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>int width = map.GetClipBoxWidth();</pre>
+        </div>
+
+        <div class="endpoint" id="getclipboxheight">
+            <h3>GetClipBoxHeight()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_map.cpp</code></p>
+            <p>Gets the height of the current clip box.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>int GetClipBoxHeight()</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Height of the clip box rectangle</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>int height = map.GetClipBoxHeight();</pre>
+        </div>
+    </section>
+
+    <!-- Map Management Methods -->
+    <section class="api-section">
+        <h2>Map Management Methods</h2>
+
+        <div class="endpoint" id="loadmap">
+            <h3>LoadMap()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_map.cpp</code></p>
+            <p>Loads a map from a text file, parsing the tile data and updating the map dimensions.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL LoadMap(LPCTSTR pszFile, int& nOutRows, int& nOutCols)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>pszFile</code> - Pathname of the text file containing the map data</li>
+                <li><code>nOutRows</code> - Reference to output variable for number of rows</li>
+                <li><code>nOutCols</code> - Reference to output variable for number of columns</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Opens and reads the specified map file</li>
+                <li>Parses the tile data and updates the map array</li>
+                <li>Sets the number of rows and columns based on the file data</li>
+                <li>Calculates the map dimensions and clip box</li>
+                <li>Returns TRUE on success, FALSE on failure</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>TRUE if the map was loaded successfully, FALSE otherwise</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>int rows, cols;
+if (!map.LoadMap("data/level1.map", rows, cols))
+{
+    GS_Error::Report("Failed to load map data!");
+    return FALSE;
+}</pre>
+        </div>
+
+        <div class="endpoint" id="savemap">
+            <h3>SaveMap()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_map.cpp</code></p>
+            <p>Save the current map to a text file, using the map's dimensions and tile data.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL SaveMap(LPCTSTR pszFile)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>pszFile</code> - Pathname of the text file to save the map data</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Opens the specified file for writing</li>
+                <li>Writes the map dimensions and tile data</li>
+                <li>Closes the file</li>
+                <li>Returns TRUE on success, FALSE on failure</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>TRUE if the map was saved successfully, FALSE otherwise</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>if (!map.SaveMap("data/level1_saved.map"))
+{
+    GS_Error::Report("Failed to save map data!");
+    return FALSE;
+}</pre>
+        </div>
+
+        <div class="endpoint" id="setmapx">
+            <h3>SetMapX()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_map.cpp</code></p>
+            <p>Sets the horizontal position of the map, updating the map coordinates.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void SetMapX(int x)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>x</code> - New horizontal position for the map</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Updates the <code>m_nMapCoordX</code> variable</li>
+                <li>Adjusts the map rendering position</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>None (void)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>map.SetMapX(100);  // Move map right by 100 pixels</pre>
+        </div>
+
+        <div class="endpoint" id="setmapy">
+            <h3>SetMapY()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_map.cpp</code></p>
+            <p>Sets the vertical position of the map, updating the map coordinates.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void SetMapY(int y)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>y</code> - New vertical position for the map</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Updates the <code>m_nMapCoordY</code> variable</li>
+                <li>Adjusts the map rendering position</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>None (void)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>map.SetMapY(50);  // Move map up by 50 pixels</pre>
+        </div>
+
+        <div class="endpoint" id="getmapx">
+            <h3>GetMapX()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_map.cpp</code></p>
+            <p>Gets the current horizontal position of the map.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>int GetMapX()</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Current horizontal position of the map</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>int x = map.GetMapX();</pre>
+        </div>
+
+        <div class="endpoint" id="getmapy">
+            <h3>GetMapY()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_map.cpp</code></p>
+            <p>Gets the current vertical position of the map.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>int GetMapY()</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Current vertical position of the map</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>int y = map.GetMapY();</pre>
+        </div>
+
+        <div class="endpoint" id="getmapwidth">
+            <h3>GetMapWidth()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_map.cpp</code></p>
+            <p>Gets the total width of the map in pixels.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>int GetMapWidth()</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Total width of the map</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>int width = map.GetMapWidth();</pre>
+        </div>
+
+        <div class="endpoint" id="getmapheight">
+            <h3>GetMapHeight()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_map.cpp</code></p>
+            <p>Gets the total height of the map in pixels.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>int GetMapHeight()</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Total height of the map</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>int height = map.GetMapHeight();</pre>
+        </div>
+    </section>
+
+    <!-- Scrolling Methods -->
+    <section class="api-section">
+        <h2>Scrolling Methods</h2>
+
+        <div class="endpoint" id="setlimitx">
+            <h3>SetLimitX()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_map.cpp</code></p>
+            <p>Enables or disables horizontal scrolling limits for the map.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void SetLimitX(BOOL bLimit)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>bLimit</code> - TRUE to enable limits, FALSE to disable</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Sets the <code>m_bLimitX</code> flag</li>
+                <li>Adjusts the map position if currently outside the limits</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>None (void)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>map.SetLimitX(TRUE);  // Enable horizontal limits</pre>
+        </div>
+
+        <div class="endpoint" id="setlimity">
+            <h3>SetLimitY()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_map.cpp</code></p>
+            <p>Enables or disables vertical scrolling limits for the map.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void SetLimitY(BOOL bLimit)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>bLimit</code> - TRUE to enable limits, FALSE to disable</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Sets the <code>m_bLimitY</code> flag</li>
+                <li>Adjusts the map position if currently outside the limits</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>None (void)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>map.SetLimitY(TRUE);  // Enable vertical limits</pre>
+        </div>
+
+        <div class="endpoint" id="setwrapx">
+            <h3>SetWrapX()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_map.cpp</code></p>
+            <p>Enables or disables horizontal wrapping for the map when scrolling.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void SetWrapX(BOOL bWrap)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>bWrap</code> - TRUE to enable wrapping, FALSE to disable</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Sets the <code>m_bWrapX</code> flag</li>
+                <li>Adjusts the map position to wrap around if currently outside the bounds</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>None (void)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>map.SetWrapX(TRUE);  // Enable horizontal wrapping</pre>
+        </div>
+
+        <div class="endpoint" id="setwrapy">
+            <h3>SetWrapY()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_map.cpp</code></p>
+            <p>Enables or disables vertical wrapping for the map when scrolling.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void SetWrapY(BOOL bWrap)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>bWrap</code> - TRUE to enable wrapping, FALSE to disable</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Sets the <code>m_bWrapY</code> flag</li>
+                <li>Adjusts the map position to wrap around if currently outside the bounds</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>None (void)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>map.SetWrapY(TRUE);  // Enable vertical wrapping</pre>
+        </div>
+
+        <div class="endpoint" id="scrollx">
+            <h3>ScrollX()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_map.cpp</code></p>
+            <p>Scrolls the map horizontally by a specified amount, updating the map position.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void ScrollX(int deltaX)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>deltaX</code> - Amount to scroll in the X direction (positive or negative)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Adjusts the <code>m_nMapCoordX</code> variable by <code>deltaX</code></li>
+                <li>Wraps or clamps the value based on the limit and wrap settings</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>None (void)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>map.ScrollX(-5);  // Scroll left by 5 pixels</pre>
+        </div>
+
+        <div class="endpoint" id="scrolly">
+            <h3>ScrollY()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_map.cpp</code></p>
+            <p>Scrolls the map vertically by a specified amount, updating the map position.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void ScrollY(int deltaY)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>deltaY</code> - Amount to scroll in the Y direction (positive or negative)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Adjusts the <code>m_nMapCoordY</code> variable by <code>deltaY</code></li>
+                <li>Wraps or clamps the value based on the limit and wrap settings</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>None (void)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>map.ScrollY(3);  // Scroll up by 3 pixels</pre>
+        </div>
+    </section>
+
+    <!-- Tile Methods -->
+    <section class="api-section">
+        <h2>Tile Methods</h2>
+
+        <div class="endpoint" id="settileid">
+            <h3>SetTileID()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_map.cpp</code></p>
+            <p>Sets the tile ID at the specified row and column, updating the map data.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void SetTileID(int row, int col, int tileID)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>row</code> - Row index of the tile to set</li>
+                <li><code>col</code> - Column index of the tile to set</li>
+                <li><code>tileID</code> - New tile ID to assign</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Updates the map data array at the specified row and column</li>
+                <li>Tile ID must be within the valid range (0 to total tiles - 1)</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>None (void)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>map.SetTileID(5, 10, 3);  // Set tile at row 5, col 10 to ID 3</pre>
+        </div>
+
+        <div class="endpoint" id="gettileid">
+            <h3>GetTileID()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_map.cpp</code></p>
+            <p>Gets the tile ID at the specified row and column.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>int GetTileID(int row, int col)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>row</code> - Row index of the tile to get</li>
+                <li><code>col</code> - Column index of the tile to get</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Tile ID at the specified location</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>int tileID = map.GetTileID(5, 10);</pre>
+        </div>
+
+        <div class="endpoint" id="replacetileid">
+            <h3>ReplaceTileID()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_map.cpp</code></p>
+            <p>Replaces all instances of a tile ID with another tile ID in the map.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void ReplaceTileID(int oldID, int newID)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>oldID</code> - Tile ID to replace</li>
+                <li><code>newID</code> - New tile ID to assign</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Scans the entire map data array</li>
+                <li>Replaces each instance of <code>oldID</code> with <code>newID</code></li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>None (void)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>map.ReplaceTileID(5, 10);  // Replace all tiles with ID 5 to ID 10</pre>
+        </div>
+
+        <div class="endpoint" id="setcleartileid">
+            <h3>SetClearTileID()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_map.cpp</code></p>
+            <p>Sets the tile ID that will be treated as transparent (not rendered).</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void SetClearTileID(int tileID)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>tileID</code> - Tile ID to mark as clear (-1 to disable)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Sets the <code>m_nClearTileID</code> variable</li>
+                <li>Tile with this ID will not be rendered during the Render() call</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>None (void)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>map.SetClearTileID(0);  // Set tile ID 0 as clear tile</pre>
+        </div>
+
+        <div class="endpoint" id="gettilewidth">
+            <h3>GetTileWidth()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_map.cpp</code></p>
+            <p>Gets the width of each tile in pixels.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>int GetTileWidth()</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Width of each tile</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>int tileWidth = map.GetTileWidth();</pre>
+        </div>
+
+        <div class="endpoint" id="gettileheight">
+            <h3>GetTileHeight()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_map.cpp</code></p>
+            <p>Gets the height of each tile in pixels.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>int GetTileHeight()</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Height of each tile</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>int tileHeight = map.GetTileHeight();</pre>
+        </div>
+
+        <div class="endpoint" id="settotaltiles">
+            <h3>SetTotalTiles()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_map.cpp</code></p>
+            <p>Sets the total number of tiles in the map. This should match the number of tiles in the tile sheet.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void SetTotalTiles(int totalTiles)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>totalTiles</code> - New total tile count for the map</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Updates the <code>m_nTotalTiles</code> variable</li>
+                <li>Ensures the value does not exceed the maximum limit</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>None (void)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>map.SetTotalTiles(256);  // Set total tiles to 256</pre>
+        </div>
+
+        <div class="endpoint" id="gettotaltiles">
+            <h3>GetTotalTiles()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_map.cpp</code></p>
+            <p>Gets the total number of tiles in the map.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>int GetTotalTiles()</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Total number of tiles in the map</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>int totalTiles = map.GetTotalTiles();</pre>
+        </div>
+
+        <div class="endpoint" id="settilesperline">
+            <h3>SetTilesPerLine()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_map.cpp</code></p>
+            <p>Sets the number of tiles per row in the tile sheet. This should match the tile sheet layout.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void SetTilesPerLine(int tilesPerLine)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>tilesPerLine</code> - New tile count per row</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Updates the <code>m_nTilesPerLine</code> variable</li>
+                <li>Ensures the value does not exceed the maximum limit</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>None (void)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>map.SetTilesPerLine(16);  // Set tiles per line to 16</pre>
+        </div>
+
+        <div class="endpoint" id="gettilesperline">
+            <h3>GetTilesPerLine()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_map.cpp</code></p>
+            <p>Gets the number of tiles per row in the tile sheet.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>int GetTilesPerLine()</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Number of tiles per row</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>int tilesPerLine = map.GetTilesPerLine();</pre>
+        </div>
+    </section>
+
+    <!-- Conversion Methods -->
+    <section class="api-section">
+        <h2>Conversion Methods</h2>
+
+        <div class="endpoint" id="maptoid">
+            <h3>MapToID()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_map.cpp</code></p>
+            <p>Converts map coordinates to the corresponding tile ID.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>int MapToID(int mapX, int mapY)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>mapX</code> - X coordinate in map space</li>
+                <li><code>mapY</code> - Y coordinate in map space</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Tile ID at the specified map coordinates</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>int tileID = map.MapToID(10, 5);</pre>
+        </div>
+
+        <div class="endpoint" id="maptocol">
+            <h3>MapToCol()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_map.cpp</code></p>
+            <p>Gets the column index of the tile at the specified X coordinate in map space.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>int MapToCol(int mapX)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>mapX</code> - X coordinate in map space</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Column index of the tile</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>int col = map.MapToCol(128);  // Column at X=128</pre>
+        </div>
+
+        <div class="endpoint" id="maptorow">
+            <h3>MapToRow()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_map.cpp</code></p>
+            <p>Gets the row index of the tile at the specified Y coordinate in map space.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>int MapToRow(int mapY)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>mapY</code> - Y coordinate in map space</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Row index of the tile</li>
+                <li><code>-1</code> if coordinate is out of bounds</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>int row = map.MapToRow(96);  // Row at Y=96</pre>
+        </div>
+
+        <div class="endpoint" id="screentoid">
+            <h3>ScreenToID()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_map.cpp</code></p>
+            <p>Converts screen coordinates to the tile ID at that location.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>int ScreenToID(int screenX, int screenY)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>screenX</code> - X coordinate in screen space</li>
+                <li><code>screenY</code> - Y coordinate in screen space</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Converts screen coordinates to map coordinates</li>
+                <li>Returns the tile ID at that map position</li>
+                <li>Returns -1 if coordinates are outside the visible map area</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Tile ID at the specified screen coordinates</li>
+                <li><code>-1</code> if coordinates are invalid or outside map</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Get tile under mouse cursor
+int mouseX = m_gsMouse.GetX();
+int mouseY = m_gsMouse.GetY();
+int tileID = map.ScreenToID(mouseX, mouseY);
+
+if (tileID >= 0)
+{
+    printf("Mouse is over tile ID: %d\n", tileID);
+}</code></pre>
+        </div>
+
+        <div class="endpoint" id="screentocol">
+            <h3>ScreenToCol()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_map.cpp</code></p>
+            <p>Gets the column index of the tile at the specified screen X coordinate.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>int ScreenToCol(int screenX)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>screenX</code> - X coordinate in screen space</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Accounts for map scrolling and clipbox offset</li>
+                <li>Handles wrapped maps by checking both wrapped positions</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Column index (0-based)</li>
+                <li><code>-1</code> if coordinate is outside the clipbox or map</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>int col = map.ScreenToCol(mouseX);</pre>
+        </div>
+
+        <div class="endpoint" id="screentorow">
+            <h3>ScreenToRow()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_map.cpp</code></p>
+            <p>Gets the row index of the tile at the specified screen Y coordinate.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>int ScreenToRow(int screenY)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>screenY</code> - Y coordinate in screen space</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Accounts for map scrolling and clipbox offset</li>
+                <li>Handles wrapped maps by checking both wrapped positions</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Row index (0-based)</li>
+                <li><code>-1</code> if coordinate is outside the clipbox or map</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>int row = map.ScreenToRow(mouseY);</pre>
+        </div>
+
+        <div class="endpoint" id="maptoscreen">
+            <h3>MapToScreen()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_map.cpp</code></p>
+            <p>Converts map coordinates to screen coordinates, accounting for scrolling and wrapping.</p>
+            
+            <p><strong>Signatures:</strong></p>
+            <pre>BOOL MapToScreen(int* pCoordX, int* pCoordY)
+BOOL MapToScreen(RECT* pRect)</pre>
+
+            <p><strong>Parameters (point conversion):</strong></p>
+            <ul>
+                <li><code>pCoordX</code> - Pointer to X coordinate (input: map space, output: screen space)</li>
+                <li><code>pCoordY</code> - Pointer to Y coordinate (input: map space, output: screen space)</li>
+            </ul>
+
+            <p><strong>Parameters (rect conversion):</strong></p>
+            <ul>
+                <li><code>pRect</code> - Pointer to RECT (input: map space, output: screen space)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Adds map scroll offset and clipbox position</li>
+                <li>For wrapped maps, adjusts coordinates if they wrap around</li>
+                <li>Returns FALSE if resulting coordinates are outside clipbox</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Conversion successful, coordinates are visible in clipbox</li>
+                <li><code>FALSE</code> - Conversion failed or coordinates not visible</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Convert player position from map to screen space
+int playerMapX = 100;
+int playerMapY = 200;
+
+if (map.MapToScreen(&playerMapX, &playerMapY))
+{
+    // Player is visible on screen
+    DrawPlayer(playerMapX, playerMapY);
+}
+
+// Convert area from map to screen space
+RECT mapArea = {100, 200, 200, 300};  // left, bottom, right, top
+if (map.MapToScreen(&mapArea))
+{
+    // Area is at least partially visible
+    DrawEffect(mapArea);
+}</code></pre>
+        </div>
+
+        <div class="endpoint" id="screentomap">
+            <h3>ScreenToMap()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_map.cpp</code></p>
+            <p>Converts screen coordinates to map coordinates, accounting for scrolling and wrapping.</p>
+            
+            <p><strong>Signatures:</strong></p>
+            <pre>BOOL ScreenToMap(int* pCoordX, int* pCoordY)
+BOOL ScreenToMap(RECT* pRect)</pre>
+
+            <p><strong>Parameters (point conversion):</strong></p>
+            <ul>
+                <li><code>pCoordX</code> - Pointer to X coordinate (input: screen space, output: map space)</li>
+                <li><code>pCoordY</code> - Pointer to Y coordinate (input: screen space, output: map space)</li>
+            </ul>
+
+            <p><strong>Parameters (rect conversion):</strong></p>
+            <ul>
+                <li><code>pRect</code> - Pointer to RECT (input: screen space, output: map space)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Subtracts map scroll offset and clipbox position</li>
+                <li>For wrapped maps, adjusts if coordinates are in wrapped region</li>
+                <li>Returns FALSE if coordinates are outside clipbox or map area</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Conversion successful</li>
+                <li><code>FALSE</code> - Coordinates outside clipbox or map</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Convert mouse click to map coordinates
+int clickX = m_gsMouse.GetX();
+int clickY = m_gsMouse.GetY();
+
+if (map.ScreenToMap(&clickX, &clickY))
+{
+    // Click was on the map
+    int tileID = map.MapToID(clickX, clickY);
+    printf("Clicked on tile %d at map position (%d, %d)\n", 
+           tileID, clickX, clickY);
+}</code></pre>
+        </div>
+    </section>
+
+    <!-- Collision Detection Methods -->
+    <section class="api-section">
+        <h2>Collision Detection Methods</h2>
+
+        <div class="endpoint" id="isontile-id">
+            <h3>IsOnTile(coords, tileID)</h3>
+            <p><strong>File:</strong> <code>gs_ogl_map.cpp</code></p>
+            <p>Checks if a point in screen coordinates is on a specific type of tile.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL IsOnTile(int screenX, int screenY, int tileID)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>screenX</code> - X coordinate in screen space</li>
+                <li><code>screenY</code> - Y coordinate in screen space</li>
+                <li><code>tileID</code> - Tile ID to check for</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Point is on the specified tile type</li>
+                <li><code>FALSE</code> - Point is not on that tile type or outside map</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Check if player is standing on water (tile ID 5)
+if (map.IsOnTile(playerX, playerY, 5))
+{
+    // Player is in water
+    ApplyWaterPhysics();
+}</code></pre>
+        </div>
+
+        <div class="endpoint" id="isontile-rect">
+            <h3>IsOnTile(rect, tileID)</h3>
+            <p><strong>File:</strong> <code>gs_ogl_map.cpp</code></p>
+            <p>Checks if any part of a rectangle overlaps a specific type of tile.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL IsOnTile(RECT rect, int tileID)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>rect</code> - Rectangle in screen coordinates</li>
+                <li><code>tileID</code> - Tile ID to check for</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Samples the corners and edges of the rectangle</li>
+                <li>Returns TRUE if ANY point touches the specified tile type</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Rectangle overlaps at least one tile of the specified type</li>
+                <li><code>FALSE</code> - No overlap with that tile type</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Check if enemy bounding box touches solid wall (tile ID 1)
+RECT enemyRect;
+enemy.GetBoundingRect(&enemyRect);
+
+if (map.IsOnTile(enemyRect, 1))
+{
+    // Enemy hit a wall
+    enemy.ReverseDirection();
+}</code></pre>
+        </div>
+
+        <div class="endpoint" id="isintile">
+            <h3>IsInTile(rect, tileID)</h3>
+            <p><strong>File:</strong> <code>gs_ogl_map.cpp</code></p>
+            <p>Checks if a rectangle is ENTIRELY within tiles of a specific type.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL IsInTile(RECT rect, int tileID)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>rect</code> - Rectangle in screen coordinates</li>
+                <li><code>tileID</code> - Tile ID to check for</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Checks all corners and edges of the rectangle</li>
+                <li>Returns TRUE only if ALL sampled points are on the specified tile type</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Rectangle is completely within the tile type</li>
+                <li><code>FALSE</code> - Rectangle extends outside the tile type</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Check if player is completely in safe zone (tile ID 10)
+RECT playerRect;
+player.GetBoundingRect(&playerRect);
+
+if (map.IsInTile(playerRect, 10))
+{
+    // Player is fully in safe zone
+    DisableEnemies();
+}
+else
+{
+    // Player partially or fully outside safe zone
+    EnableEnemies();
+}</code></pre>
+        </div>
+
+        <div class="endpoint" id="isontile-rowcol">
+            <h3>IsOnTile(coords, row, col)</h3>
+            <p><strong>File:</strong> <code>gs_ogl_map.cpp</code></p>
+            <p>Checks if a point in screen coordinates is on a specific tile by row/column.</p>
+            
+            <p><strong>Signatures:</strong></p>
+            <pre>BOOL IsOnTile(int screenX, int screenY, int row, int col)
+BOOL IsOnTile(RECT rect, int row, int col)</pre>
+
+            <p><strong>Parameters (point check):</strong></p>
+            <ul>
+                <li><code>screenX</code> - X coordinate in screen space</li>
+                <li><code>screenY</code> - Y coordinate in screen space</li>
+                <li><code>row</code> - Tile row index</li>
+                <li><code>col</code> - Tile column index</li>
+            </ul>
+
+            <p><strong>Parameters (rect check):</strong></p>
+            <ul>
+                <li><code>rect</code> - Rectangle in screen coordinates</li>
+                <li><code>row</code> - Tile row index</li>
+                <li><code>col</code> - Tile column index</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Point/rectangle overlaps the specified tile</li>
+                <li><code>FALSE</code> - No overlap</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Check if player is on the exit tile at row 5, column 10
+if (map.IsOnTile(playerX, playerY, 5, 10))
+{
+    // Player reached the exit
+    LoadNextLevel();
+}</code></pre>
+        </div>
+
+        <div class="endpoint" id="isonarea">
+            <h3>IsOnArea()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_map.cpp</code></p>
+            <p>Checks if a point or rectangle overlaps a specific area in map coordinates.</p>
+            
+            <p><strong>Signatures:</strong></p>
+            <pre>BOOL IsOnArea(int screenX, int screenY, RECT mapArea)
+BOOL IsOnArea(RECT screenRect, RECT mapArea)</pre>
+
+            <p><strong>Parameters (point check):</strong></p>
+            <ul>
+                <li><code>screenX</code> - X coordinate in screen space</li>
+                <li><code>screenY</code> - Y coordinate in screen space</li>
+                <li><code>mapArea</code> - Rectangle in map coordinates defining the area</li>
+            </ul>
+
+            <p><strong>Parameters (rect check):</strong></p>
+            <ul>
+                <li><code>screenRect</code> - Rectangle in screen coordinates</li>
+                <li><code>mapArea</code> - Rectangle in map coordinates defining the area</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Point/rectangle overlaps the specified map area</li>
+                <li><code>FALSE</code> - No overlap</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Define danger zone in map coordinates
+RECT dangerZone = {100, 50, 300, 250};  // left, bottom, right, top
+
+RECT playerRect;
+player.GetBoundingRect(&playerRect);
+
+if (map.IsOnArea(playerRect, dangerZone))
+{
+    // Player entered danger zone
+    TakeDamage(1);
+}</code></pre>
+        </div>
+
+        <div class="endpoint" id="isinarea">
+            <h3>IsInArea()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_map.cpp</code></p>
+            <p>Checks if a rectangle is ENTIRELY within a specific area in map coordinates.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL IsInArea(RECT screenRect, RECT mapArea)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>screenRect</code> - Rectangle in screen coordinates</li>
+                <li><code>mapArea</code> - Rectangle in map coordinates defining the area</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Rectangle is completely within the map area</li>
+                <li><code>FALSE</code> - Rectangle extends outside the area</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Check if player is completely in boss arena
+RECT bossArena = {200, 100, 600, 400};
+RECT playerRect;
+player.GetBoundingRect(&playerRect);
+
+if (map.IsInArea(playerRect, bossArena))
+{
+    // Player fully inside arena - lock doors
+    m_bArenaLocked = TRUE;
+}</code></pre>
+        </div>
+    </section>
+
+    <!-- Color Methods -->
+    <section class="api-section">
+        <h2>Color Methods</h2>
+
+        <div class="endpoint" id="getmodulatecolor">
+            <h3>GetModulateColor()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_map.cpp</code></p>
+            <p>Gets the current color modulation applied to all tiles.</p>
+            
+            <p><strong>Signatures:</strong></p>
+            <pre>void GetModulateColor(GS_OGLColor* pColor)
+void GetModulateColor(float* pRed, float* pGreen, float* pBlue, float* pAlpha)</pre>
+
+            <p><strong>Parameters (variant 1):</strong></p>
+            <ul>
+                <li><code>pColor</code> - Pointer to GS_OGLColor to receive the color</li>
+            </ul>
+
+            <p><strong>Parameters (variant 2):</strong></p>
+            <ul>
+                <li><code>pRed</code> - Pointer to receive red component (0.0-1.0)</li>
+                <li><code>pGreen</code> - Pointer to receive green component</li>
+                <li><code>pBlue</code> - Pointer to receive blue component</li>
+                <li><code>pAlpha</code> - Pointer to receive alpha component</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>None (void) - color is returned via pointer parameters</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>GS_OGLColor currentColor;
+map.GetModulateColor(&currentColor);
+
+printf("Map tint: R=%.2f G=%.2f B=%.2f A=%.2f\n",
+       currentColor.fRed, currentColor.fGreen, 
+       currentColor.fBlue, currentColor.fAlpha);</code></pre>
+        </div>
+
+        <div class="endpoint" id="setmodulatecolor">
+            <h3>SetModulateColor()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_map.cpp</code></p>
+            <p>Sets the color modulation for all tiles in the map.</p>
+            
+            <p><strong>Signatures:</strong></p>
+            <pre>void SetModulateColor(GS_OGLColor color)
+void SetModulateColor(float red, float green, float blue, float alpha)</pre>
+
+            <p><strong>Parameters (variant 1):</strong></p>
+            <ul>
+                <li><code>color</code> - GS_OGLColor to apply to all tiles</li>
+            </ul>
+
+            <p><strong>Parameters (variant 2):</strong></p>
+            <ul>
+                <li><code>red</code> - Red component (0.0-1.0), -1.0 to keep current</li>
+                <li><code>green</code> - Green component (0.0-1.0), -1.0 to keep current</li>
+                <li><code>blue</code> - Blue component (0.0-1.0), -1.0 to keep current</li>
+                <li><code>alpha</code> - Alpha component (0.0-1.0), -1.0 to keep current</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Multiplies each tile's color by the modulation color during rendering</li>
+                <li>White (1.0, 1.0, 1.0, 1.0) = no change</li>
+                <li>Can be used for tinting, fading, or darkening the entire map</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>None (void)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Night time effect - darken map with blue tint
+map.SetModulateColor(0.3f, 0.3f, 0.5f, 1.0f);
+
+// Fade out effect
+static float alpha = 1.0f;
+alpha -= 0.01f;
+map.SetModulateColor(-1.0f, -1.0f, -1.0f, alpha);
+
+// Red danger zone effect
+map.SetModulateColor(1.0f, 0.5f, 0.5f, 1.0f);
+
+// Reset to normal
+map.SetModulateColor(1.0f, 1.0f, 1.0f, 1.0f);</code></pre>
+        </div>
+    </section>
+
+    <!-- Practical Examples -->
+    <section class="api-section">
+        <h2>Practical Examples</h2>
+        <div class="endpoint">
+            <h3>Creating and Rendering a Simple Map</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// In GameInit()
+GS_OGLMap level;
+
+// Create map with 32×32 pixel tiles, 16 tiles per row in tileset
+level.Create("data/tileset.tga", 256, 16, 32, 32, FALSE, TRUE);
+
+// Load map data (15 rows × 20 columns)
+level.LoadMap("data/level1.map", 15, 20);
+
+// Set viewport to full screen
+level.SetClipBox(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+// Enable scroll limiting
+level.SetLimitX(TRUE);
+level.SetLimitY(TRUE);
+
+// In GameLoop()
+m_gsDisplay.BeginRender2D(GetWindow());
+level.Render();
+m_gsDisplay.EndRender2D();</code></pre>
+
+            <h3>Camera Following Player</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Center camera on player
+void CenterCameraOnPlayer()
+{
+    // Get player position
+    int playerX = m_player.GetX();
+    int playerY = m_player.GetY();
+    
+    // Calculate map position to center player
+    int mapX = (SCREEN_WIDTH / 2) - playerX;
+    int mapY = (SCREEN_HEIGHT / 2) - playerY;
+    
+    // Set map position
+    m_map.SetMapX(mapX);
+    m_map.SetMapY(mapY);
+}
+
+// Smooth camera scrolling
+void SmoothCameraFollow()
+{
+    int targetMapX = (SCREEN_WIDTH / 2) - m_player.GetX();
+    int targetMapY = (SCREEN_HEIGHT / 2) - m_player.GetY();
+    
+    int currentMapX = m_map.GetMapX();
+    int currentMapY = m_map.GetMapY();
+    
+    // Lerp camera position (10% per frame)
+    int newMapX = currentMapX + (targetMapX - currentMapX) / 10;
+    int newMapY = currentMapY + (targetMapY - currentMapY) / 10;
+    
+    m_map.SetMapX(newMapX);
+    m_map.SetMapY(newMapY);
+}</code></pre>
+
+            <h3>Tile-Based Collision Detection</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Define tile types
+#define TILE_EMPTY  0
+#define TILE_WALL   1
+#define TILE_WATER  2
+#define TILE_SPIKE  3
+
+// Check player collision with walls
+void CheckPlayerCollision()
+{
+    RECT playerRect;
+    m_player.GetBoundingRect(&playerRect);
+    
+    // Store old position
+    int oldX = m_player.GetX();
+    int oldY = m_player.GetY();
+    
+    // Try to move
+    m_player.Move();
+    m_player.GetBoundingRect(&playerRect);
+    
+    // Check for wall collision
+    if (m_map.IsOnTile(playerRect, TILE_WALL))
+    {
+        // Collision detected - revert to old position
+        m_player.SetX(oldX);
+        m_player.SetY(oldY);
+    }
+    
+    // Check for hazards
+    if (m_map.IsOnTile(playerRect, TILE_SPIKE))
+    {
+        m_player.TakeDamage(10);
+    }
+    
+    // Check for water (slow movement)
+    if (m_map.IsOnTile(playerRect, TILE_WATER))
+    {
+        m_player.SetSpeed(m_player.GetSpeed() * 0.5f);
+    }
+}</code></pre>
+
+            <h3>Parallax Scrolling Backgrounds</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Create multiple map layers
+GS_OGLMap backgroundLayer;
+GS_OGLMap midgroundLayer;
+GS_OGLMap foregroundLayer;
+
+// Initialize layers
+backgroundLayer.Create("data/bg_tiles.tga", 64, 8, 32, 32);
+midgroundLayer.Create("data/mg_tiles.tga", 128, 16, 32, 32);
+foregroundLayer.Create("data/fg_tiles.tga", 256, 16, 32, 32);
+
+// Load map data
+backgroundLayer.LoadMap("data/bg.map", 10, 30);
+midgroundLayer.LoadMap("data/mg.map", 15, 40);
+foregroundLayer.LoadMap("data/fg.map", 15, 40);
+
+// Set wrapping for endless scrolling
+backgroundLayer.SetWrapX(TRUE);
+midgroundLayer.SetWrapX(TRUE);
+
+// Scroll at different speeds for parallax effect
+void UpdateParallax()
+{
+    // Background scrolls slowest
+    backgroundLayer.ScrollX(-1);
+    
+    // Midground scrolls medium speed
+    midgroundLayer.ScrollX(-2);
+    
+    // Foreground scrolls with camera
+    foregroundLayer.SetMapX(cameraX);
+    foregroundLayer.SetMapY(cameraY);
+}
+
+// Render back to front
+void RenderScene()
+{
+    backgroundLayer.Render();
+    midgroundLayer.Render();
+    RenderGameObjects();
+    foregroundLayer.Render();
+}</code></pre>
+
+            <h3>Dynamic Map Editing</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Level editor - place tiles with mouse
+void HandleMapEdit()
+{
+    if (m_gsMouse.IsLeftPressed())
+    {
+        int mouseX = m_gsMouse.GetX();
+        int mouseY = m_gsMouse.GetY();
+        
+        // Convert to map tile coordinates
+        int col = m_map.ScreenToCol(mouseX);
+        int row = m_map.ScreenToRow(mouseY);
+        
+        if (col >= 0 && row >= 0)
+        {
+            // Place currently selected tile
+            m_map.SetTileID(row, col, m_selectedTileID);
+        }
+    }
+    
+    // Right-click to erase
+    if (m_gsMouse.IsRightPressed())
+    {
+        int mouseX = m_gsMouse.GetX();
+        int mouseY = m_gsMouse.GetY();
+        
+        int col = m_map.ScreenToCol(mouseX);
+        int row = m_map.ScreenToRow(mouseY);
+        
+        if (col >= 0 && row >= 0)
+        {
+            m_map.SetTileID(row, col, 0);  // Empty tile
+        }
+    }
+}
+
+// Save map when pressing 'S'
+if (m_gsKeyboard.GetBufferedKey() == GSK_S)
+{
+    m_map.SaveMap("data/custom_level.map");
+}</code></pre>
+
+            <h3>Destructible Terrain</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>#define TILE_BREAKABLE  5
+#define TILE_BROKEN     6
+
+// Break tiles when projectile hits
+void CheckProjectileCollision()
+{
+    RECT bulletRect;
+    m_bullet.GetBoundingRect(&bulletRect);
+    
+    // Check if bullet hit breakable tile
+    if (m_map.IsOnTile(bulletRect, TILE_BREAKABLE))
+    {
+        // Find which tile was hit
+        int col = m_map.ScreenToCol(m_bullet.GetX());
+        int row = m_map.ScreenToRow(m_bullet.GetY());
+        
+        if (col >= 0 && row >= 0)
+        {
+            // Change to broken tile
+            m_map.SetTileID(row, col, TILE_BROKEN);
+            
+            // Create particle effect
+            CreateExplosion(m_bullet.GetX(), m_bullet.GetY());
+            
+            // Remove bullet
+            m_bullet.Destroy();
+        }
+    }
+}</code></pre>
+
+            <h3>Fog of War Effect</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Darken map, then brighten area around player
+void RenderWithFogOfWar()
+{
+    // Darken entire map
+    m_map.SetModulateColor(0.3f, 0.3f, 0.3f, 1.0f);
+    m_map.Render();
+    
+    // Get player position
+    int playerMapX = m_player.GetX();
+    int playerMapY = m_player.GetY();
+    
+    // Convert to map coordinates
+    int mapX = playerMapX - m_map.GetMapX();
+    int mapY = playerMapY - m_map.GetMapY();
+    
+    // Render bright area around player
+    m_lightSprite.SetDestXY(playerMapX - 128, playerMapY - 128);
+    m_lightSprite.SetModulateColor(1.0f, 1.0f, 1.0f, 0.8f);
+    m_lightSprite.Render();
+    
+    // Reset map color
+    m_map.SetModulateColor(1.0f, 1.0f, 1.0f, 1.0f);
+}</code></pre>
+
+            <h3>Day/Night Cycle</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Smooth day/night transition
+static float timeOfDay = 0.0f;  // 0.0 = midnight, 0.5 = noon, 1.0 = midnight
+
+void UpdateDayNightCycle()
+{
+    // Advance time
+    timeOfDay += 0.001f;
+    if (timeOfDay >= 1.0f) timeOfDay = 0.0f;
+    
+    // Calculate brightness (brightest at noon)
+    float brightness = 1.0f - abs(timeOfDay - 0.5f) * 2.0f;
+    brightness = 0.3f + (brightness * 0.7f);  // Range: 0.3 to 1.0
+    
+    // Calculate color temperature
+    float red = brightness;
+    float green = brightness * 0.95f;
+    float blue = brightness * (timeOfDay < 0.5f ? 0.8f : 1.0f);
+    
+    // Apply to map
+    m_map.SetModulateColor(red, green, blue, 1.0f);
+    
+    // Noon
+    if (timeOfDay >= 0.45f && timeOfDay <= 0.55f)
+    {
+        m_map.SetModulateColor(1.0f, 1.0f, 1.0f, 1.0f);
+    }
+    // Night
+    else if (timeOfDay < 0.1f || timeOfDay > 0.9f)
+    {
+        m_map.SetModulateColor(0.2f, 0.2f, 0.4f, 1.0f);
+    }
+}</code></pre>
+
+            <h3>Infinite Scrolling Map</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Endless runner-style scrolling
+GS_OGLMap infiniteMap;
+
+void SetupInfiniteMap()
+{
+    infiniteMap.Create("data/tiles.tga", 64, 8, 32, 32);
+    infiniteMap.LoadMap("data/repeating.map", 15, 30);
+    
+    // Enable wrapping for seamless infinite scroll
+    infiniteMap.SetWrapX(TRUE);
+    infiniteMap.SetWrapY(FALSE);  // Only wrap horizontally
+    
+    // Disable limits for endless scrolling
+    infiniteMap.SetLimitX(FALSE);
+    infiniteMap.SetLimitY(TRUE);
+    
+    infiniteMap.SetClipBox(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+}
+
+void UpdateInfiniteScroll()
+{
+    // Auto-scroll left at constant speed
+    infiniteMap.ScrollX(-3);
+    
+    // Move player relative to scroll
+    m_player.AddX(-3);
+    
+    // If player moves too far right, scroll faster
+    if (m_player.GetX() > SCREEN_WIDTH * 0.7f)
+    {
+        infiniteMap.ScrollX(-5);
+    }
+}</code></pre>
+
+            <h3>Best Practices</h3>
+            <ul>
+                <li><strong>Initialize Once:</strong> Create maps in GameInit(), not every frame</li>
+                <li><strong>Use Limits:</strong> Enable SetLimitX/Y to prevent showing empty space</li>
+                <li><strong>Check Returns:</strong> Conversion methods return FALSE when coordinates are invalid</li>
+                <li><strong>Cache Calculations:</strong> Store frequently-used values like GetMapWidth()</li>
+                <li><strong>Clear Tiles:</strong> Use SetClearTileID() for transparent background tiles</li>
+                <li><strong>Wrapping vs Limiting:</strong> Can't enable both on the same axis</li>
+                <li><strong>Coordinate Systems:</strong> Always be aware of screen vs map coordinates</li>
+                <li><strong>Collision Sampling:</strong> IsOnTile samples corners - may miss thin obstacles</li>
+            </ul>
+
+            <div style="background-color: #fffbcc; padding: 15px; border-left: 4px solid #ffcc00; margin: 20px 0;">
+                <h4 style="margin-top: 0;">💡 Pro Tip</h4>
+                <p style="margin-bottom: 0;">For large maps, only render visible tiles by using the clipbox. GS_OGLMap automatically culls tiles outside the viewport, making it efficient even for massive levels. Use SetClearTileID() to skip rendering empty/background tiles for additional performance.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Platform Notes -->
+    <section class="api-section">
+        <h2>Platform-Specific Notes</h2>
+        <div class="endpoint">
+            <h3>Cross-Platform Compatibility</h3>
+            <p>GS_OGLMap is completely cross-platform and works identically on all platforms:</p>
+            <ul>
+                <li><strong>Windows</strong> - Full support with native OpenGL</li>
+                <li><strong>Linux</strong> - Full support via SDL2 + OpenGL</li>
+                <li><strong>macOS</strong> - Full support via SDL2 + OpenGL</li>
+            </ul>
+
+            <p>There are no platform-specific implementations or behavior differences.</p>
+
+            <h3>Performance Characteristics</h3>
+            <ul>
+                <li><strong>Viewport Culling:</strong> Only visible tiles are rendered (automatic optimization)</li>
+                <li><strong>Scissor Test:</strong> Hardware clipping prevents overdraw outside clipbox</li>
+                <li><strong>Batch Rendering:</strong> All tiles use same texture (efficient)</li>
+                <li><strong>Memory Usage:</strong> Maximum 128×128 tiles = 16,384 integers (~64KB per map)</li>
+            </ul>
+
+            <h3>Rendering Performance</h3>
+            <table style="width: 100%; border-collapse: collapse; margin: 1em 0;">
+                <thead>
+                    <tr style="background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Map Size</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Visible Tiles</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Draw Calls</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Performance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;">20×15 (small)</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">~300 tiles</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">300 quads</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Excellent (1000+ FPS)</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 10px; border: 1px solid #ddd;">50×40 (medium)</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">~600 tiles</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">600 quads</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Excellent (500+ FPS)</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;">128×128 (large)</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">~1000 tiles*</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">1000 quads</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Good (200+ FPS)</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p style="font-size: 0.9em; color: #666;">*Depends on viewport size - only visible tiles are rendered</p>
+
+            <h3>File Format Compatibility</h3>
+            <ul>
+                <li><strong>Map Files:</strong> Plain text ASCII - fully cross-platform</li>
+                <li><strong>Line Endings:</strong> Handles both CRLF (Windows) and LF (Unix)</li>
+                <li><strong>Character Encoding:</strong> ASCII only (0-9, A-Z, a-z)</li>
+                <li><strong>Maximum Tiles:</strong> 62 unique tile types per map</li>
+            </ul>
+
+            <h3>Coordinate System Notes</h3>
+            <div style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; margin: 15px 0;">
+                <h4 style="margin-top: 0;">OpenGL Coordinate Convention</h4>
+                <p>GS_OGLMap uses OpenGL's bottom-left origin:</p>
+                <ul style="margin-bottom: 0;">
+                    <li><strong>Origin (0, 0):</strong> Bottom-left corner of screen/map</li>
+                    <li><strong>X-axis:</strong> Increases to the right</li>
+                    <li><strong>Y-axis:</strong> Increases upward</li>
+                    <li><strong>Map Files:</strong> Top row of file = top row of map (high Y)</li>
+                </ul>
+            </div>
+
+            <h3>Memory Considerations</h3>
+            <ul>
+                <li><strong>Static Array:</strong> Map data is fixed-size array (not dynamic allocation)</li>
+                <li><strong>Maximum Size:</strong> 128×128 tiles regardless of actual map size</li>
+                <li><strong>Unused Tiles:</strong> Set to -1 (empty) - doesn't affect rendering</li>
+                <li><strong>Texture Memory:</strong> Shared tileset texture for all maps using same tiles</li>
+            </ul>
+
+            <h3>Optimization Tips</h3>
+            <ul>
+                <li><strong>Tile Atlases:</strong> Put all tiles in one texture to minimize texture switches</li>
+                <li><strong>Clear Tiles:</strong> Use SetClearTileID() to skip rendering background tiles</li>
+                <li><strong>Viewport Size:</strong> Smaller clipbox = fewer tiles rendered = better performance</li>
+                <li><strong>Map Wrapping:</strong> Minimal performance cost - handled efficiently</li>
+                <li><strong>Collision Checks:</strong> Sample-based - fast but may miss very thin objects</li>
+            </ul>
+
+            <h3>Common Pitfalls</h3>
+            <div style="background-color: #fff3cd; padding: 15px; border-left: 4px solid #ffc107; margin: 20px 0;">
+                <h4 style="margin-top: 0;">⚠️ Watch Out For</h4>
+                <ul style="margin-bottom: 0;">
+                    <li><strong>Coordinate Confusion:</strong> Always check if you're using screen or map coordinates</li>
+                    <li><strong>Wrapping + Limits:</strong> Can't enable both on same axis - wrapping disables limits</li>
+                    <li><strong>Negative Coordinates:</strong> Map coordinates can be negative (when scrolled)</li>
+                    <li><strong>Tile Alignment:</strong> Font tile size must match menu tile size in pixel dimensions</li>
+                    <li><strong>Map Size Limits:</strong> Maximum 128×128 tiles hardcoded (MAX_MAP_ROWS/COLS)</li>
+                    <li><strong>File Encoding:</strong> Only 62 tile types supported (0-9, A-Z, a-z)</li>
+                </ul>
+            </div>
+
+            <div style="background-color: #d4edda; padding: 15px; border-left: 4px solid #28a745; margin: 20px 0;">
+                <h4 style="margin-top: 0;">✅ Best Performance</h4>
+                <p style="margin-bottom: 0;">GS_OGLMap is optimized for 2D tile-based games. It handles scrolling, wrapping, and collision detection efficiently. For best results: use power-of-2 texture sizes, enable mipmapping for tilesets, keep clipbox as small as practical, and use clear tiles to skip rendering empty space. The viewport culling system ensures only visible tiles are processed.</p>
+            </div>
+        </div>
+    </section>
+</body>
+
+</html>

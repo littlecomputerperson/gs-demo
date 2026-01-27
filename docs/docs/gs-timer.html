@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GS_Timer Classes</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+
+<body class="endpoint-page">
+    <!-- GS_Timer Methods Index -->
+    <section class="api-section">
+        <h2>GS_Timer & GS_FrameTimer Class Reference</h2>
+        <p><strong>Files:</strong> <code>gs_timer.h</code>, <code>gs_timer.cpp</code></p>
+        <p><strong>Inherits from:</strong> <code>GS_Object</code></p>
+        
+        <div class="endpoint-index">
+            <h3>GS_Timer Class</h3>
+            <ul>
+                <li><a href="#timer-constructor">GS_Timer() <span class="endpoint-desc">- Constructor</span></a></li>
+                <li><a href="#timer-destructor">~GS_Timer() <span class="endpoint-desc">- Destructor</span></a></li>
+                <li><a href="#reset">Reset() <span class="endpoint-desc">- Reset timer to current time</span></a></li>
+                <li><a href="#gettime">GetTime() <span class="endpoint-desc">- Get elapsed time in milliseconds</span></a></li>
+                <li><a href="#wait">Wait() <span class="endpoint-desc">- Wait for specified time</span></a></li>
+            </ul>
+
+            <h3>GS_FrameTimer Class (extends GS_Timer)</h3>
+            <ul>
+                <li><a href="#frametimer-constructor">GS_FrameTimer() <span class="endpoint-desc">- Constructor</span></a></li>
+                <li><a href="#frametimer-destructor">~GS_FrameTimer() <span class="endpoint-desc">- Destructor</span></a></li>
+                <li><a href="#markframe">MarkFrame() <span class="endpoint-desc">- Mark end of frame and update FPS</span></a></li>
+                <li><a href="#getframetime">GetFrameTime() <span class="endpoint-desc">- Get time since last frame</span></a></li>
+                <li><a href="#getframerate">GetFrameRate() <span class="endpoint-desc">- Get current frame rate</span></a></li>
+            </ul>
+        </div>
+    </section>
+    
+    <!-- Class Overview -->
+    <section class="api-section">
+        <h2>Class Overview</h2>
+        <div class="endpoint">
+            <h3>About GS_Timer</h3>
+            <p>The <code>GS_Timer</code> class provides high-precision timing functionality for measuring elapsed time and implementing delays. It uses platform-specific high-resolution performance counters to achieve microsecond accuracy on both Windows and SDL2 platforms.</p>
+
+            <p>The <code>GS_FrameTimer</code> class extends <code>GS_Timer</code> to provide frame timing and frame rate calculation specifically for game loops. It tracks frame times and calculates an average frame rate over multiple frames for smooth and accurate FPS reporting.</p>
+
+            <h3>Key Features</h3>
+            <ul>
+                <li><strong>High Precision:</strong> Microsecond-level timing accuracy using performance counters</li>
+                <li><strong>Cross-Platform:</strong> Unified API for Windows (QueryPerformanceCounter) and SDL2 (SDL_GetTicks)</li>
+                <li><strong>Frame Rate Tracking:</strong> Automatic FPS calculation with configurable averaging</li>
+                <li><strong>Elapsed Time Measurement:</strong> Accurate tracking of time intervals</li>
+                <li><strong>Active Waiting:</strong> Precision delay functionality</li>
+                <li><strong>Automatic Initialization:</strong> Timer starts on construction</li>
+            </ul>
+
+            <h3>Platform Implementations</h3>
+            <table style="width: 100%; border-collapse: collapse; margin: 1em 0;">
+                <thead>
+                    <tr style="background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Platform</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Implementation</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Precision</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><strong>Windows</strong></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>QueryPerformanceCounter()</code> / <code>QueryPerformanceFrequency()</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Microseconds (typically 0.3-1 µs)</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><strong>Windows (fallback)</strong></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>timeGetTime()</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Milliseconds (~1-10 ms)</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><strong>SDL2 (Linux/macOS)</strong></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>SDL_GetTicks()</code> (via GS_Platform)</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Milliseconds (1 ms)</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Member Variables (GS_Timer)</h3>
+            <p>All member variables are private:</p>
+
+            <h4>Windows Platform</h4>
+            <table style="width: 100%; border-collapse: collapse; margin: 1em 0;">
+                <thead>
+                    <tr style="background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Variable</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Type</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_bHaveCounter</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">BOOL</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">TRUE if system supports performance counters</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_n64PerfFreq</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">__int64</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Performance counter frequency (counts per second)</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_n64StartCount</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">__int64</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Initial performance counter value</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_dwStartTime</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">DWORD</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Fallback start time (timeGetTime)</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4>SDL2 Platform</h4>
+            <table style="width: 100%; border-collapse: collapse; margin: 1em 0;">
+                <thead>
+                    <tr style="background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Variable</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Type</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_lStartTime</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">unsigned long</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Start time in milliseconds (SDL_GetTicks)</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Member Variables (GS_FrameTimer)</h3>
+            <table style="width: 100%; border-collapse: collapse; margin: 1em 0;">
+                <thead>
+                    <tr style="background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Variable</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Type</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_nFramesTotal</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">int</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Number of frames completed since last FPS calculation</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_fFrameTimesTotal</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">float</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Sum of FPS values for averaging</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_fFrameRate</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">float</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Current average frame rate (FPS)</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Frame Rate Averaging</h3>
+            <p>The <code>GS_FrameTimer</code> calculates frame rate by averaging over multiple frames. The number of frames used for averaging is defined by:</p>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>#define TOTAL_FRAMES 30  // Average over 30 frames</code></pre>
+
+            <p>This smooths out frame rate fluctuations and provides a more stable FPS reading. The calculation updates every 30 frames (configurable).</p>
+
+            <h3>Usage Pattern</h3>
+            <p>Typical usage in a game application:</p>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Basic timing
+GS_Timer loadTimer;
+LoadResources();
+float loadTime = loadTimer.GetTime();
+printf("Loading took %.2f ms\n", loadTime);
+
+// Frame timing in game loop
+GS_FrameTimer frameTimer;
+
+while (running)
+{
+    float frameTime = frameTimer.GetFrameTime();
+    frameTimer.MarkFrame();  // Reset for next frame
+    
+    UpdateGame(frameTime);
+    RenderGame();
+    
+    // Display current FPS
+    float fps = frameTimer.GetFrameRate();
+    printf("FPS: %.2f\n", fps);
+}</code></pre>
+        </div>
+    </section>
+
+    <!-- GS_Timer Class Methods -->
+    <section class="api-section">
+        <h2>GS_Timer Class Methods</h2>
+
+        <div class="endpoint" id="timer-constructor">
+            <h3>GS_Timer()</h3>
+            <p><strong>File:</strong> <code>gs_timer.cpp</code></p>
+            <p>Constructor that initializes the timer and records the current time as the start time.</p>
+            
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li><strong>Windows:</strong> Checks for performance counter support via <code>QueryPerformanceFrequency()</code></li>
+                <li>If performance counters available, queries frequency and initial count</li>
+                <li>If not available, uses <code>timeGetTime()</code> as fallback</li>
+                <li><strong>SDL2:</strong> Records start time using <code>GS_Platform::GetTickCount()</code></li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>None (constructor)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>GS_Timer timer;  // Timer starts immediately
+// Do some work...
+float elapsed = timer.GetTime();  // Get elapsed time</code></pre>
+        </div>
+
+        <div class="endpoint" id="timer-destructor">
+            <h3>~GS_Timer()</h3>
+            <p><strong>File:</strong> <code>gs_timer.cpp</code></p>
+            <p>Destructor. Does nothing as there are no resources to clean up.</p>
+            
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Empty destructor body</li>
+                <li>No cleanup required</li>
+            </ul>
+        </div>
+
+        <div class="endpoint" id="reset">
+            <h3>Reset()</h3>
+            <p><strong>File:</strong> <code>gs_timer.cpp</code></p>
+            <p>Resets the timer to the current time, allowing measurement of a new time interval.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void Reset()</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li><strong>Windows (with performance counter):</strong> Queries current performance counter value and updates <code>m_n64StartCount</code></li>
+                <li><strong>Windows (fallback):</strong> Gets current time with <code>timeGetTime()</code> and updates <code>m_dwStartTime</code></li>
+                <li><strong>SDL2:</strong> Gets current ticks with <code>GS_Platform::GetTickCount()</code> and updates <code>m_lStartTime</code></li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>None (void)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>GS_Timer timer;
+LoadTextures();
+float textureTime = timer.GetTime();
+
+timer.Reset();  // Start measuring again
+LoadSounds();
+float soundTime = timer.GetTime();
+
+printf("Textures: %.2f ms, Sounds: %.2f ms\n", textureTime, soundTime);</code></pre>
+        </div>
+
+        <div class="endpoint" id="gettime">
+            <h3>GetTime()</h3>
+            <p><strong>File:</strong> <code>gs_timer.cpp</code></p>
+            <p>Returns the elapsed time in milliseconds since the timer was created or last reset.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>float GetTime()</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li><strong>Windows (with performance counter):</strong>
+                    <ul>
+                        <li>Queries current performance counter</li>
+                        <li>Calculates difference from start count</li>
+                        <li>Converts to milliseconds: <code>(currentCount - startCount) / frequency * 1000</code></li>
+                    </ul>
+                </li>
+                <li><strong>Windows (fallback):</strong>
+                    <ul>
+                        <li>Gets current time with <code>timeGetTime()</code></li>
+                        <li>Returns difference from start time in milliseconds</li>
+                    </ul>
+                </li>
+                <li><strong>SDL2:</strong>
+                    <ul>
+                        <li>Gets current ticks with <code>GS_Platform::GetTickCount()</code></li>
+                        <li>Returns difference from start time in milliseconds</li>
+                    </ul>
+                </li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>float</code> - Elapsed time in milliseconds</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>GS_Timer timer;
+
+// Measure function execution time
+ProcessData();
+float executionTime = timer.GetTime();
+
+if (executionTime > 100.0f)
+{
+    printf("Warning: Processing took %.2f ms\n", executionTime);
+}
+
+// Convert to seconds for logging
+float seconds = executionTime / 1000.0f;
+printf("Processing completed in %.3f seconds\n", seconds);</code></pre>
+        </div>
+
+        <div class="endpoint" id="wait">
+            <h3>Wait()</h3>
+            <p><strong>File:</strong> <code>gs_timer.cpp</code></p>
+            <p>Actively waits (busy-waits) for the specified amount of time in milliseconds.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void Wait(float fWaitTime)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>fWaitTime</code> - Time to wait in milliseconds</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Calculates target time: current time + wait time</li>
+                <li>Loops continuously checking <code>GetTime()</code> until target time is reached</li>
+                <li>Provides precise timing but consumes CPU during wait (active waiting)</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>None (void)</li>
+            </ul>
+
+            <p><strong>Warning:</strong></p>
+            <div style="background-color: #fff3cd; padding: 15px; border-left: 4px solid #ffc107; margin: 20px 0;">
+                <h4 style="margin-top: 0;">⚠️ CPU Usage</h4>
+                <p style="margin-bottom: 0;">This method uses active waiting (busy-waiting), which keeps the CPU at 100% usage during the wait period. For most applications, use <code>GS_Platform::Sleep()</code> instead, which yields the CPU. Use <code>Wait()</code> only when you need microsecond-level precision.</p>
+            </div>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>GS_Timer timer;
+
+// Precision delay for timing-critical operations
+SendData();
+timer.Wait(1.5f);  // Wait exactly 1.5 milliseconds
+ReadResponse();
+
+// For general delays, prefer Sleep():
+GS_Platform::Sleep(100);  // Sleep 100ms, yields CPU</code></pre>
+        </div>
+    </section>
+
+    <!-- GS_FrameTimer Class Methods -->
+    <section class="api-section">
+        <h2>GS_FrameTimer Class Methods</h2>
+
+        <div class="endpoint" id="frametimer-constructor">
+            <h3>GS_FrameTimer()</h3>
+            <p><strong>File:</strong> <code>gs_timer.cpp</code></p>
+            <p>Constructor that initializes the frame timer and sets initial values for frame tracking.</p>
+            
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Initialization:</strong></p>
+            <ul>
+                <li>Calls <code>GS_Timer()</code> constructor to initialize base timer</li>
+                <li><code>m_nFramesTotal = 0</code> - Frame counter starts at zero</li>
+                <li><code>m_fFrameTimesTotal = 0.0f</code> - FPS accumulator starts at zero</li>
+                <li><code>m_fFrameRate = 0.0f</code> - Initial frame rate is zero</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>None (constructor)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>GS_FrameTimer frameTimer;  // Ready to track frames</code></pre>
+        </div>
+
+        <div class="endpoint" id="frametimer-destructor">
+            <h3>~GS_FrameTimer()</h3>
+            <p><strong>File:</strong> <code>gs_timer.cpp</code></p>
+            <p>Destructor. Does nothing as there are no resources to clean up.</p>
+            
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Empty destructor body</li>
+                <li>No cleanup required</li>
+            </ul>
+        </div>
+
+        <div class="endpoint" id="markframe">
+            <h3>MarkFrame()</h3>
+            <p><strong>File:</strong> <code>gs_timer.cpp</code></p>
+            <p>Marks the end of a frame, calculates frame rate, and resets the timer for the next frame.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void MarkFrame()</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ol>
+                <li>Gets elapsed time since last frame using <code>GS_Timer::GetTime()</code></li>
+                <li>Resets timer with <code>GS_Timer::Reset()</code> to start measuring next frame</li>
+                <li>Prevents divide-by-zero by ensuring frame time is at least 1.0ms</li>
+                <li>Increments frame counter (<code>m_nFramesTotal++</code>)</li>
+                <li>Adds instantaneous FPS to accumulator: <code>1000.0 / frameTime</code></li>
+                <li>If <code>TOTAL_FRAMES</code> (30) frames have been reached:
+                    <ul>
+                        <li>Calculates average FPS: <code>m_fFrameTimesTotal / m_nFramesTotal</code></li>
+                        <li>Updates <code>m_fFrameRate</code></li>
+                        <li>Resets counters for next averaging period</li>
+                    </ul>
+                </li>
+            </ol>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>None (void)</li>
+            </ul>
+
+            <p><strong>Frame Rate Calculation:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// For each frame:
+instantaneous_fps = 1000.0 / frame_time_ms
+
+// Every 30 frames:
+average_fps = sum_of_fps_values / 30</code></pre>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>GS_FrameTimer frameTimer;
+
+while (running)
+{
+    // Get frame time for game logic
+    float frameTime = frameTimer.GetFrameTime();
+    
+    // Update and render
+    UpdateGame(frameTime);
+    RenderGame();
+    
+    // Mark end of frame (resets timer, updates FPS)
+    frameTimer.MarkFrame();
+    
+    // FPS is updated every 30 frames
+    if (showFPS)
+    {
+        printf("FPS: %.2f\n", frameTimer.GetFrameRate());
+    }
+}</code></pre>
+        </div>
+
+        <div class="endpoint" id="getframetime">
+            <h3>GetFrameTime()</h3>
+            <p><strong>File:</strong> <code>gs_timer.cpp</code></p>
+            <p>Returns the time elapsed since the last frame was marked.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>float GetFrameTime()</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Calls <code>GS_Timer::GetTime()</code> to get elapsed time</li>
+                <li>Returns time in milliseconds since last <code>MarkFrame()</code> call</li>
+                <li>Used for frame-rate independent game logic</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>float</code> - Elapsed time in milliseconds since last frame</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>GS_FrameTimer frameTimer;
+
+while (running)
+{
+    float deltaTime = frameTimer.GetFrameTime();
+    
+    // Frame-rate independent movement
+    // At 60 FPS: deltaTime ≈ 16.67 ms
+    // At 30 FPS: deltaTime ≈ 33.33 ms
+    player.x += player.velocity * (deltaTime / 1000.0f);
+    
+    RenderGame();
+    frameTimer.MarkFrame();
+}</code></pre>
+        </div>
+
+        <div class="endpoint" id="getframerate">
+            <h3>GetFrameRate()</h3>
+            <p><strong>File:</strong> <code>gs_timer.h</code> (inline)</p>
+            <p>Returns the current average frame rate in frames per second.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>float GetFrameRate()</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Returns the value of <code>m_fFrameRate</code></li>
+                <li>Value is updated every <code>TOTAL_FRAMES</code> (30) frames by <code>MarkFrame()</code></li>
+                <li>Provides smoothed FPS reading, not instantaneous</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>float</code> - Current average frame rate (FPS)</li>
+                <li>Returns 0.0f if fewer than <code>TOTAL_FRAMES</code> have been marked</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>GS_FrameTimer frameTimer;
+
+void RenderDebugInfo()
+{
+    float fps = frameTimer.GetFrameRate();
+    
+    // Display FPS on screen
+    m_gsFont.SetText("FPS: %.1f", fps);
+    m_gsFont.SetDestXY(10, 10);
+    m_gsFont.Render();
+    
+    // Performance warnings
+    if (fps < 30.0f)
+    {
+        printf("WARNING: Low frame rate (%.1f FPS)\n", fps);
+    }
+}</code></pre>
+        </div>
+    </section>
+
+    <!-- Practical Examples -->
+    <section class="api-section">
+        <h2>Practical Examples</h2>
+        <div class="endpoint">
+            <h3>Basic Timing Measurement</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>BOOL GS_Demo::GameInit()
+{
+    GS_Timer loadTimer;
+    
+    // Measure resource loading time
+    m_gsDisplay.Create(GetDevice(), GetWidth(), GetHeight(), GetColorDepth());
+    float displayTime = loadTimer.GetTime();
+    
+    loadTimer.Reset();
+    m_gsSound.Initialize(GetWindow());
+    float soundTime = loadTimer.GetTime();
+    
+    loadTimer.Reset();
+    LoadTextures();
+    float textureTime = loadTimer.GetTime();
+    
+    printf("Init times - Display: %.2f ms, Sound: %.2f ms, Textures: %.2f ms\n",
+           displayTime, soundTime, textureTime);
+    
+    return TRUE;
+}</code></pre>
+
+            <h3>Game Loop with Frame Timing</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>class GS_Demo : public GS_Application
+{
+private:
+    GS_FrameTimer m_gsFrameTimer;
+    
+public:
+    BOOL GameLoop()
+    {
+        // Get time since last frame
+        float frameTime = m_gsFrameTimer.GetFrameTime();
+        
+        // Update game logic (frame-rate independent)
+        UpdatePhysics(frameTime);
+        UpdateAnimations(frameTime);
+        
+        // Render frame
+        RenderGame();
+        
+        // Mark end of frame (resets timer, updates FPS)
+        m_gsFrameTimer.MarkFrame();
+        
+        // Display FPS every second
+        static float fpsTimer = 0.0f;
+        fpsTimer += frameTime;
+        if (fpsTimer >= 1000.0f)
+        {
+            printf("FPS: %.2f\n", m_gsFrameTimer.GetFrameRate());
+            fpsTimer = 0.0f;
+        }
+        
+        return TRUE;
+    }
+};</code></pre>
+
+            <h3>Frame-Rate Independent Movement</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>void Player::Update(float deltaTime)
+{
+    // deltaTime is in milliseconds
+    float deltaSeconds = deltaTime / 1000.0f;
+    
+    // Move at constant speed regardless of frame rate
+    const float SPEED = 200.0f;  // pixels per second
+    
+    if (m_gsKeyboard.IsKeyPressed(GSK_LEFT))
+        m_fX -= SPEED * deltaSeconds;
+    
+    if (m_gsKeyboard.IsKeyPressed(GSK_RIGHT))
+        m_fX += SPEED * deltaSeconds;
+    
+    // Apply physics
+    m_fVelocityY += GRAVITY * deltaSeconds;
+    m_fY += m_fVelocityY * deltaSeconds;
+}</code></pre>
+
+            <h3>Performance Profiling</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>void ProfilingExample()
+{
+    GS_Timer timer;
+    
+    // Profile AI processing
+    timer.Reset();
+    UpdateAI();
+    float aiTime = timer.GetTime();
+    
+    // Profile physics
+    timer.Reset();
+    UpdatePhysics();
+    float physicsTime = timer.GetTime();
+    
+    // Profile rendering
+    timer.Reset();
+    RenderScene();
+    float renderTime = timer.GetTime();
+    
+    // Log if any subsystem is slow
+    if (aiTime > 5.0f)
+        printf("AI slow: %.2f ms\n", aiTime);
+    if (physicsTime > 10.0f)
+        printf("Physics slow: %.2f ms\n", physicsTime);
+    if (renderTime > 16.0f)
+        printf("Render slow: %.2f ms\n", renderTime);
+    
+    float totalTime = aiTime + physicsTime + renderTime;
+    printf("Frame breakdown - AI: %.1f%%, Physics: %.1f%%, Render: %.1f%%\n",
+           (aiTime/totalTime)*100, (physicsTime/totalTime)*100, (renderTime/totalTime)*100);
+}</code></pre>
+
+            <h3>Smooth Animation Timing</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>class AnimatedSprite
+{
+private:
+    GS_Timer m_animTimer;
+    float m_fFrameDuration;  // ms per animation frame
+    int m_nCurrentFrame;
+    
+public:
+    void Update()
+    {
+        // Check if enough time has passed for next frame
+        if (m_animTimer.GetTime() >= m_fFrameDuration)
+        {
+            m_nCurrentFrame++;
+            if (m_nCurrentFrame >= m_nTotalFrames)
+                m_nCurrentFrame = 0;
+            
+            // Reset timer for next frame
+            m_animTimer.Reset();
+        }
+    }
+    
+    void SetAnimSpeed(float fps)
+    {
+        // Convert FPS to milliseconds per frame
+        m_fFrameDuration = 1000.0f / fps;
+    }
+};</code></pre>
+
+            <h3>FPS Display on Screen</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>void GS_Demo::RenderFPS()
+{
+    float fps = m_gsFrameTimer.GetFrameRate();
+    
+    // Set color based on performance
+    if (fps >= 58.0f)
+        m_gsFont.SetModulateColor(0.0f, 1.0f, 0.0f, 1.0f);  // Green - good
+    else if (fps >= 30.0f)
+        m_gsFont.SetModulateColor(1.0f, 1.0f, 0.0f, 1.0f);  // Yellow - moderate
+    else
+        m_gsFont.SetModulateColor(1.0f, 0.0f, 0.0f, 1.0f);  // Red - poor
+    
+    // Display FPS
+    m_gsFont.SetText("FPS: %.1f", fps);
+    m_gsFont.SetDestXY(10, INTERNAL_RES_Y - 30);
+    m_gsFont.Render();
+    
+    // Reset color
+    m_gsFont.SetModulateColor(1.0f, 1.0f, 1.0f, 1.0f);
+}</code></pre>
+
+            <h3>Best Practices</h3>
+            <ul>
+                <li><strong>Use GS_FrameTimer for Game Loops:</strong> Provides frame time and FPS calculation in one class</li>
+                <li><strong>Call MarkFrame() Once Per Frame:</strong> At the end of your game loop, after rendering</li>
+                <li><strong>Use GetFrameTime() for Game Logic:</strong> Ensures consistent behavior across different frame rates</li>
+                <li><strong>Convert to Seconds When Needed:</strong> Divide milliseconds by 1000.0f for physics calculations</li>
+                <li><strong>Use GS_Timer for Profiling:</strong> Measure execution time of specific code sections</li>
+                <li><strong>Prefer Sleep() Over Wait():</strong> Use <code>GS_Platform::Sleep()</code> for delays to save CPU</li>
+                <li><strong>Average FPS Updates:</strong> FPS is recalculated every 30 frames for stability</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Platform Notes -->
+    <section class="api-section">
+        <h2>Platform-Specific Notes</h2>
+        <div class="endpoint">
+            <h3>Windows Platform</h3>
+            <ul>
+                <li><strong>Performance Counters:</strong> Uses <code>QueryPerformanceCounter()</code> for microsecond precision</li>
+                <li><strong>Frequency:</strong> Typically 1-10 MHz depending on hardware (0.1-1 µs resolution)</li>
+                <li><strong>Fallback:</strong> Uses <code>timeGetTime()</code> if performance counters not available</li>
+                <li><strong>Accuracy:</strong> Sub-millisecond precision on modern systems</li>
+            </ul>
+
+            <h3>SDL2 Platforms (Linux/macOS)</h3>
+            <ul>
+                <li><strong>Implementation:</strong> Uses <code>SDL_GetTicks()</code> via <code>GS_Platform::GetTickCount()</code></li>
+                <li><strong>Resolution:</strong> Millisecond precision (1 ms)</li>
+                <li><strong>Accuracy:</strong> Sufficient for frame timing and game logic</li>
+                <li><strong>Limitations:</strong> Lower precision than Windows performance counters</li>
+            </ul>
+
+            <h3>Performance Considerations</h3>
+            <div style="background-color: #fffbcc; padding: 15px; border-left: 4px solid #ffcc00; margin: 20px 0;">
+                <h4 style="margin-top: 0;">💡 Timing Best Practices</h4>
+                <ul style="margin-bottom: 0;">
+                    <li><strong>Frame Time:</strong> Typical frame times: 60 FPS = 16.67 ms, 30 FPS = 33.33 ms</li>
+                    <li><strong>Precision:</strong> SDL2's 1ms precision is adequate for game frame timing</li>
+                    <li><strong>Busy-Waiting:</strong> Avoid <code>Wait()</code> in production code (100% CPU usage)</li>
+                    <li><strong>FPS Averaging:</strong> 30-frame average smooths out temporary spikes/drops</li>
+                    <li><strong>V-Sync:</strong> With V-Sync enabled, FPS will stabilize at monitor refresh rate</li>
+                </ul>
+            </div>
+
+            <h3>Debugging Tips</h3>
+            <ul>
+                <li>Print frame times to identify performance issues: <code>printf("Frame: %.2f ms\n", frameTime);</code></li>
+                <li>Target 16.67 ms or less for smooth 60 FPS gameplay</li>
+                <li>Watch for frame time spikes above 33 ms (causes visible stuttering)</li>
+                <li>Use multiple <code>GS_Timer</code> objects to profile different subsystems</li>
+                <li>Remember: First FPS reading appears after 30 frames (about 0.5 seconds at 60 FPS)</li>
+            </ul>
+        </div>
+    </section>
+</body>
+
+</html>

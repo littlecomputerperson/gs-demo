@@ -1,0 +1,1249 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GS_Keyboard Class</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+
+<body class="endpoint-page">
+    <!-- GS_Keyboard Methods Index -->
+    <section class="api-section">
+        <h2>GS_Keyboard Class Reference</h2>
+        <p><strong>Files:</strong> <code>gs_keyboard.h</code>, <code>gs_keyboard.cpp</code>, <code>gs_keyboard_sdl.cpp</code></p>
+        
+        <div class="endpoint-index">
+            <h3>Constructor & Destructor</h3>
+            <ul>
+                <li><a href="#constructor">GS_Keyboard() <span class="endpoint-desc">- Constructor</span></a></li>
+                <li><a href="#destructor">~GS_Keyboard() <span class="endpoint-desc">- Destructor</span></a></li>
+            </ul>
+
+            <h3>Update & Reset Methods</h3>
+            <ul>
+                <li><a href="#update">Update() <span class="endpoint-desc">- Process keyboard events</span></a></li>
+                <li><a href="#reset">Reset() <span class="endpoint-desc">- Clear all keyboard state</span></a></li>
+            </ul>
+
+            <h3>Key State Methods</h3>
+            <ul>
+                <li><a href="#keydown">KeyDown() <span class="endpoint-desc">- Mark key as pressed</span></a></li>
+                <li><a href="#keyup">KeyUp() <span class="endpoint-desc">- Mark key as released</span></a></li>
+                <li><a href="#iskeydown">IsKeyDown() <span class="endpoint-desc">- Check if key is pressed</span></a></li>
+                <li><a href="#ischardown">IsCharDown() <span class="endpoint-desc">- Check if character key is pressed</span></a></li>
+                <li><a href="#arekeysdown">AreKeysDown() <span class="endpoint-desc">- Check multiple keys pressed</span></a></li>
+                <li><a href="#arekeysup">AreKeysUp() <span class="endpoint-desc">- Check multiple keys released</span></a></li>
+                <li><a href="#getkeypressed">GetKeyPressed() <span class="endpoint-desc">- Get currently pressed key</span></a></li>
+            </ul>
+
+            <h3>Buffered Input Methods</h3>
+            <ul>
+                <li><a href="#addkeytobuffer">AddKeyToBuffer() <span class="endpoint-desc">- Add key to input buffer</span></a></li>
+                <li><a href="#clearbuffer">ClearBuffer() <span class="endpoint-desc">- Clear input buffer</span></a></li>
+                <li><a href="#getbufferedkey">GetBufferedKey() <span class="endpoint-desc">- Get key from buffer</span></a></li>
+                <li><a href="#getbufferedchar">GetBufferedChar() <span class="endpoint-desc">- Get character from buffer</span></a></li>
+            </ul>
+
+            <h3>Conversion & Utility Methods</h3>
+            <ul>
+                <li><a href="#keycodetoascii">KeyCodeToAscii() <span class="endpoint-desc">- Convert virtual key to ASCII</span></a></li>
+                <li><a href="#getkeydescription">GetKeyDescription() <span class="endpoint-desc">- Get key name string</span></a></li>
+                <li><a href="#getkeys">GetKeys() <span class="endpoint-desc">- Get key state array</span></a></li>
+                <li><a href="#getbuffer">GetBuffer() <span class="endpoint-desc">- Get input buffer array</span></a></li>
+                <li><a href="#getbuffersize">GetBufferSize() <span class="endpoint-desc">- Get buffer item count</span></a></li>
+            </ul>
+        </div>
+    </section>
+    
+    <!-- Class Overview -->
+    <section class="api-section">
+        <h2>Class Overview</h2>
+        <div class="endpoint">
+            <h3>About GS_Keyboard</h3>
+            <p>The <code>GS_Keyboard</code> class provides comprehensive keyboard input handling for GameSystem applications. It supports both real-time key state checking and buffered input capture, making it suitable for both action games (where continuous key presses matter) and menu systems (where individual key presses should be captured).</p>
+
+            <p>The class uses virtual key codes (GSK_* constants) for platform-independent keyboard handling, abstracting the differences between Windows virtual key codes and SDL2 scancodes.</p>
+
+            <h3>Key Features</h3>
+            <ul>
+                <li><strong>Dual Input Modes:</strong> Real-time state checking and buffered input capture</li>
+                <li><strong>Cross-Platform:</strong> Same API on Windows, Linux, and macOS</li>
+                <li><strong>Virtual Key Codes:</strong> Platform-independent key constants (GSK_*)</li>
+                <li><strong>Multi-Key Detection:</strong> Check multiple keys simultaneously</li>
+                <li><strong>ASCII Conversion:</strong> Convert key codes to character codes</li>
+                <li><strong>Input Buffer:</strong> FIFO buffer for menu navigation and text input</li>
+                <li><strong>Key Descriptions:</strong> Human-readable key names for display</li>
+                <li><strong>State Management:</strong> Track all 256 possible key states</li>
+            </ul>
+
+            <h3>Input Modes</h3>
+            <p>GS_Keyboard supports two primary input handling modes:</p>
+
+            <table style="width: 100%; border-collapse: collapse; margin: 1em 0;">
+                <thead>
+                    <tr style="background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Mode</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Methods</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Best For</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><strong>Real-Time State</strong></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>IsKeyDown()</code>, <code>AreKeysDown()</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Action games, continuous movement, held keys</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><strong>Buffered Input</strong></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>GetBufferedKey()</code>, <code>AddKeyToBuffer()</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Menus, text input, single key press detection</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Virtual Key Codes (GSK_*)</h3>
+            <p>The class uses platform-independent virtual key codes defined in <code>gs_keyboard.h</code>:</p>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 15px 0;">
+                <div>
+                    <h4>Letter Keys</h4>
+                    <code>GSK_A</code> through <code>GSK_Z</code>
+                </div>
+                <div>
+                    <h4>Number Keys</h4>
+                    <code>GSK_0</code> through <code>GSK_9</code>
+                </div>
+                <div>
+                    <h4>Arrow Keys</h4>
+                    <code>GSK_LEFT</code>, <code>GSK_RIGHT</code><br>
+                    <code>GSK_UP</code>, <code>GSK_DOWN</code>
+                </div>
+                <div>
+                    <h4>Function Keys</h4>
+                    <code>GSK_F1</code> through <code>GSK_F12</code>
+                </div>
+                <div>
+                    <h4>Special Keys</h4>
+                    <code>GSK_ENTER</code>, <code>GSK_ESCAPE</code><br>
+                    <code>GSK_SPACE</code>, <code>GSK_TAB</code><br>
+                    <code>GSK_BACK</code> (Backspace)
+                </div>
+                <div>
+                    <h4>Modifiers</h4>
+                    <code>GSK_SHIFT</code>, <code>GSK_CONTROL</code><br>
+                    <code>GSK_ALT</code>
+                </div>
+            </div>
+
+            <h3>Member Variables</h3>
+            <p>All member variables are private:</p>
+
+            <table style="width: 100%; border-collapse: collapse; margin: 1em 0;">
+                <thead>
+                    <tr style="background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Variable</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Type</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_bKeyPressed[256]</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">BOOL array</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Current state of all keys (TRUE = pressed)</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_nKeyBuffer[10]</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">int array</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">FIFO buffer for buffered input (max 10 keys)</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_nItemsInBuffer</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">int</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Number of keys currently in the buffer</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Platform Compatibility</h3>
+            <p>The GS_Keyboard class provides seamless cross-platform input:</p>
+            <ul>
+                <li><strong>Windows:</strong> Uses Windows virtual key codes and keyboard state APIs</li>
+                <li><strong>Linux/macOS:</strong> Uses SDL2 scancodes mapped to GSK_* constants via <code>MapSDLKey()</code></li>
+                <li><strong>Unified API:</strong> Same method calls work identically on all platforms</li>
+            </ul>
+
+            <h3>Usage Pattern</h3>
+            <p>Typical workflow for keyboard input handling:</p>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// In your game class
+GS_Keyboard m_gsKeyboard;
+
+// In MsgProc() - Update key states
+LRESULT GS_Demo::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+    switch (uMsg)
+    {
+    case WM_KEYDOWN:
+        m_gsKeyboard.KeyDown(wParam);
+        m_gsKeyboard.AddKeyToBuffer(wParam);
+        break;
+    case WM_KEYUP:
+        m_gsKeyboard.KeyUp(wParam);
+        break;
+    }
+    return GS_Application::MsgProc(hWnd, uMsg, wParam, lParam);
+}
+
+// In GameLoop() - Check key states
+if (m_gsKeyboard.IsKeyDown(GSK_LEFT))
+    player.MoveLeft();
+
+if (m_gsKeyboard.IsKeyDown(GSK_SPACE))
+    player.Jump();
+
+// In menu code - Use buffered input
+int key = m_gsKeyboard.GetBufferedKey();
+if (key == GSK_UP)
+    menu.SelectPrevious();
+else if (key == GSK_ENTER)
+    menu.Activate();</code></pre>
+        </div>
+    </section>
+
+    <!-- Constructor & Destructor -->
+    <section class="api-section">
+        <h2>Constructor & Destructor</h2>
+
+        <div class="endpoint" id="constructor">
+            <h3>GS_Keyboard()</h3>
+            <p><strong>File:</strong> <code>gs_keyboard.cpp</code></p>
+            <p>Constructor that initializes the keyboard state and input buffer.</p>
+            
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Initialization:</strong></p>
+            <ul>
+                <li>Sets all key states to FALSE (not pressed)</li>
+                <li>Clears the input buffer</li>
+                <li>Sets buffer count to 0</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>GS_Keyboard m_gsKeyboard;  // Ready to use</pre>
+        </div>
+
+        <div class="endpoint" id="destructor">
+            <h3>~GS_Keyboard()</h3>
+            <p><strong>File:</strong> <code>gs_keyboard.cpp</code></p>
+            <p>Destructor that cleans up keyboard resources.</p>
+            
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Calls <code>ClearBuffer()</code> to clear the input buffer</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Update & Reset Methods -->
+    <section class="api-section">
+        <h2>Update & Reset Methods</h2>
+
+        <div class="endpoint" id="update">
+            <h3>Update()</h3>
+            <p><strong>File:</strong> <code>gs_keyboard.cpp</code></p>
+            <p>Processes pending keyboard events from the message queue.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void Update(HWND hWnd)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>hWnd</code> - Window handle to process messages for</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li><strong>Windows:</strong> Uses <code>PeekMessage()</code>/<code>GetMessage()</code> to process WM_KEYDOWN/WM_KEYUP messages</li>
+                <li><strong>SDL2:</strong> No operation (events processed in main event loop)</li>
+                <li>Translates and dispatches messages to window procedure</li>
+            </ul>
+
+            <p><strong>Note:</strong> On SDL2 platforms, keyboard events are handled in the main event loop and passed to <code>MsgProc()</code>, so <code>Update()</code> doesn't need to do anything.</p>
+
+            <p><strong>Example:</strong></p>
+            <pre>// Typically called in main message loop (Windows)
+m_gsKeyboard.Update(hWnd);</pre>
+        </div>
+
+        <div class="endpoint" id="reset">
+            <h3>Reset()</h3>
+            <p><strong>File:</strong> <code>gs_keyboard.cpp</code></p>
+            <p>Resets all keyboard state to default (no keys pressed, empty buffer).</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void Reset()</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Sets all key states to FALSE</li>
+                <li>Clears the input buffer</li>
+                <li>Resets buffer item count to 0</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>// When starting a new level or changing game states
+m_gsKeyboard.Reset();</pre>
+        </div>
+    </section>
+
+    <!-- Key State Methods -->
+    <section class="api-section">
+        <h2>Key State Methods</h2>
+
+        <div class="endpoint" id="keydown">
+            <h3>KeyDown()</h3>
+            <p><strong>File:</strong> <code>gs_keyboard.h</code> (inline)</p>
+            <p>Marks a key as pressed. Typically called from <code>MsgProc()</code> when handling WM_KEYDOWN.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void KeyDown(int nKeyCode)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>nKeyCode</code> - Virtual key code (GSK_* constant or platform key code)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>case WM_KEYDOWN:
+    m_gsKeyboard.KeyDown(wParam);
+    break;</pre>
+        </div>
+
+        <div class="endpoint" id="keyup">
+            <h3>KeyUp()</h3>
+            <p><strong>File:</strong> <code>gs_keyboard.h</code> (inline)</p>
+            <p>Marks a key as released. Typically called from <code>MsgProc()</code> when handling WM_KEYUP.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void KeyUp(int nKeyCode)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>nKeyCode</code> - Virtual key code to mark as released</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>case WM_KEYUP:
+    m_gsKeyboard.KeyUp(wParam);
+    break;</pre>
+        </div>
+
+        <div class="endpoint" id="iskeydown">
+            <h3>IsKeyDown()</h3>
+            <p><strong>File:</strong> <code>gs_keyboard.cpp</code></p>
+            <p>Checks if a specific key is currently pressed.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL IsKeyDown(int nKeyCode)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>nKeyCode</code> - Virtual key code to check (0-255)</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Key is currently pressed</li>
+                <li><code>FALSE</code> - Key is not pressed or invalid key code</li>
+            </ul>
+
+            <p><strong>Examples:</strong></p>
+            <pre>// Check single key
+if (m_gsKeyboard.IsKeyDown(GSK_SPACE))
+    player.Jump();
+
+// Check movement keys
+if (m_gsKeyboard.IsKeyDown(GSK_LEFT))
+    player.MoveLeft();
+if (m_gsKeyboard.IsKeyDown(GSK_RIGHT))
+    player.MoveRight();</pre>
+        </div>
+
+        <div class="endpoint" id="ischardown">
+            <h3>IsCharDown()</h3>
+            <p><strong>File:</strong> <code>gs_keyboard.cpp</code></p>
+            <p>Checks if a key corresponding to a specific ASCII character is pressed.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL IsCharDown(unsigned short sAsciiKey)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>sAsciiKey</code> - ASCII code of character to check</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Iterates through all key states</li>
+                <li>Converts each pressed key to ASCII</li>
+                <li>Returns TRUE if any match the specified character</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - A key producing that character is pressed</li>
+                <li><code>FALSE</code> - No matching key is pressed</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>// Check if 'A' key is pressed (works with Shift modifier)
+if (m_gsKeyboard.IsCharDown('A'))
+    // User pressed 'A' or Shift+'a'</pre>
+        </div>
+
+        <div class="endpoint" id="arekeysdown">
+            <h3>AreKeysDown()</h3>
+            <p><strong>File:</strong> <code>gs_keyboard.cpp</code></p>
+            <p>Checks if multiple keys are all simultaneously pressed.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL AreKeysDown(int nNumKeys, int* pKeys)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>nNumKeys</code> - Number of keys to check</li>
+                <li><code>pKeys</code> - Pointer to array of key codes</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - All specified keys are pressed</li>
+                <li><code>FALSE</code> - One or more keys are not pressed, or invalid parameter</li>
+            </ul>
+
+            <p><strong>Examples:</strong></p>
+            <pre>// Check for Ctrl+S combination
+int keys[] = { GSK_CONTROL, GSK_S };
+if (m_gsKeyboard.AreKeysDown(2, keys))
+    SaveGame();
+
+// Check for cheat code
+int cheatKeys[] = { GSK_A, GSK_B, GSK_C };
+if (m_gsKeyboard.AreKeysDown(3, cheatKeys))
+    ActivateCheat();</pre>
+        </div>
+
+        <div class="endpoint" id="arekeysup">
+            <h3>AreKeysUp()</h3>
+            <p><strong>File:</strong> <code>gs_keyboard.cpp</code></p>
+            <p>Checks if multiple keys are all released (not pressed).</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL AreKeysUp(int nNumKeys, int* pKeys)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>nNumKeys</code> - Number of keys to check</li>
+                <li><code>pKeys</code> - Pointer to array of key codes</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - All specified keys are released</li>
+                <li><code>FALSE</code> - One or more keys are pressed, or invalid parameter</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>// Wait for keys to be released before processing new input
+int menuKeys[] = { GSK_ENTER, GSK_UP, GSK_DOWN };
+if (m_gsKeyboard.AreKeysUp(3, menuKeys))
+    m_bKeysReleased = TRUE;</pre>
+        </div>
+
+        <div class="endpoint" id="getkeypressed">
+            <h3>GetKeyPressed()</h3>
+            <p><strong>File:</strong> <code>gs_keyboard.cpp</code></p>
+            <p>Returns the first pressed key found, with optional filtering.</p>
+            
+            <p><strong>Signatures:</strong></p>
+            <pre>int GetKeyPressed()
+int GetKeyPressed(int nExcludeKey)
+int GetKeyPressed(int nFromKey, int nToKey)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>nExcludeKey</code> - Key code to ignore (optional)</li>
+                <li><code>nFromKey</code> - Start of key range to check (optional)</li>
+                <li><code>nToKey</code> - End of key range to check (optional)</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Virtual key code of first pressed key found</li>
+                <li><code>0</code> if no keys are pressed</li>
+            </ul>
+
+            <p><strong>Examples:</strong></p>
+            <pre>// Get any pressed key
+int key = m_gsKeyboard.GetKeyPressed();
+
+// Get any key except Escape
+int key = m_gsKeyboard.GetKeyPressed(GSK_ESCAPE);
+
+// Get only number keys (0-9)
+int numKey = m_gsKeyboard.GetKeyPressed(GSK_0, GSK_9);</pre>
+        </div>
+    </section>
+
+    <!-- Buffered Input Methods -->
+    <section class="api-section">
+        <h2>Buffered Input Methods</h2>
+
+        <div class="endpoint" id="addkeytobuffer">
+            <h3>AddKeyToBuffer()</h3>
+            <p><strong>File:</strong> <code>gs_keyboard.cpp</code></p>
+            <p>Adds a key press to the input buffer for later retrieval.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL AddKeyToBuffer(int nVirtualKeyCode)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>nVirtualKeyCode</code> - Key code to add to buffer</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Adds key to end of FIFO buffer</li>
+                <li>If buffer is full (10 items), removes oldest item</li>
+                <li>Maximum buffer size is <code>GS_MAX_BUFFER_SIZE</code> (10)</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Key added successfully</li>
+                <li><code>FALSE</code> - Buffer was full, oldest key was discarded</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>case WM_KEYDOWN:
+    m_gsKeyboard.KeyDown(wParam);
+    m_gsKeyboard.AddKeyToBuffer(wParam);  // Also add to buffer
+    break;</pre>
+        </div>
+
+        <div class="endpoint" id="clearbuffer">
+            <h3>ClearBuffer()</h3>
+            <p><strong>File:</strong> <code>gs_keyboard.cpp</code></p>
+            <p>Removes all items from the input buffer.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void ClearBuffer()</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Zeroes out the buffer array</li>
+                <li>Resets item count to 0</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>// Clear buffer when entering a new game state
+m_gsKeyboard.ClearBuffer();</pre>
+        </div>
+
+        <div class="endpoint" id="getbufferedkey">
+            <h3>GetBufferedKey()</h3>
+            <p><strong>File:</strong> <code>gs_keyboard.cpp</code></p>
+            <p>Retrieves the most recent key from the input buffer.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>int GetBufferedKey(BOOL bRemoveKey = TRUE)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>bRemoveKey</code> - TRUE to remove key from buffer, FALSE to peek (default: TRUE)</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Virtual key code of most recent buffered key</li>
+                <li><code>0</code> if buffer is empty</li>
+            </ul>
+
+            <p><strong>Examples:</strong></p>
+            <pre>// Get and remove key from buffer
+int key = m_gsKeyboard.GetBufferedKey();
+if (key == GSK_ENTER)
+    ActivateMenuItem();
+
+// Peek at buffer without removing
+int nextKey = m_gsKeyboard.GetBufferedKey(FALSE);</pre>
+        </div>
+
+        <div class="endpoint" id="getbufferedchar">
+            <h3>GetBufferedChar()</h3>
+            <p><strong>File:</strong> <code>gs_keyboard.cpp</code></p>
+            <p>Retrieves the most recent key from the buffer as an ASCII character.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>unsigned short GetBufferedChar(BOOL bRemoveKey = TRUE)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>bRemoveKey</code> - TRUE to remove from buffer, FALSE to peek (default: TRUE)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Gets key code from buffer</li>
+                <li>Converts to ASCII using <code>KeyCodeToAscii()</code></li>
+                <li>Optionally removes from buffer</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>ASCII code of the character</li>
+                <li><code>0</code> if buffer is empty or conversion failed</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>// Text input for player name
+unsigned short ch = m_gsKeyboard.GetBufferedChar();
+if (ch >= 'A' && ch <= 'Z')
+    playerName += (char)ch;</pre>
+        </div>
+    </section>
+
+    <!-- Conversion & Utility Methods -->
+    <section class="api-section">
+        <h2>Conversion & Utility Methods</h2>
+
+        <div class="endpoint" id="keycodetoascii">
+            <h3>KeyCodeToAscii()</h3>
+            <p><strong>File:</strong> <code>gs_keyboard.cpp</code></p>
+            <p>Converts a virtual key code to its ASCII character representation.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>int KeyCodeToAscii(unsigned int uVirtualKey, unsigned short* sAsciiKey)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>uVirtualKey</code> - Virtual key code to convert</li>
+                <li><code>sAsciiKey</code> - Pointer to receive ASCII value</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li><strong>Windows:</strong> Uses <code>ToAsciiEx()</code> with current keyboard layout and state</li>
+                <li><strong>SDL2:</strong> Simple cast to ASCII (platform handles conversion)</li>
+                <li>Takes modifier keys (Shift, Ctrl) into account</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>0</code> - No conversion (function keys, etc.)</li>
+                <li><code>1</code> - Single character</li>
+                <li><code>2</code> - Dead key (multibyte character sets)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>unsigned short ascii;
+if (m_gsKeyboard.KeyCodeToAscii(GSK_A, &ascii))
+{
+    // ascii contains 'a' or 'A' depending on Shift state
+}</pre>
+        </div>
+
+        <div class="endpoint" id="getkeydescription">
+            <h3>GetKeyDescription()</h3>
+            <p><strong>File:</strong> <code>gs_keyboard.cpp</code></p>
+            <p>Returns a human-readable string describing a key.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>const char* GetKeyDescription(int nVirtualKeyCode)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>nVirtualKeyCode</code> - Key code to describe (0-255)</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Pointer to static string describing the key</li>
+                <li>Examples: "Enter", "Escape", "F1", "Left", "Space", "A"</li>
+                <li>Returns NULL for undefined keys</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>// Display control mapping
+int fireKey = GSK_SPACE;
+printf("Fire: %s\n", m_gsKeyboard.GetKeyDescription(fireKey));
+// Output: "Fire: Space"</pre>
+        </div>
+
+        <div class="endpoint" id="getkeys">
+            <h3>GetKeys()</h3>
+            <p><strong>File:</strong> <code>gs_keyboard.h</code> (inline)</p>
+            <p>Returns pointer to the internal key state array.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL* GetKeys()</pre>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Pointer to <code>m_bKeyPressed[256]</code> array</li>
+            </ul>
+
+            <p><strong>Note:</strong> Direct access to key states. Use with caution.</p>
+        </div>
+
+        <div class="endpoint" id="getbuffer">
+            <h3>GetBuffer()</h3>
+            <p><strong>File:</strong> <code>gs_keyboard.h</code> (inline)</p>
+            <p>Returns pointer to the internal input buffer array.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>int* GetBuffer()</pre>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Pointer to <code>m_nKeyBuffer[10]</code> array</li>
+            </ul>
+        </div>
+
+        <div class="endpoint" id="getbuffersize">
+            <h3>GetBufferSize()</h3>
+            <p><strong>File:</strong> <code>gs_keyboard.h</code> (inline)</p>
+            <p>Returns the number of items currently in the input buffer.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>int GetBufferSize()</pre>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Number of buffered key presses (0-10)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>if (m_gsKeyboard.GetBufferSize() > 0)
+{
+    // Process buffered input
+}</pre>
+        </div>
+    </section>
+
+    <!-- Best Practices -->
+    <section class="api-section">
+        <h2>Best Practices</h2>
+        <div class="endpoint">
+            <h3>Real-Time Input (Action Games)</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Continuous movement in GameLoop()
+if (m_gsKeyboard.IsKeyDown(GSK_LEFT))
+    playerX -= speed * deltaTime;
+
+if (m_gsKeyboard.IsKeyDown(GSK_RIGHT))
+    playerX += speed * deltaTime;
+
+// Jump only on new press (not held)
+static bool wasSpacePressed = false;
+bool spaceNow = m_gsKeyboard.IsKeyDown(GSK_SPACE);
+
+if (spaceNow && !wasSpacePressed)
+    player.Jump();
+
+wasSpacePressed = spaceNow;</code></pre>
+
+            <h3>Buffered Input (Menus)</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Menu navigation
+int key = m_gsKeyboard.GetBufferedKey();
+
+switch (key)
+{
+case GSK_UP:
+    menu.SelectPrevious();
+    break;
+case GSK_DOWN:
+    menu.SelectNext();
+    break;
+case GSK_ENTER:
+    menu.ActivateSelection();
+    break;
+case GSK_ESCAPE:
+    menu.GoBack();
+    break;
+}</code></pre>
+
+            <h3>Text Input</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// High score name entry
+while (m_gsKeyboard.GetBufferSize() > 0)
+{
+    int key = m_gsKeyboard.GetBufferedKey();
+    
+    if (key >= GSK_A && key <= GSK_Z)
+    {
+        if (nameLength < MAX_NAME_LENGTH)
+        {
+            unsigned short ascii;
+            m_gsKeyboard.KeyCodeToAscii(key, &ascii);
+            playerName[nameLength++] = (char)ascii;
+        }
+    }
+    else if (key == GSK_BACK && nameLength > 0)
+    {
+        nameLength--;
+        playerName[nameLength] = '\0';
+    }
+    else if (key == GSK_ENTER)
+    {
+        SaveHighScore();
+        break;
+    }
+}</code></pre>
+
+            <h3>Key Combination Detection</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Check for Ctrl+S (Save)
+int saveKeys[] = { GSK_CONTROL, GSK_S };
+if (m_gsKeyboard.AreKeysDown(2, saveKeys))
+{
+    SaveGame();
+    // Prevent repeated saves while held
+    m_gsKeyboard.ClearBuffer();
+}
+
+// Check for Alt+Enter (Toggle fullscreen)
+if (m_gsKeyboard.IsKeyDown(GSK_ALT) && 
+    m_gsKeyboard.GetBufferedKey() == GSK_ENTER)
+{
+    ToggleFullscreen();
+}</code></pre>
+
+            <h3>State Management</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Clear buffer when entering new state
+BOOL GS_Demo::TitleScreen()
+{
+    if (!m_bInitialized)
+    {
+        m_gsKeyboard.ClearBuffer();
+        m_bInitialized = TRUE;
+    }
+    
+    // Process input...
+}
+
+// Reset all input when pausing
+void PauseGame()
+{
+    m_gsKeyboard.Reset();
+    m_isPaused = true;
+}</code></pre>
+
+            <h3>Platform-Specific Considerations</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// In MsgProc() for Windows
+case WM_KEYDOWN:
+    m_gsKeyboard.KeyDown(wParam);
+    m_gsKeyboard.AddKeyToBuffer(wParam);
+    break;
+
+// For SDL2, events are converted in main loop
+SDL_Event event;
+while (SDL_PollEvent(&event))
+{
+    if (event.type == SDL_KEYDOWN)
+    {
+        int gsk = GS_Keyboard::MapSDLKey(event.key.keysym.scancode);
+        m_gsKeyboard.KeyDown(gsk);
+        m_gsKeyboard.AddKeyToBuffer(gsk);
+    }
+}</code></pre>
+
+            <h3>Tips and Recommendations</h3>
+            <ul>
+                <li><strong>Clear Buffer on State Changes:</strong> Always call <code>ClearBuffer()</code> when entering a new game state</li>
+                <li><strong>Use Buffered Input for Menus:</strong> Prevents repeated menu actions from held keys</li>
+                <li><strong>Use Real-Time State for Movement:</strong> Allows smooth continuous movement</li>
+                <li><strong>Implement Key Release Detection:</strong> Track previous state for "press once" actions</li>
+                <li><strong>Check Buffer Size:</strong> Process all buffered keys in a while loop</li>
+                <li><strong>Handle Both Platforms:</strong> Test keyboard input on both Windows and SDL2 builds</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Platform Notes -->
+    <section class="api-section">
+        <h2>Platform-Specific Notes</h2>
+        <div class="endpoint">
+            <h3>Windows</h3>
+            <ul>
+                <li>Uses Windows virtual key codes (VK_* constants)</li>
+                <li>Keyboard state obtained via <code>GetKeyboardState()</code></li>
+                <li>ASCII conversion via <code>ToAsciiEx()</code> respects keyboard layout</li>
+                <li>Supports all Windows keyboard layouts and IME</li>
+            </ul>
+
+            <h3>Linux / macOS (SDL2)</h3>
+            <ul>
+                <li>Uses SDL2 scancodes mapped to GSK_* via <code>MapSDLKey()</code></li>
+                <li>Keyboard state tracked by class (no platform API call needed)</li>
+                <li>ASCII conversion is simplified (direct cast)</li>
+                <li>Events processed in main loop, not in <code>Update()</code></li>
+            </ul>
+
+            <h3>Cross-Platform Compatibility</h3>
+            <p>The <code>GS_Keyboard</code> class ensures consistent behavior:</p>
+            <ul>
+                <li>Same GSK_* constants work on all platforms</li>
+                <li>Buffered input works identically</li>
+                <li>Key state checking uses same methods</li>
+                <li>Platform differences handled transparently</li>
+            </ul>
+
+            <div style="background-color: #fffbcc; padding: 15px; border-left: 4px solid #ffcc00; margin: 20px 0;">
+                <h4 style="margin-top: 0;">💡 Pro Tip</h4>
+                <p style="margin-bottom: 0;">For menu systems, always clear the buffer when entering the menu state and use <code>GetBufferedKey()</code>. For gameplay, use <code>IsKeyDown()</code> for continuous actions like movement, and implement your own release detection for one-time actions like jumping.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- SDL2 Implementation Section -->
+    <section class="api-section">
+        <h2>SDL2 Implementation (gs_keyboard_sdl.cpp)</h2>
+        <div class="endpoint">
+            <h3>Overview</h3>
+            <p>The <code>gs_keyboard_sdl.cpp</code> file provides SDL2-specific functionality for the <code>GS_Keyboard</code> class. It includes the key mapping system that translates SDL2 scancodes to GameSystem's platform-independent virtual key codes (GSK_* constants).</p>
+
+            <h3>MapSDLKey() Function</h3>
+            <p><strong>File:</strong> <code>gs_keyboard_sdl.cpp</code></p>
+            <p>Converts SDL2 scancodes to GameSystem virtual key codes.</p>
+
+            <p><strong>Signature:</strong></p>
+            <pre>int GS_Keyboard::MapSDLKey(SDL_Scancode sdlKey)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>sdlKey</code> - SDL2 scancode (SDL_SCANCODE_* constant)</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Corresponding GSK_* virtual key code</li>
+                <li><code>0</code> if the SDL key is not mapped</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Maps SDL2 scancodes to Windows-compatible virtual key codes</li>
+                <li>Ensures consistent key codes across all platforms</li>
+                <li>Handles letter keys, number keys, function keys, and special keys</li>
+                <li>Supports modifier keys (Shift, Ctrl, Alt)</li>
+                <li>Used internally by the SDL2 event loop in <code>gs_app_sdl.cpp</code></li>
+            </ul>
+
+            <h3>Key Mapping Table</h3>
+            <p>The <code>MapSDLKey()</code> function contains a large switch statement that maps SDL scancodes. Here are the major categories:</p>
+
+            <h4>Letter Keys</h4>
+            <table style="width: 100%; border-collapse: collapse; margin: 1em 0;">
+                <thead>
+                    <tr style="background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">SDL Scancode</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">GameSystem Key</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>SDL_SCANCODE_A</code> - <code>SDL_SCANCODE_Z</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>GSK_A</code> - <code>GSK_Z</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Alphabet keys A through Z</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4>Number Keys</h4>
+            <table style="width: 100%; border-collapse: collapse; margin: 1em 0;">
+                <thead>
+                    <tr style="background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">SDL Scancode</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">GameSystem Key</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>SDL_SCANCODE_0</code> - <code>SDL_SCANCODE_9</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>GSK_0</code> - <code>GSK_9</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Main keyboard number keys</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>SDL_SCANCODE_KP_0</code> - <code>SDL_SCANCODE_KP_9</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>GSK_NUMPAD0</code> - <code>GSK_NUMPAD9</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Numeric keypad numbers</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4>Function Keys</h4>
+            <table style="width: 100%; border-collapse: collapse; margin: 1em 0;">
+                <thead>
+                    <tr style="background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">SDL Scancode</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">GameSystem Key</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>SDL_SCANCODE_F1</code> - <code>SDL_SCANCODE_F12</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>GSK_F1</code> - <code>GSK_F12</code></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4>Arrow Keys</h4>
+            <table style="width: 100%; border-collapse: collapse; margin: 1em 0;">
+                <thead>
+                    <tr style="background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">SDL Scancode</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">GameSystem Key</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Key</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>SDL_SCANCODE_LEFT</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>GSK_LEFT</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Left arrow</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>SDL_SCANCODE_RIGHT</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>GSK_RIGHT</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Right arrow</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>SDL_SCANCODE_UP</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>GSK_UP</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Up arrow</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>SDL_SCANCODE_DOWN</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>GSK_DOWN</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Down arrow</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4>Special Keys</h4>
+            <table style="width: 100%; border-collapse: collapse; margin: 1em 0;">
+                <thead>
+                    <tr style="background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">SDL Scancode</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">GameSystem Key</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Key</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>SDL_SCANCODE_RETURN</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>GSK_ENTER</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Enter/Return</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>SDL_SCANCODE_ESCAPE</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>GSK_ESCAPE</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Escape</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>SDL_SCANCODE_SPACE</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>GSK_SPACE</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Spacebar</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>SDL_SCANCODE_BACKSPACE</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>GSK_BACK</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Backspace</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>SDL_SCANCODE_TAB</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>GSK_TAB</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Tab</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>SDL_SCANCODE_DELETE</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>GSK_DELETE</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Delete</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>SDL_SCANCODE_HOME</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>GSK_HOME</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Home</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>SDL_SCANCODE_END</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>GSK_END</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">End</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>SDL_SCANCODE_PAGEUP</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>GSK_PRIOR</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Page Up</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>SDL_SCANCODE_PAGEDOWN</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>GSK_NEXT</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Page Down</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>SDL_SCANCODE_INSERT</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>GSK_INSERT</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Insert</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4>Modifier Keys</h4>
+            <table style="width: 100%; border-collapse: collapse; margin: 1em 0;">
+                <thead>
+                    <tr style="background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">SDL Scancode</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">GameSystem Key</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Key</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>SDL_SCANCODE_LSHIFT</code>, <code>SDL_SCANCODE_RSHIFT</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>GSK_SHIFT</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Shift (left or right)</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>SDL_SCANCODE_LCTRL</code>, <code>SDL_SCANCODE_RCTRL</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>GSK_CONTROL</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Control (left or right)</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>SDL_SCANCODE_LALT</code>, <code>SDL_SCANCODE_RALT</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>GSK_ALT</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Alt (left or right)</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Usage in SDL2 Event Loop</h3>
+            <p>The <code>MapSDLKey()</code> function is called in the main SDL2 event loop in <code>gs_app_sdl.cpp</code>:</p>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>SDL_Event event;
+while (SDL_PollEvent(&event))
+{
+    switch (event.type)
+    {
+        case SDL_KEYDOWN:
+        {
+            // Convert SDL scancode to GameSystem virtual key code
+            int gsk = GS_Keyboard::MapSDLKey(event.key.keysym.scancode);
+            
+            // Pass to game's message handler
+            g_pGSApp->MsgProc(g_pGSApp->GetWindow(), WM_KEYDOWN, gsk, 0);
+            break;
+        }
+        
+        case SDL_KEYUP:
+        {
+            int gsk = GS_Keyboard::MapSDLKey(event.key.keysym.scancode);
+            g_pGSApp->MsgProc(g_pGSApp->GetWindow(), WM_KEYUP, gsk, 0);
+            break;
+        }
+    }
+}</code></pre>
+
+            <h3>Example: Handling Keyboard Events on SDL2</h3>
+            <p>In your game's <code>MsgProc()</code> method, you handle mapped keys the same way on all platforms:</p>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>LRESULT GS_Demo::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+    switch (uMsg)
+    {
+        case WM_KEYDOWN:
+            // wParam contains the mapped GSK_* key code on both Windows and SDL2
+            m_gsKeyboard.KeyDown(wParam);
+            m_gsKeyboard.AddKeyToBuffer(wParam);
+            
+            // Handle specific keys
+            if (wParam == GSK_ESCAPE)
+                m_nGameProgress = PLAY_EXIT;
+            else if (wParam == GSK_SPACE)
+                player.Jump();
+            break;
+            
+        case WM_KEYUP:
+            m_gsKeyboard.KeyUp(wParam);
+            break;
+    }
+    
+    return GS_Application::MsgProc(hWnd, uMsg, wParam, lParam);
+}</code></pre>
+
+            <h3>Implementation Details</h3>
+            <p>Key aspects of the SDL2 keyboard implementation:</p>
+
+            <ul>
+                <li><strong>Static Method:</strong> <code>MapSDLKey()</code> is a static method, so it can be called without a keyboard object instance</li>
+                <li><strong>Scancode-Based:</strong> Uses SDL scancodes (physical key positions) rather than keycodes (character values) for consistent mapping across keyboard layouts</li>
+                <li><strong>One-to-One Mapping:</strong> Each SDL scancode maps to exactly one GSK_* constant</li>
+                <li><strong>Modifier Unification:</strong> Left and right modifier keys (Shift, Ctrl, Alt) map to the same GSK_* code</li>
+                <li><strong>Unmapped Keys:</strong> Returns 0 for SDL keys that don't have GameSystem equivalents</li>
+                <li><strong>Case Insensitive:</strong> Letter keys always return uppercase GSK_A through GSK_Z regardless of Shift state</li>
+            </ul>
+
+            <h3>Adding Custom Key Mappings</h3>
+            <p>To add support for additional keys, edit <code>gs_keyboard_sdl.cpp</code>:</p>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>int GS_Keyboard::MapSDLKey(SDL_Scancode sdlKey)
+{
+    switch (sdlKey)
+    {
+        // ...existing mappings...
+        
+        // Add your custom mappings
+        case SDL_SCANCODE_GRAVE:     return GSK_TILDE;      // ` key
+        case SDL_SCANCODE_MINUS:     return GSK_MINUS;      // - key
+        case SDL_SCANCODE_EQUALS:    return GSK_EQUALS;     // = key
+        case SDL_SCANCODE_LEFTBRACKET:  return GSK_LBRACKET;  // [ key
+        case SDL_SCANCODE_RIGHTBRACKET: return GSK_RBRACKET;  // ] key
+        
+        default:
+            return 0;  // Unmapped key
+    }
+}</code></pre>
+
+            <p>Then define the corresponding GSK_* constants in <code>gs_keyboard.h</code>:</p>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>#define GSK_TILDE     0xC0  // VK_OEM_3
+#define GSK_MINUS     0xBD  // VK_OEM_MINUS
+#define GSK_EQUALS    0xBB  // VK_OEM_PLUS
+#define GSK_LBRACKET  0xDB  // VK_OEM_4
+#define GSK_RBRACKET  0xDD  // VK_OEM_6</code></pre>
+
+            <div style="background-color: #d4edda; padding: 15px; border-left: 4px solid #28a745; margin: 20px 0;">
+                <h4 style="margin-top: 0;">✅ Best Practice</h4>
+                <p style="margin-bottom: 0;">Use Windows virtual key code values (VK_* constants) for GSK_* defines to maintain compatibility. The Windows VK_* values are well-documented and provide a complete mapping of keyboard keys.</p>
+            </div>
+        </div>
+    </section>
+</body>
+
+</html>

@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GS_Error Class</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+
+<body class="endpoint-page">
+    <!-- GS_Error Methods Index -->
+    <section class="api-section">
+        <h2>GS_Error Class Reference</h2>
+        <p><strong>Files:</strong> <code>gs_error.h</code>, <code>gs_error.cpp</code></p>
+        
+        <div class="endpoint-index">
+            <h3>Static Methods</h3>
+            <ul>
+                <li><a href="#report">Report() <span class="endpoint-desc">- Report error with file, line, and message</span></a></li>
+            </ul>
+
+            <h3>Constructor & Destructor</h3>
+            <ul>
+                <li><a href="#constructor">GS_Error() <span class="endpoint-desc">- Constructor (does nothing)</span></a></li>
+                <li><a href="#destructor">~GS_Error() <span class="endpoint-desc">- Destructor (does nothing)</span></a></li>
+            </ul>
+        </div>
+    </section>
+    
+    <!-- Class Overview -->
+    <section class="api-section">
+        <h2>Class Overview</h2>
+        <div class="endpoint">
+            <h3>About GS_Error</h3>
+            <p>The <code>GS_Error</code> class provides a simple but flexible error reporting system for GameSystem applications. It allows developers to report errors with contextual information including the source file name, line number, and a descriptive message.</p>
+
+            <p>The class uses conditional compilation to support three different error reporting modes:</p>
+            <ul>
+                <li><strong>Debug Mode:</strong> Outputs errors to the debugger console (Visual Studio Output window or terminal)</li>
+                <li><strong>File Output Mode:</strong> Writes errors to an <code>errors.ini</code> file for post-mortem analysis</li>
+                <li><strong>Message Box Mode:</strong> Displays errors in a modal dialog (default for release builds)</li>
+            </ul>
+
+            <h3>Key Features</h3>
+            <ul>
+                <li><strong>Static Interface:</strong> No need to create instances - call <code>Report()</code> directly</li>
+                <li><strong>Contextual Information:</strong> Automatically includes file name and line number</li>
+                <li><strong>Cross-Platform:</strong> Works on Windows, Linux, and macOS</li>
+                <li><strong>Flexible Output:</strong> Choose between debugger, file, or message box output</li>
+                <li><strong>Compile-Time Configuration:</strong> Error reporting mode set via preprocessor defines</li>
+            </ul>
+
+            <h3>Configuration Modes</h3>
+            <p>Error reporting behavior is controlled by preprocessor defines in <code>gs_error.h</code>:</p>
+
+            <table style="width: 100%; border-collapse: collapse; margin: 1em 0;">
+                <thead>
+                    <tr style="background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Define</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Output Method</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Best For</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>GS_DEBUG_MODE</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Debugger console (<code>OutputDebugString</code>)</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Active debugging sessions in Visual Studio or gdb</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>GS_OUTPUT_TO_FILE</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">INI file (<code>errors.ini</code>)</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Logging errors without stopping execution; post-mortem analysis</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><em>(neither defined)</em></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Message box dialog</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Release builds; immediate user notification of critical errors</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Usage Pattern</h3>
+            <p>The typical usage pattern is to call <code>Report()</code> when an error condition is detected:</p>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>if (!m_gsTexture.Create("data/player.tga"))
+{
+    GS_Error::Report("GS_GAME.CPP", 142, "Failed to load player texture!");
+    return FALSE;
+}</code></pre>
+
+            <p>For convenience, you can use the <code>__FILE__</code> and <code>__LINE__</code> macros:</p>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>GS_Error::Report(__FILE__, __LINE__, "Custom error message");</code></pre>
+
+            <h3>Member Variables</h3>
+            <p>The <code>GS_Error</code> class has no member variables. All functionality is provided through static methods.</p>
+
+            <h3>Platform Compatibility</h3>
+            <p>Error reporting works consistently across all platforms:</p>
+            <ul>
+                <li><strong>Windows:</strong> Uses <code>OutputDebugString()</code> for debug mode, native <code>MessageBox()</code> for dialogs</li>
+                <li><strong>SDL2 (Linux/macOS):</strong> Uses platform abstraction layer (<code>GS_Platform::OutputDebugString()</code>) and <code>SDL_ShowSimpleMessageBox()</code></li>
+                <li><strong>File Output:</strong> Uses <code>GS_IniFile</code> class for cross-platform INI file writing</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Constructor & Destructor -->
+    <section class="api-section">
+        <h2>Constructor & Destructor</h2>
+
+        <div class="endpoint" id="constructor">
+            <h3>GS_Error()</h3>
+            <p><strong>File:</strong> <code>gs_error.h</code> (inline)</p>
+            <p>Default constructor. Does nothing as the class uses only static methods.</p>
+            
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Empty constructor body</li>
+                <li>No member variables to initialize</li>
+            </ul>
+
+            <p><strong>Note:</strong> You typically never need to instantiate <code>GS_Error</code> objects since <code>Report()</code> is a static method.</p>
+        </div>
+
+        <div class="endpoint" id="destructor">
+            <h3>~GS_Error()</h3>
+            <p><strong>File:</strong> <code>gs_error.h</code> (inline)</p>
+            <p>Destructor. Does nothing as there are no resources to clean up.</p>
+            
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Empty destructor body</li>
+                <li>No resources to release</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Static Methods -->
+    <section class="api-section">
+        <h2>Static Methods</h2>
+
+        <div class="endpoint" id="report">
+            <h3>Report()</h3>
+            <p><strong>File:</strong> <code>gs_error.cpp</code></p>
+            <p>Reports an error by sending a message containing the file name, line number, and error description to the configured output destination.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>static void Report(LPCTSTR pszFile, int nLine, LPCTSTR pszMessage)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>pszFile</code> - Null-terminated string containing the source file name where the error occurred</li>
+                <li><code>nLine</code> - Line number in the source file where the error occurred</li>
+                <li><code>pszMessage</code> - Null-terminated string describing the error</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <p>The method constructs an error message in the format:</p>
+            <pre>[filename] ([line]): [message]</pre>
+
+            <p>Then outputs it according to the active configuration:</p>
+
+            <h4>GS_DEBUG_MODE Defined:</h4>
+            <ul>
+                <li><strong>Windows:</strong> Calls <code>OutputDebugString()</code> to send the message to the debugger</li>
+                <li><strong>SDL2:</strong> Calls <code>GS_Platform::OutputDebugString()</code> which prints to stderr</li>
+                <li>Message appears in Visual Studio Output window or terminal console</li>
+                <li>Does not interrupt program execution</li>
+            </ul>
+
+            <h4>GS_OUTPUT_TO_FILE Defined:</h4>
+            <ul>
+                <li>Opens or creates <code>errors.ini</code> in the current directory</li>
+                <li>Writes error as a new section: <code>[Error000]</code>, <code>[Error001]</code>, etc.</li>
+                <li>Each section contains: <code>ErrorString = [filename] ([line]): [message]</code></li>
+                <li>Increments error counter for each call</li>
+                <li>Useful for batch processing or when running without a debugger</li>
+                <li>Does not interrupt program execution</li>
+            </ul>
+
+            <h4>Neither Defined (Default):</h4>
+            <ul>
+                <li><strong>Windows:</strong> Displays <code>MessageBox()</code> with icon ERROR</li>
+                <li><strong>SDL2:</strong> Displays <code>SDL_ShowSimpleMessageBox()</code> with error icon</li>
+                <li>Modal dialog titled "ERROR"</li>
+                <li>Blocks program execution until user clicks OK</li>
+                <li>Suitable for release builds to notify users of critical errors</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>None (void)</li>
+            </ul>
+
+            <p><strong>Examples:</strong></p>
+
+            <h4>Basic Error Reporting:</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>if (!texture.Create("data/sprite.tga"))
+{
+    GS_Error::Report("GS_GAME.CPP", 85, "Failed to create sprite texture!");
+    return FALSE;
+}</code></pre>
+
+            <h4>Using Preprocessor Macros:</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>if (index >= MAX_SPRITES)
+{
+    GS_Error::Report(__FILE__, __LINE__, "Sprite index out of bounds!");
+    return FALSE;
+}</code></pre>
+
+            <h4>With Dynamic Error Messages:</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>char szError[256];
+sprintf(szError, "Failed to load level %d", levelNum);
+GS_Error::Report("GS_LEVEL.CPP", 203, szError);</code></pre>
+
+            <h4>Conditional Error Reporting:</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>BOOL LoadGameData()
+{
+    if (!LoadTextures())
+    {
+        GS_Error::Report(__FILE__, __LINE__, "Texture loading failed");
+        return FALSE;
+    }
+    
+    if (!LoadSounds())
+    {
+        GS_Error::Report(__FILE__, __LINE__, "Sound loading failed");
+        return FALSE;
+    }
+    
+    return TRUE;
+}</code></pre>
+
+            <h4>OpenGL Error Checking:</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>GLenum err = glGetError();
+if (err != GL_NO_ERROR)
+{
+    char szBuffer[128];
+    sprintf(szBuffer, "OpenGL Error: 0x%X", err);
+    GS_Error::Report(__FILE__, __LINE__, szBuffer);
+}</code></pre>
+        </div>
+    </section>
+
+    <!-- Configuration Guide -->
+    <section class="api-section">
+        <h2>Configuration Guide</h2>
+        <div class="endpoint">
+            <h3>Choosing an Error Reporting Mode</h3>
+            
+            <p>Edit <code>gs_error.h</code> to define the desired mode:</p>
+
+            <h4>Debug Mode (Debugger Console):</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>#define GS_DEBUG_MODE
+// #define GS_OUTPUT_TO_FILE</code></pre>
+            
+            <p><strong>Best for:</strong> Active development and debugging sessions</p>
+            <ul>
+                <li>Errors appear immediately in debugger output</li>
+                <li>Non-intrusive - doesn't stop execution with dialogs</li>
+                <li>Can set breakpoints after error occurs</li>
+            </ul>
+
+            <h4>File Output Mode (Logging):</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// #define GS_DEBUG_MODE
+#define GS_OUTPUT_TO_FILE</code></pre>
+            
+            <p><strong>Best for:</strong> Automated testing, profiling, or when running without a debugger</p>
+            <ul>
+                <li>All errors logged to <code>errors.ini</code></li>
+                <li>Can review multiple errors after program completes</li>
+                <li>Useful for bug reports from testers</li>
+                <li>Doesn't require debugger attached</li>
+            </ul>
+
+            <h4>Message Box Mode (User Notification):</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// #define GS_DEBUG_MODE
+// #define GS_OUTPUT_TO_FILE</code></pre>
+            
+            <p><strong>Best for:</strong> Release builds and end-user distribution</p>
+            <ul>
+                <li>User sees error immediately</li>
+                <li>Prevents program from continuing with invalid state</li>
+                <li>Professional appearance for critical errors</li>
+            </ul>
+
+            <h3>Error Log File Format</h3>
+            <p>When using <code>GS_OUTPUT_TO_FILE</code>, errors are written to <code>errors.ini</code> in this format:</p>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>[Error000]
+ErrorString=GS_GAME.CPP (142): Failed to load player texture!
+
+[Error001]
+ErrorString=GS_SOUND.CPP (87): Cannot initialize audio system
+
+[Error002]
+ErrorString=GS_DISPLAY.CPP (56): OpenGL context creation failed</code></pre>
+
+            <p>This format is compatible with <code>GS_IniFile</code> and can be parsed or viewed with any text editor.</p>
+
+            <h3>Best Practices</h3>
+            <ul>
+                <li><strong>Use Descriptive Messages:</strong> Include what failed and why when possible</li>
+                <li><strong>Include Context:</strong> File name and line number help locate the problem quickly</li>
+                <li><strong>Check Return Values:</strong> Report errors immediately when functions fail</li>
+                <li><strong>Don't Overuse:</strong> Reserve for actual errors, not warnings or informational messages</li>
+                <li><strong>Clean Up After Errors:</strong> Ensure resources are released even when errors occur</li>
+                <li><strong>Test Error Paths:</strong> Verify error reporting works in release builds too</li>
+            </ul>
+
+            <h3>Common Use Cases</h3>
+
+            <h4>Resource Loading Failures:</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>if (!m_gsBackSprite.Create("data/background.pcx", FALSE))
+{
+    GS_Error::Report("GS_DEMO.CPP", 224, "Failed to create background sprite!");
+    return FALSE;
+}</code></pre>
+
+            <h4>System Initialization Errors:</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>if (!m_gsSound.Initialize(GetWindow()))
+{
+    GS_Error::Report("GS_DEMO.CPP", 211, "Failed to initialize FMOD sound!");
+    return FALSE;
+}</code></pre>
+
+            <h4>Validation Failures:</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>if (m_nPlayerCount > MAX_PLAYERS)
+{
+    GS_Error::Report(__FILE__, __LINE__, "Player count exceeds maximum!");
+    m_nPlayerCount = MAX_PLAYERS;
+}</code></pre>
+
+            <h4>Debug Breakpoints:</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Use during development to catch unexpected code paths
+if (m_nGameState == INVALID_STATE)
+{
+    GS_Error::Report(__FILE__, __LINE__, "Invalid game state detected!");
+    m_nGameState = TITLE_SCREEN;
+}</code></pre>
+        </div>
+    </section>
+
+    <!-- Platform Notes -->
+    <section class="api-section">
+        <h2>Platform-Specific Notes</h2>
+        <div class="endpoint">
+            <h3>Windows</h3>
+            <ul>
+                <li><strong>Debug Mode:</strong> Uses <code>OutputDebugString()</code> - visible in Visual Studio Output window (Debug → Windows → Output)</li>
+                <li><strong>Message Box:</strong> Native Win32 <code>MessageBox()</code> with MB_ICONERROR icon</li>
+                <li><strong>File Output:</strong> Creates <code>errors.ini</code> in the executable's directory</li>
+            </ul>
+
+            <h3>Linux / macOS (SDL2)</h3>
+            <ul>
+                <li><strong>Debug Mode:</strong> Uses <code>fprintf(stderr, ...)</code> via <code>GS_Platform::OutputDebugString()</code></li>
+                <li><strong>Message Box:</strong> Uses <code>SDL_ShowSimpleMessageBox()</code> with SDL_MESSAGEBOX_ERROR flag</li>
+                <li><strong>File Output:</strong> Creates <code>errors.ini</code> in the current working directory</li>
+                <li><strong>Terminal Output:</strong> Debug messages visible when running from terminal/console</li>
+            </ul>
+
+            <h3>Cross-Platform Compatibility</h3>
+            <p>The <code>GS_Error</code> class is designed to work identically across all platforms. The only difference is the underlying implementation of message display, which is handled transparently by the platform abstraction layer.</p>
+
+            <div style="background-color: #fffbcc; padding: 15px; border-left: 4px solid #ffcc00; margin: 20px 0;">
+                <h4 style="margin-top: 0;">💡 Pro Tip</h4>
+                <p style="margin-bottom: 0;">During development, use <code>GS_DEBUG_MODE</code> to see errors without interrupting your workflow. Switch to message box mode for release builds so end-users are notified of critical issues.</p>
+            </div>
+        </div>
+    </section>
+</body>
+
+</html>

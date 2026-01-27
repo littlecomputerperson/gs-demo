@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GS_OGLImage Class</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+
+<body class="endpoint-page">
+    <!-- GS_OGLImage Methods Index -->
+    <section class="api-section">
+        <h2>GS_OGLImage Class Reference</h2>
+        <p><strong>Files:</strong> <code>gs_ogl_image.h</code>, <code>gs_ogl_image.cpp</code></p>
+        <p><strong>Inherits from:</strong> <code>GS_Object</code></p>
+        
+        <div class="endpoint-index">
+            <h3>Constructor & Destructor</h3>
+            <ul>
+                <li><a href="#constructor">GS_OGLImage() <span class="endpoint-desc">- Constructor</span></a></li>
+                <li><a href="#destructor">~GS_OGLImage() <span class="endpoint-desc">- Destructor</span></a></li>
+            </ul>
+
+            <h3>Creation & Loading Methods</h3>
+            <ul>
+                <li><a href="#create">Create() <span class="endpoint-desc">- Create blank image with dimensions</span></a></li>
+                <li><a href="#destroy">Destroy() <span class="endpoint-desc">- Destroy image and free memory</span></a></li>
+                <li><a href="#load">Load() <span class="endpoint-desc">- Auto-detect and load image file</span></a></li>
+                <li><a href="#loadbmp">LoadBMP() <span class="endpoint-desc">- Load BMP format image</span></a></li>
+                <li><a href="#loadpcx">LoadPCX() <span class="endpoint-desc">- Load PCX format image</span></a></li>
+                <li><a href="#loadtga">LoadTGA() <span class="endpoint-desc">- Load TGA format image</span></a></li>
+            </ul>
+
+            <h3>Pixel Access Methods</h3>
+            <ul>
+                <li><a href="#getpixel">GetPixel() <span class="endpoint-desc">- Get color of pixel at coordinates</span></a></li>
+                <li><a href="#setpixel">SetPixel() <span class="endpoint-desc">- Set color of pixel at coordinates</span></a></li>
+            </ul>
+
+            <h3>Data Access Methods</h3>
+            <ul>
+                <li><a href="#getdata">GetData() <span class="endpoint-desc">- Get pointer to image data</span></a></li>
+                <li><a href="#setdata">SetData() <span class="endpoint-desc">- Copy data into image buffer</span></a></li>
+            </ul>
+
+            <h3>Property Methods</h3>
+            <ul>
+                <li><a href="#getwidth">GetWidth() <span class="endpoint-desc">- Get image width</span></a></li>
+                <li><a href="#getheight">GetHeight() <span class="endpoint-desc">- Get image height</span></a></li>
+                <li><a href="#getcolorbytes">GetColorBytes() <span class="endpoint-desc">- Get bytes per pixel</span></a></li>
+                <li><a href="#getcolorbits">GetColorBits() <span class="endpoint-desc">- Get bits per pixel</span></a></li>
+                <li><a href="#hasalpha">HasAlpha() <span class="endpoint-desc">- Check if image has alpha channel</span></a></li>
+            </ul>
+        </div>
+    </section>
+    
+    <!-- Class Overview -->
+    <section class="api-section">
+        <h2>Class Overview</h2>
+        <div class="endpoint">
+            <h3>About GS_OGLImage</h3>
+            <p>The <code>GS_OGLImage</code> class provides comprehensive image loading, manipulation, and storage capabilities for GameSystem applications. It supports multiple image formats (BMP, PCX, TGA) with both compressed and uncompressed variants, and provides pixel-level access for procedural generation or image manipulation.</p>
+
+            <p>This class serves as the foundation for texture loading in the GameSystem framework, handling the low-level details of file parsing, color format conversion, and memory management. Images loaded with this class can be used directly with <code>GS_OGLTexture</code> for GPU upload and rendering.</p>
+
+            <h3>Key Features</h3>
+            <ul>
+                <li><strong>Multiple Format Support:</strong> Load BMP, PCX, and TGA (compressed/uncompressed) image files</li>
+                <li><strong>Auto-Detection:</strong> Automatically detect image format based on file extension or content</li>
+                <li><strong>Alpha Channel Support:</strong> Handle 24-bit RGB and 32-bit RGBA images</li>
+                <li><strong>Pixel-Level Access:</strong> Get and set individual pixel colors</li>
+                <li><strong>Color Format Conversion:</strong> Automatic BGR to RGB conversion for compatibility</li>
+                <li><strong>RLE Compression:</strong> Support for run-length encoded TGA and PCX images</li>
+                <li><strong>Memory Management:</strong> Automatic cleanup and proper resource handling</li>
+                <li><strong>Cross-Platform:</strong> Works identically on Windows, Linux, and macOS</li>
+            </ul>
+
+            <h3>Supported Image Formats</h3>
+            
+            <h4>BMP (Bitmap)</h4>
+            <ul>
+                <li><strong>Color Depths:</strong> 24-bit RGB, 32-bit RGBA</li>
+                <li><strong>Compression:</strong> Uncompressed only</li>
+                <li><strong>Features:</strong> DWORD-aligned scanlines, automatic padding handling</li>
+                <li><strong>Use Case:</strong> Windows-native format, good for compatibility</li>
+            </ul>
+
+            <h4>PCX (PC Paintbrush)</h4>
+            <ul>
+                <li><strong>Color Depths:</strong> 8-bit indexed (256 colors with palette)</li>
+                <li><strong>Compression:</strong> RLE (Run-Length Encoding)</li>
+                <li><strong>Features:</strong> Palette-based color, vertical flip correction</li>
+                <li><strong>Use Case:</strong> Retro games, pixel art, efficient for images with large solid areas</li>
+            </ul>
+
+            <h4>TGA (Targa)</h4>
+            <ul>
+                <li><strong>Color Depths:</strong> 24-bit RGB, 32-bit RGBA</li>
+                <li><strong>Compression:</strong> Both uncompressed (Type 2) and RLE compressed (Type 10)</li>
+                <li><strong>Features:</strong> Alpha channel support, efficient compression</li>
+                <li><strong>Use Case:</strong> Professional graphics, game textures with transparency</li>
+            </ul>
+
+            <div style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; margin: 15px 0;">
+                <h4 style="margin-top: 0;">Format Recommendations</h4>
+                <ul style="margin-bottom: 0;">
+                    <li><strong>TGA:</strong> Best choice for game textures, supports transparency, good compression</li>
+                    <li><strong>PCX:</strong> Good for retro-style games, indexed color palettes</li>
+                    <li><strong>BMP:</strong> Good for development/testing, universally supported</li>
+                </ul>
+            </div>
+
+            <h3>Member Variables</h3>
+            <p>All member variables are private:</p>
+
+            <table style="width: 100%; border-collapse: collapse; margin: 1em 0;">
+                <thead>
+                    <tr style="background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Variable</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Type</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_pImage</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">BYTE*</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Pointer to raw image pixel data</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_nImageWidth</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">int</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Image width in pixels</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_nImageHeight</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">int</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Image height in pixels</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_nColorBytes</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">int</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Bytes per pixel (3 for RGB, 4 for RGBA)</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_nImageSize</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">int</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Total size of image data in bytes</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_bHasAlpha</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">BOOL</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">TRUE if image has alpha channel</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Color Format</h3>
+            <p>GS_OGLImage stores pixel data in RGB or RGBA format:</p>
+            <ul>
+                <li><strong>RGB (24-bit):</strong> 3 bytes per pixel [R, G, B]</li>
+                <li><strong>RGBA (32-bit):</strong> 4 bytes per pixel [R, G, B, A]</li>
+                <li><strong>Byte Order:</strong> Red, Green, Blue, Alpha (OpenGL compatible)</li>
+                <li><strong>Value Range:</strong> 0-255 per channel</li>
+            </ul>
+
+            <h3>Memory Layout</h3>
+            <p>Image data is stored as a contiguous array of bytes, row by row from bottom to top (OpenGL convention):</p>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;">
+// For a 3x2 RGB image:
+// Row 1 (bottom): [R1,G1,B1] [R2,G2,B2] [R3,G3,B3]
+// Row 0 (top):    [R4,G4,B4] [R5,G5,B5] [R6,G6,B6]
+
+// Pixel at (x, y):
+position = ((y * width) + x) * colorBytes
+</pre>
+
+            <h3>Usage Pattern</h3>
+            <p>Typical workflow for using GS_OGLImage:</p>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Load an image
+GS_OGLImage image;
+if (!image.Load("data/texture.tga"))
+{
+    GS_Error::Report(__FILE__, __LINE__, "Failed to load image!");
+    return FALSE;
+}
+
+// Access image properties
+int width = image.GetWidth();
+int height = image.GetHeight();
+BOOL hasAlpha = image.HasAlpha();
+
+// Manipulate pixels
+GS_OGLColor color = image.GetPixel(10, 20);
+image.SetPixel(15, 25, GS_OGLColor(1.0f, 0.0f, 0.0f));
+
+// Use with texture
+GS_OGLTexture texture;
+texture.Create(image.GetData(), width, height, hasAlpha);
+
+// Cleanup (automatic via destructor)
+image.Destroy();</code></pre>
+        </div>
+    </section>
+
+    <!-- Constructor & Destructor -->
+    <section class="api-section">
+        <h2>Constructor & Destructor</h2>
+
+        <div class="endpoint" id="constructor">
+            <h3>GS_OGLImage()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_image.cpp</code></p>
+            <p>Constructor that initializes all member variables to default values.</p>
+            
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Initialization:</strong></p>
+            <ul>
+                <li><code>m_pImage = NULL</code> - No image data allocated</li>
+                <li><code>m_nImageWidth = 0</code> - Width initialized to zero</li>
+                <li><code>m_nImageHeight = 0</code> - Height initialized to zero</li>
+                <li><code>m_nColorBytes = 0</code> - Bytes per pixel set to zero</li>
+                <li><code>m_nImageSize = 0</code> - Image size set to zero</li>
+                <li><code>m_bHasAlpha = FALSE</code> - No alpha channel by default</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>GS_OGLImage image;  // Ready for Create() or Load() call</pre>
+        </div>
+
+        <div class="endpoint" id="destructor">
+            <h3>~GS_OGLImage()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_image.cpp</code></p>
+            <p>Destructor that ensures proper cleanup of image data.</p>
+            
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Calls <code>Destroy()</code> to free image memory</li>
+                <li>Safe to call even if no image was loaded</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Creation & Loading Methods -->
+    <section class="api-section">
+        <h2>Creation & Loading Methods</h2>
+
+        <div class="endpoint" id="create">
+            <h3>Create()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_image.cpp</code></p>
+            <p>Creates a blank image with specified dimensions and color format.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL Create(int nWidth, int nHeight, BOOL bHasAlpha)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>nWidth</code> - Image width in pixels (must be > 0)</li>
+                <li><code>nHeight</code> - Image height in pixels (must be > 0)</li>
+                <li><code>bHasAlpha</code> - TRUE for RGBA (32-bit), FALSE for RGB (24-bit)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>If image already exists, destroys it first</li>
+                <li>Allocates memory for image data (width × height × bytes per pixel)</li>
+                <li>Sets <code>m_nColorBytes</code> to 4 (RGBA) or 3 (RGB)</li>
+                <li>Calculates <code>m_nImageSize</code> as total bytes needed</li>
+                <li>Does NOT initialize pixel values (contains random data)</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Image created successfully</li>
+                <li><code>FALSE</code> - Creation failed (out of memory)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>GS_OGLImage image;
+
+// Create 256x256 RGB image
+if (!image.Create(256, 256, FALSE))
+{
+    GS_Error::Report(__FILE__, __LINE__, "Failed to create image!");
+    return FALSE;
+}
+
+// Fill with red color
+for (int y = 0; y < 256; y++)
+{
+    for (int x = 0; x < 256; x++)
+    {
+        image.SetPixel(x, y, GS_OGLColor(1.0f, 0.0f, 0.0f));
+    }
+}
+
+// Create RGBA image with transparency
+GS_OGLImage alphaImage;
+alphaImage.Create(128, 128, TRUE);</code></pre>
+
+            <p><strong>Use Cases:</strong></p>
+            <ul>
+                <li>Procedural texture generation</li>
+                <li>Creating render targets</li>
+                <li>Generating noise maps</li>
+                <li>Building dynamic textures</li>
+            </ul>
+        </div>
+
+        <div class="endpoint" id="destroy">
+            <h3>Destroy()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_image.cpp</code></p>
+            <p>Destroys the image and releases all allocated memory.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void Destroy()</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Deletes image data array if allocated</li>
+                <li>Resets all member variables to default values</li>
+                <li>Sets <code>m_pImage</code> to NULL</li>
+                <li>Safe to call multiple times or on uninitialized images</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>None (void)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>image.Destroy();  // Free image memory</pre>
+
+            <p><strong>Note:</strong> BMP files are stored bottom-up, but this is handled automatically.</p>
+        </div>
+
+        <div class="endpoint" id="load">
+            <h3>Load()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_image.cpp</code></p>
+            <p>Auto-detects image format and loads the file.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL Load(const char* pszFilename)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>pszFilename</code> - Path to image file (relative or absolute)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Checks file extension (.bmp, .pcx, .tga) - case insensitive</li>
+                <li>Calls appropriate format-specific loader</li>
+                <li>If extension unknown, tries all loaders in sequence</li>
+                <li>Returns FALSE if all loaders fail</li>
+            </ul>
+
+            <p><strong>Detection Order (if extension unknown):</strong></p>
+            <ol>
+                <li>Try LoadBMP()</li>
+                <li>Try LoadPCX()</li>
+                <li>Try LoadTGA()</li>
+            </ol>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Image loaded successfully</li>
+                <li><code>FALSE</code> - Loading failed (file not found, invalid format, etc.)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>GS_OGLImage image;
+
+// Load with known extension
+if (!image.Load("data/texture.tga"))
+{
+    GS_Error::Report(__FILE__, __LINE__, "Failed to load texture.tga!");
+    return FALSE;
+}
+
+// Load with auto-detection (extension unknown or missing)
+if (!image.Load("data/mystery_image"))
+{
+    GS_Error::Report(__FILE__, __LINE__, "Failed to load mystery_image!");
+    return FALSE;
+}</code></pre>
+        </div>
+
+        <div class="endpoint" id="loadbmp">
+            <h3>LoadBMP()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_image.cpp</code></p>
+            <p>Loads a BMP (Windows Bitmap) format image file.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL LoadBMP(const char* pszFilename)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>pszFilename</code> - Path to .bmp file</li>
+            </ul>
+
+            <p><strong>Supported Features:</strong></p>
+            <ul>
+                <li>24-bit RGB and 32-bit RGBA color depths</li>
+                <li>Uncompressed bitmaps only</li>
+                <li>Automatic DWORD alignment handling</li>
+                <li>Automatic BGR to RGB conversion</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Reads BITMAPFILEHEADER and BITMAPINFOHEADER</li>
+                <li>Validates file type ("BM" signature)</li>
+                <li>Handles scanline padding (DWORD alignment)</li>
+                <li>Converts BGR pixel order to RGB</li>
+                <li>Allocates and fills image data</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - BMP loaded successfully</li>
+                <li><code>FALSE</code> - Loading failed</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>if (!image.LoadBMP("data/background.bmp"))
+{
+    GS_Error::Report(__FILE__, __LINE__, "Failed to load BMP!");
+    return FALSE;
+}</code></pre>
+
+            <p><strong>Note:</strong> BMP files are stored bottom-up, but this is handled automatically.</p>
+        </div>
+
+        <div class="endpoint" id="loadpcx">
+            <h3>LoadPCX()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_image.cpp</code></p>
+            <p>Loads a PCX (PC Paintbrush) format image file with RLE decompression.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL LoadPCX(const char* pszFilename)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>pszFilename</code> - Path to .pcx file</li>
+            </ul>
+
+            <p><strong>Supported Features:</strong></p>
+            <ul>
+                <li>8-bit indexed color (256 color palette)</li>
+                <li>RLE compression/decompression</li>
+                <li>Automatic vertical flip correction</li>
+                <li>Palette-to-RGB conversion</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Reads PCX header (manufacturer, version, encoding)</li>
+                <li>Validates PCX signature (manufacturer=10, version=5, encoding=1)</li>
+                <li>Loads 256-color palette from end of file</li>
+                <li>Decompresses RLE-encoded pixel data</li>
+                <li>Converts indexed colors to RGB using palette</li>
+                <li>Flips image vertically for OpenGL compatibility</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - PCX loaded successfully</li>
+                <li><code>FALSE</code> - Loading failed</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>if (!image.LoadPCX("data/retro_sprite.pcx"))
+{
+    GS_Error::Report(__FILE__, __LINE__, "Failed to load PCX!");
+    return FALSE;
+}</code></pre>
+
+            <p><strong>Note:</strong> PCX images are always converted to 24-bit RGB. Alpha channel is not supported.</p>
+        </div>
+
+        <div class="endpoint" id="loadtga">
+            <h3>LoadTGA()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_image.cpp</code></p>
+            <p>Loads a TGA (Targa) format image file, supporting both compressed and uncompressed variants.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL LoadTGA(const char* pszFilename)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>pszFilename</code> - Path to .tga file</li>
+            </ul>
+
+            <p><strong>Supported Features:</strong></p>
+            <ul>
+                <li>Type 2: Uncompressed RGB/RGBA (24-bit and 32-bit)</li>
+                <li>Type 10: RLE-compressed RGB/RGBA</li>
+                <li>Alpha channel support for 32-bit images</li>
+                <li>Automatic BGR to RGB conversion</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Reads 12-byte TGA header</li>
+                <li>Detects image type (uncompressed vs RLE compressed)</li>
+                <li>Delegates to <code>LoadUncompressedTGA()</code> or <code>LoadCompressedTGA()</code></li>
+                <li>Performs color channel swapping (BGR → RGB)</li>
+                <li>Preserves alpha channel if present</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - TGA loaded successfully</li>
+                <li><code>FALSE</code> - Loading failed</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Load RGB TGA
+if (!image.LoadTGA("data/terrain.tga"))
+{
+    GS_Error::Report(__FILE__, __LINE__, "Failed to load TGA!");
+    return FALSE;
+}
+
+// Load RGBA TGA with transparency
+GS_OGLImage alphaImage;
+if (!alphaImage.LoadTGA("data/sprite_alpha.tga"))
+{
+    GS_Error::Report(__FILE__, __LINE__, "Failed to load alpha TGA!");
+    return FALSE;
+}
+
+printf("Has alpha: %s\n", alphaImage.HasAlpha() ? "Yes" : "No");</code></pre>
+
+            <p><strong>Note:</strong> TGA is the recommended format for game textures due to good compression and alpha support.</p>
+        </div>
+    </section>
+
+    <!-- Pixel Access Methods -->
+    <section class="api-section">
+        <h2>Pixel Access Methods</h2>
+
+        <div class="endpoint" id="getpixel">
+            <h3>GetPixel()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_image.cpp</code></p>
+            <p>Retrieves the color of a pixel at specified coordinates.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>GS_OGLColor GetPixel(int x, int y)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>x</code> - Horizontal coordinate (0 to width-1)</li>
+                <li><code>y</code> - Vertical coordinate (0 to height-1)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Returns black (0, 0, 0) if image doesn't exist</li>
+                <li>Returns black (0, 0, 0) if coordinates out of bounds</li>
+                <li>Calculates byte position: <code>((y × width) + x) × colorBytes</code></li>
+                <li>Reads RGB or RGBA bytes from image data</li>
+                <li>Converts byte values (0-255) to float (0.0-1.0)</li>
+                <li>Returns <code>GS_OGLColor</code> with alpha=1.0 for RGB images</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>GS_OGLColor</code> - Color at specified pixel (RGB or RGBA)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>GS_OGLImage image;
+image.Load("data/texture.tga");
+
+// Get color at pixel (100, 50)
+GS_OGLColor color = image.GetPixel(100, 50);
+
+printf("RGB: (%.2f, %.2f, %.2f) Alpha: %.2f\n",
+       color.fRed, color.fGreen, color.fBlue, color.fAlpha);
+
+// Check if pixel is red
+if (color.fRed > 0.9f && color.fGreen < 0.1f && color.fBlue < 0.1f)
+{
+    printf("Pixel is red!\n");
+}
+
+// Sample all pixels
+for (int y = 0; y < image.GetHeight(); y++)
+{
+    for (int x = 0; x < image.GetWidth(); x++)
+    {
+        GS_OGLColor pixel = image.GetPixel(x, y);
+        // Process pixel...
+    }
+}</code></pre>
+        </div>
+
+        <div class="endpoint" id="setpixel">
+            <h3>SetPixel()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_image.cpp</code></p>
+            <p>Sets the color of a pixel at specified coordinates.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void SetPixel(int x, int y, GS_OGLColor gsColor)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>x</code> - Horizontal coordinate (0 to width-1)</li>
+                <li><code>y</code> - Vertical coordinate (0 to height-1)</li>
+                <li><code>gsColor</code> - Color to set (RGB or RGBA)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Returns silently if image doesn't exist</li>
+                <li>Returns silently if coordinates out of bounds</li>
+                <li>Calculates byte position in image data</li>
+                <li>Converts float color (0.0-1.0) to bytes (0-255)</li>
+                <li>Writes RGB bytes to image data</li>
+                <li>Sets alpha to 0xFF (255) for RGBA images</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>None (void)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>GS_OGLImage image;
+image.Create(256, 256, FALSE);  // Create blank RGB image
+
+// Draw red pixel at (128, 128)
+image.SetPixel(128, 128, GS_OGLColor(1.0f, 0.0f, 0.0f));
+
+// Draw horizontal gradient
+for (int x = 0; x < 256; x++)
+{
+    float ratio = (float)x / 255.0f;
+    image.SetPixel(x, 100, GS_OGLColor(ratio, 1.0f - ratio, 0.5f));
+}
+
+// Fill entire image with blue
+for (int y = 0; y < image.GetHeight(); y++)
+{
+    for (int x = 0; x < image.GetWidth(); x++)
+    {
+        image.SetPixel(x, y, GS_OGLColor(0.0f, 0.0f, 1.0f));
+    }
+}
+
+// Draw checkerboard pattern
+for (int y = 0; y < 256; y++)
+{
+    for (int x = 0; x < 256; x++)
+    {
+        GS_OGLColor color = ((x/32 + y/32) % 2 == 0) ?
+            GS_OGLColor(1.0f, 1.0f, 1.0f) :  // White
+            GS_OGLColor(0.0f, 0.0f, 0.0f);   // Black
+        image.SetPixel(x, y, color);
+    }
+}</code></pre>
+        </div>
+    </section>
+
+    <!-- Data Access Methods -->
+    <section class="api-section">
+        <h2>Data Access Methods</h2>
+
+        <div class="endpoint" id="getdata">
+            <h3>GetData()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_image.h</code> (inline)</p>
+            <p>Returns a pointer to the raw image data buffer.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BYTE* GetData() const</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>BYTE*</code> - Pointer to image data array (NULL if no image)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>GS_OGLImage image;
+image.Load("data/texture.tga");
+
+// Get raw data pointer
+BYTE* pData = image.GetData();
+
+// Use with OpenGL texture
+GLenum format = image.HasAlpha() ? GL_RGBA : GL_RGB;
+glTexImage2D(GL_TEXTURE_2D, 0, format,
+             image.GetWidth(), image.GetHeight(),
+             0, format, GL_UNSIGNED_BYTE, pData);
+
+// Use with GS_OGLTexture
+GS_OGLTexture texture;
+texture.Create(pData, image.GetWidth(), image.GetHeight(), 
+               image.HasAlpha());</code></pre>
+
+            <p><strong>Warning:</strong> The returned pointer is only valid while the image object exists. Do not delete the returned pointer.</p>
+        </div>
+
+        <div class="endpoint" id="setdata">
+            <h3>SetData()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_image.cpp</code></p>
+            <p>Copies external data into the image buffer.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void SetData(BYTE* pData)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>pData</code> - Pointer to source data (must match image dimensions and format)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Returns silently if pData is NULL or image doesn't exist</li>
+                <li>Copies <code>width × height × colorBytes</code> bytes from source</li>
+                <li>Uses <code>CopyMemory()</code> for efficient copy</li>
+                <li>Source data must match image format (RGB or RGBA)</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>None (void)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Create procedural texture data
+int width = 128, height = 128;
+BYTE* proceduralData = new BYTE[width * height * 3];
+
+// Fill with noise pattern
+for (int i = 0; i < width * height * 3; i++)
+{
+    proceduralData[i] = rand() % 256;
+}
+
+// Copy into image
+GS_OGLImage image;
+image.Create(width, height, FALSE);
+image.SetData(proceduralData);
+
+delete[] proceduralData;
+
+// Now image contains the procedural texture</code></pre>
+
+            <p><strong>Warning:</strong> Ensure source data matches image dimensions exactly to avoid buffer overruns.</p>
+        </div>
+    </section>
+
+    <!-- Property Methods -->
+    <section class="api-section">
+        <h2>Property Methods</h2>
+
+        <div class="endpoint" id="getwidth">
+            <h3>GetWidth()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_image.h</code> (inline)</p>
+            <p>Returns the width of the image in pixels.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>int GetWidth() const</pre>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>int</code> - Image width (0 if no image)</li>
+            </ul>
+        </div>
+
+        <div class="endpoint" id="getheight">
+            <h3>GetHeight()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_image.h</code> (inline)</p>
+            <p>Returns the height of the image in pixels.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>int GetHeight() const</pre>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>int</code> - Image height (0 if no image)</li>
+            </ul>
+        </div>
+
+        <div class="endpoint" id="getcolorbytes">
+            <h3>GetColorBytes()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_image.h</code> (inline)</p>
+            <p>Returns the number of bytes per pixel.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>int GetColorBytes() const</pre>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>3</code> - RGB format (24-bit)</li>
+                <li><code>4</code> - RGBA format (32-bit)</li>
+                <li><code>0</code> - No image loaded</li>
+            </ul>
+        </div>
+
+        <div class="endpoint" id="getcolorbits">
+            <h3>GetColorBits()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_image.h</code> (inline)</p>
+            <p>Returns the number of bits per pixel.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>int GetColorBits() const</pre>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>24</code> - RGB format</li>
+                <li><code>32</code> - RGBA format</li>
+                <li><code>0</code> - No image loaded</li>
+            </ul>
+
+            <p><strong>Implementation:</strong></p>
+            <pre>return m_nColorBytes * 8;</pre>
+        </div>
+
+        <div class="endpoint" id="hasalpha">
+            <h3>HasAlpha()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_image.h</code> (inline)</p>
+            <p>Checks if the image has an alpha channel.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL HasAlpha() const</pre>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Image has alpha channel (RGBA)</li>
+                <li><code>FALSE</code> - Image is RGB or no image loaded</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>GS_OGLImage image;
+image.Load("data/texture.tga");
+
+printf("Dimensions: %dx%d\n", image.GetWidth(), image.GetHeight());
+printf("Color depth: %d bits\n", image.GetColorBits());
+printf("Bytes per pixel: %d\n", image.GetColorBytes());
+printf("Has alpha: %s\n", image.HasAlpha() ? "Yes" : "No");
+
+// Conditional blending based on alpha
+if (image.HasAlpha())
+{
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+}</code></pre>
+        </div>
+    </section>
+
+    <!-- Practical Examples -->
+    <section class="api-section">
+        <h2>Practical Examples</h2>
+        <div class="endpoint">
+            <h3>Loading and Using Images</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Load texture for sprite
+GS_OGLImage textureImage;
+if (!textureImage.Load("data/player.tga"))
+{
+    GS_Error::Report(__FILE__, __LINE__, "Failed to load player texture!");
+    return FALSE;
+}
+
+// Create OpenGL texture from image
+GS_OGLTexture texture;
+texture.Create(textureImage.GetData(),
+               textureImage.GetWidth(),
+               textureImage.GetHeight(),
+               textureImage.HasAlpha());</code></pre>
+
+            <h3>Procedural Texture Generation</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Generate checkerboard pattern
+GS_OGLImage checkerboard;
+checkerboard.Create(256, 256, FALSE);
+
+int cellSize = 32;
+for (int y = 0; y < 256; y++)
+{
+    for (int x = 0; x < 256; x++)
+    {
+        GS_OGLColor color = ((x/cellSize + y/cellSize) % 2 == 0) ?
+            GS_OGLColor(1.0f, 1.0f, 1.0f) :  // White
+            GS_OGLColor(0.2f, 0.2f, 0.2f);   // Dark gray
+        
+        checkerboard.SetPixel(x, y, color);
+    }
+}
+
+// Use as texture
+GS_OGLTexture checkerTexture;
+checkerTexture.Create(checkerboard.GetData(), 256, 256, FALSE);</code></pre>
+
+            <h3>Image Color Manipulation</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Load image
+GS_OGLImage image;
+image.Load("data/photo.tga");
+
+// Convert to grayscale
+for (int y = 0; y < image.GetHeight(); y++)
+{
+    for (int x = 0; x < image.GetWidth(); x++)
+    {
+        GS_OGLColor color = image.GetPixel(x, y);
+        
+        // Average RGB for grayscale
+        float gray = (color.fRed + color.fGreen + color.fBlue) / 3.0f;
+        
+        image.SetPixel(x, y, GS_OGLColor(gray, gray, gray));
+    }
+}</code></pre>
+
+            <h3>Generating Noise Texture</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Create noise texture
+GS_OGLImage noise;
+noise.Create(512, 512, FALSE);
+
+srand(time(NULL));
+
+for (int y = 0; y < 512; y++)
+{
+    for (int x = 0; x < 512; x++)
+    {
+        float value = (float)(rand() % 256) / 255.0f;
+        noise.SetPixel(x, y, GS_OGLColor(value, value, value));
+    }
+}
+
+// Use for terrain generation, particle effects, etc.</code></pre>
+
+            <h3>Brightness Adjustment</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Brighten image by 50%
+GS_OGLImage image;
+image.Load("data/dark_texture.tga");
+
+float brightnessFactor = 1.5f;
+
+for (int y = 0; y < image.GetHeight(); y++)
+{
+    for (int x = 0; x < image.GetWidth(); x++)
+    {
+        GS_OGLColor color = image.GetPixel(x, y);
+        
+        // Multiply each channel by brightness factor (clamp to 1.0)
+        color.fRed   = min(color.fRed   * brightnessFactor, 1.0f);
+        color.fGreen = min(color.fGreen * brightnessFactor, 1.0f);
+        color.fBlue  = min(color.fBlue  * brightnessFactor, 1.0f);
+        
+        image.SetPixel(x, y, color);
+    }
+}</code></pre>
+
+            <h3>Color Key Transparency</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Convert magenta (1.0, 0.0, 1.0) to transparent
+GS_OGLImage rgbImage;
+rgbImage.Load("data/sprite_rgb.tga");
+
+// Create RGBA image
+GS_OGLImage rgbaImage;
+rgbaImage.Create(rgbImage.GetWidth(), rgbImage.GetHeight(), TRUE);
+
+// Copy with transparency
+for (int y = 0; y < rgbImage.GetHeight(); y++)
+{
+    for (int x = 0; x < rgbImage.GetWidth(); x++)
+    {
+        GS_OGLColor color = rgbImage.GetPixel(x, y);
+        
+        // Check for magenta (color key)
+        if (color.fRed > 0.9f && color.fGreen < 0.1f && color.fBlue > 0.9f)
+        {
+            color.fAlpha = 0.0f;  // Transparent
+        }
+        else
+        {
+            color.fAlpha = 1.0f;  // Opaque
+        }
+        
+        rgbaImage.SetPixel(x, y, color);
+    }
+}</code></pre>
+
+            <h3>Image Format Conversion</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Load any supported format
+GS_OGLImage srcImage;
+
+// Try loading different formats
+if (!srcImage.Load("data/texture.tga"))
+{
+    if (!srcImage.Load("data/texture.pcx"))
+    {
+        if (!srcImage.Load("data/texture.bmp"))
+        {
+            GS_Error::Report(__FILE__, __LINE__, "No texture found!");
+            return FALSE;
+        }
+    }
+}
+
+printf("Loaded: %dx%d, %d-bit\n",
+       srcImage.GetWidth(),
+       srcImage.GetHeight(),
+       srcImage.GetColorBits());</code></pre>
+
+            <h3>Best Practices</h3>
+            <ul>
+                <li><strong>Check Return Values:</strong> Always verify Load() and Create() succeed</li>
+                <li><strong>Bounds Checking:</strong> Validate coordinates before GetPixel()/SetPixel()</li>
+                <li><strong>Format Awareness:</strong> Check HasAlpha() before assuming RGBA format</li>
+                <li><strong>Memory Management:</strong> Destroy() is automatic but can be called explicitly</li>
+                <li><strong>Use TGA for Games:</strong> Best balance of features, compression, and alpha support</li>
+                <li><strong>Cache Image Objects:</strong> Reuse objects instead of creating many small images</li>
+            </ul>
+
+            <div style="background-color: #fffbcc; padding: 15px; border-left: 4px solid #ffcc00; margin: 20px 0;">
+                <h4 style="margin-top: 0;">💡 Pro Tip</h4>
+                <p style="margin-bottom: 0;">For procedural textures, create the image once in GameInit(), manipulate pixels as needed, then create a GS_OGLTexture from it. This avoids loading files from disk and gives you complete control over texture content.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Platform Notes -->
+    <section class="api-section">
+        <h2>Platform-Specific Notes</h2>
+        <div class="endpoint">
+            <h3>Cross-Platform Compatibility</h3>
+            <p>GS_OGLImage is completely cross-platform and works identically on all platforms:</p>
+            <ul>
+                <li><strong>Windows</strong> - Full support with native file I/O</li>
+                <li><strong>Linux</strong> - Full support via standard C file functions</li>
+                <li><strong>macOS</strong> - Full support via standard C file functions</li>
+            </ul>
+
+            <p>There are no platform-specific implementations or behavior differences.</p>
+
+            <h3>File Path Conventions</h3>
+            <ul>
+                <li><strong>Windows:</strong> Supports both forward slashes (/) and backslashes (\)</li>
+                <li><strong>Linux/macOS:</strong> Use forward slashes (/) only</li>
+                <li><strong>Recommendation:</strong> Always use forward slashes for cross-platform compatibility</li>
+            </ul>
+
+            <h3>Endianness</h3>
+            <p>The class handles byte order automatically:</p>
+            <ul>
+                <li>BMP files: BGR → RGB conversion performed automatically</li>
+                <li>PCX files: Palette lookups handle byte order</li>
+                <li>TGA files: Byte swapping performed during load</li>
+                <li>Result is always RGB or RGBA in standard byte order</li>
+            </ul>
+
+            <h3>Memory Considerations</h3>
+            <ul>
+                <li><strong>Image Size:</strong> width × height × bytes per pixel</li>
+                <li><strong>Example:</strong> 1024×1024 RGBA = 4 MB of RAM</li>
+                <li><strong>Large Images:</strong> Consider streaming or tiling for very large textures</li>
+                <li><strong>Cleanup:</strong> Automatic via destructor, manual via Destroy()</li>
+            </ul>
+
+            <h3>Performance Notes</h3>
+            <ul>
+                <li><strong>GetPixel/SetPixel:</strong> Involves coordinate calculation - cache results when processing many pixels</li>
+                <li><strong>GetData():</strong> Direct pointer access for bulk operations</li>
+                <li><strong>RLE Decompression:</strong> TGA Type 10 and PCX may be slower to load than uncompressed</li>
+                <li><strong>File Format Speed:</strong> BMP (fastest to load) > TGA uncompressed > TGA RLE > PCX</li>
+            </ul>
+
+            <div style="background-color: #d4edda; padding: 15px; border-left: 4px solid #28a745; margin: 20px 0;">
+                <h4 style="margin-top: 0;">✅ Recommended Usage</h4>
+                <p style="margin-bottom: 0;">Use GS_OGLImage for loading textures during GameInit(). For runtime performance, load images into GS_OGLTexture objects and render using GS_OGLSprite. The image object can be destroyed after texture creation to save memory.</p>
+            </div>
+        </div>
+    </section>
+</body>
+
+</html>

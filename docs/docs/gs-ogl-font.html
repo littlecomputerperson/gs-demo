@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GS_OGLFont Class</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+
+<body class="endpoint-page">
+    <!-- GS_OGLFont Methods Index -->
+    <section class="api-section">
+        <h2>GS_OGLFont Class Reference</h2>
+        <p><strong>Files:</strong> <code>gs_ogl_font.h</code>, <code>gs_ogl_font.cpp</code></p>
+        <p><strong>Inherits from:</strong> <code>GS_OGLSprite</code></p>
+        
+        <div class="endpoint-index">
+            <h3>Constructor & Destructor</h3>
+            <ul>
+                <li><a href="#constructor">GS_OGLFont() <span class="endpoint-desc">- Constructor</span></a></li>
+                <li><a href="#destructor">~GS_OGLFont() <span class="endpoint-desc">- Destructor</span></a></li>
+            </ul>
+
+            <h3>Initialization Methods</h3>
+            <ul>
+                <li><a href="#create-file">Create(pathname) <span class="endpoint-desc">- Create font from image file</span></a></li>
+                <li><a href="#create-texture">Create(texture) <span class="endpoint-desc">- Create font from existing texture</span></a></li>
+                <li><a href="#destroy">Destroy() <span class="endpoint-desc">- Destroy font and free resources</span></a></li>
+            </ul>
+
+            <h3>Rendering Methods</h3>
+            <ul>
+                <li><a href="#render">Render() <span class="endpoint-desc">- Render the text string</span></a></li>
+                <li><a href="#renderchar">RenderChar() <span class="endpoint-desc">- Render a single character</span></a></li>
+            </ul>
+
+            <h3>Text Configuration Methods</h3>
+            <ul>
+                <li><a href="#settext">SetText() <span class="endpoint-desc">- Set the text string to display</span></a></li>
+                <li><a href="#gettext">GetText() <span class="endpoint-desc">- Get the current text string</span></a></li>
+            </ul>
+
+            <h3>Font Metrics Methods</h3>
+            <ul>
+                <li><a href="#getcharsperline">GetCharsPerLine() <span class="endpoint-desc">- Get characters per line in font texture</span></a></li>
+                <li><a href="#setcharsperline">SetCharsPerLine() <span class="endpoint-desc">- Set characters per line</span></a></li>
+                <li><a href="#getletterwidth">GetLetterWidth() <span class="endpoint-desc">- Get scaled letter width</span></a></li>
+                <li><a href="#setletterwidth">SetLetterWidth() <span class="endpoint-desc">- Set base letter width</span></a></li>
+                <li><a href="#getletterheight">GetLetterHeight() <span class="endpoint-desc">- Get scaled letter height</span></a></li>
+                <li><a href="#setletterheight">SetLetterHeight() <span class="endpoint-desc">- Set base letter height</span></a></li>
+                <li><a href="#gettextwidth">GetTextWidth() <span class="endpoint-desc">- Get total width of text string</span></a></li>
+                <li><a href="#gettextheight">GetTextHeight() <span class="endpoint-desc">- Get height of text string</span></a></li>
+            </ul>
+
+            <h3>Position Methods</h3>
+            <ul>
+                <li><a href="#getdestrect">GetDestRect() <span class="endpoint-desc">- Get bounding rectangle of text</span></a></li>
+            </ul>
+        </div>
+    </section>
+    
+    <!-- Class Overview -->
+    <section class="api-section">
+        <h2>Class Overview</h2>
+        <div class="endpoint">
+            <h3>About GS_OGLFont</h3>
+            <p>The <code>GS_OGLFont</code> class provides bitmap font rendering capabilities for GameSystem applications. It extends <code>GS_OGLSprite</code> to render text using a texture that contains a grid of characters. This class supports variable-argument text formatting (printf-style) and provides full control over text appearance through inherited sprite properties like color modulation, scaling, and rotation.</p>
+
+            <p>Bitmap fonts are ideal for game UIs, menus, score displays, and any text that needs to match a specific visual style. The class uses a monospaced character grid system where each character occupies a fixed-size cell in the source texture.</p>
+
+            <h3>Key Features</h3>
+            <ul>
+                <li><strong>Bitmap Font Rendering:</strong> Render text using custom font textures</li>
+                <li><strong>Printf-Style Formatting:</strong> Support for formatted strings with variables</li>
+                <li><strong>Character Grid System:</strong> Flexible layout supporting different grid configurations</li>
+                <li><strong>Full Sprite Properties:</strong> Inherits color modulation, scaling, rotation, and transparency</li>
+                <li><strong>ASCII Support:</strong> Characters from space (32) to tilde (126)</li>
+                <li><strong>Metrics Calculation:</strong> Automatic text width and height calculation</li>
+                <li><strong>Individual Character Rendering:</strong> Render single characters for custom effects</li>
+                <li><strong>Cross-Platform:</strong> Works identically on Windows, Linux, and macOS</li>
+            </ul>
+
+            <h3>Font Texture Format</h3>
+            <p>GS_OGLFont requires a texture containing a grid of characters. The texture layout follows these rules:</p>
+
+            <div style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; margin: 15px 0;">
+                <h4 style="margin-top: 0;">Character Grid Layout</h4>
+                <ul style="margin-bottom: 0;">
+                    <li><strong>Grid Structure:</strong> Characters arranged in rows and columns</li>
+                    <li><strong>Cell Size:</strong> Each character occupies a fixed-size cell (e.g., 16×16 pixels)</li>
+                    <li><strong>Character Set:</strong> ASCII characters from 32 (space) to 126 (~)</li>
+                    <li><strong>First Character:</strong> Space character at position [0, 0]</li>
+                    <li><strong>Reading Order:</strong> Left to right, top to bottom</li>
+                </ul>
+            </div>
+
+            <h4>Example Font Texture (16 characters per line, 16×16 pixels per character):</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;">
+Row 0: [Space] [!] ["] [#] [$] [%] [&] ['] [(] [)] [*] [+] [,] [-] [.] [/]
+Row 1: [0] [1] [2] [3] [4] [5] [6] [7] [8] [9] [:] [;] [<] [=] [>] [?]
+Row 2: [@] [A] [B] [C] [D] [E] [F] [G] [H] [I] [J] [K] [L] [M] [N] [O]
+Row 3: [P] [Q] [R] [S] [T] [U] [V] [W] [X] [Y] [Z] [[] [\] []] [^] [_]
+Row 4: [`] [a] [b] [c] [d] [e] [f] [g] [h] [i] [j] [k] [l] [m] [n] [o]
+Row 5: [p] [q] [r] [s] [t] [u] [v] [w] [x] [y] [z] [{] [|] [}] [~] ...
+</pre>
+
+            <h3>Inheritance Hierarchy</h3>
+            <p>GS_OGLFont inherits from GS_OGLSprite, which means it has access to all sprite functionality:</p>
+
+            <div style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; margin: 15px 0;">
+                <pre style="margin: 0; font-family: 'Courier New', monospace;">
+GS_OGLSprite
+    ↓
+GS_OGLFont
+</pre>
+            </div>
+
+            <p>Inherited properties and methods include:</p>
+            <ul>
+                <li><strong>Position:</strong> <code>SetDestXY()</code>, <code>GetDestX()</code>, <code>GetDestY()</code></li>
+                <li><strong>Scaling:</strong> <code>SetScaleXY()</code>, <code>GetScaleX()</code>, <code>GetScaleY()</code></li>
+                <li><strong>Rotation:</strong> <code>SetRotateZ()</code>, <code>GetRotateZ()</code></li>
+                <li><strong>Color:</strong> <code>SetModulateColor()</code>, <code>GetModulateColor()</code></li>
+                <li><strong>Transparency:</strong> Via alpha component of color modulation</li>
+            </ul>
+
+            <h3>Member Variables</h3>
+            <p>All member variables are private:</p>
+
+            <table style="width: 100%; border-collapse: collapse; margin: 1em 0;">
+                <thead>
+                    <tr style="background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Variable</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Type</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_pszTextString</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">char*</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">The text string to render</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_nCharsPerLine</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">int</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Number of characters per line in font texture</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_nLetterWidth</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">int</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Base width of each character cell in pixels</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_nLetterHeight</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">int</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Base height of each character cell in pixels</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Usage Pattern</h3>
+            <p>Typical workflow for using GS_OGLFont:</p>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Create font texture
+GS_OGLTexture fontTexture;
+fontTexture.Create("data/font.tga", GS_MIPMAP, GL_NEAREST, GL_NEAREST);
+
+// Create font (16 chars per line, 16x16 pixels per char)
+GS_OGLFont font;
+font.Create(fontTexture.GetID(), fontTexture.GetWidth(), fontTexture.GetHeight(),
+            16, 16, 16);
+
+// Render text
+m_gsDisplay.BeginRender2D(GetWindow());
+
+font.SetText("Score: %d", playerScore);
+font.SetDestXY(10, 500);
+font.SetModulateColor(1.0f, 1.0f, 1.0f, 1.0f);
+font.Render();
+
+m_gsDisplay.EndRender2D();</code></pre>
+
+            <h3>Platform Compatibility</h3>
+            <p>GS_OGLFont works identically on all platforms:</p>
+            <ul>
+                <li><strong>Windows</strong> - Full support with native OpenGL</li>
+                <li><strong>Linux</strong> - Full support via SDL2 + OpenGL</li>
+                <li><strong>macOS</strong> - Full support via SDL2 + OpenGL</li>
+            </ul>
+
+            <p>There are no platform-specific implementations - all rendering uses standard OpenGL calls.</p>
+        </div>
+    </section>
+
+    <!-- Constructor & Destructor -->
+    <section class="api-section">
+        <h2>Constructor & Destructor</h2>
+
+        <div class="endpoint" id="constructor">
+            <h3>GS_OGLFont()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_font.cpp</code></p>
+            <p>Constructor that initializes all member variables to default values.</p>
+            
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Initialization:</strong></p>
+            <ul>
+                <li>Calls <code>GS_OGLSprite()</code> constructor</li>
+                <li><code>m_pszTextString = NULL</code> - No text string allocated</li>
+                <li><code>m_nCharsPerLine = 0</code> - No character grid defined</li>
+                <li><code>m_nLetterWidth = 0</code> - No character width set</li>
+                <li><code>m_nLetterHeight = 0</code> - No character height set</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>GS_OGLFont font;  // Ready for Create() call</pre>
+        </div>
+
+        <div class="endpoint" id="destructor">
+            <h3>~GS_OGLFont()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_font.cpp</code></p>
+            <p>Destructor that ensures proper cleanup of font resources.</p>
+            
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Calls <code>Destroy()</code> to clean up resources</li>
+                <li>Frees allocated text string memory</li>
+                <li>Calls <code>GS_OGLSprite</code> destructor</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Initialization Methods -->
+    <section class="api-section">
+        <h2>Initialization Methods</h2>
+
+        <div class="endpoint" id="create-file">
+            <h3>Create() - From File</h3>
+            <p><strong>File:</strong> <code>gs_ogl_font.cpp</code></p>
+            <p>Creates a font by loading a texture from an image file and configuring the character grid.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL Create(const char* pszPathname, int nCharsPerLine, int nLetterWidth, 
+            int nLetterHeight, BOOL bFiltered = FALSE, BOOL bMipmap = TRUE)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>pszPathname</code> - Path to font texture file (TGA or PCX format)</li>
+                <li><code>nCharsPerLine</code> - Number of characters per row in the texture (e.g., 16)</li>
+                <li><code>nLetterWidth</code> - Width of each character cell in pixels (e.g., 16)</li>
+                <li><code>nLetterHeight</code> - Height of each character cell in pixels (e.g., 16)</li>
+                <li><code>bFiltered</code> - TRUE for bilinear filtering, FALSE for nearest-neighbor (default: FALSE)</li>
+                <li><code>bMipmap</code> - TRUE to generate mipmaps (default: TRUE)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>If already created, calls <code>Destroy()</code> first</li>
+                <li>Stores character grid configuration</li>
+                <li>Calls <code>GS_OGLSprite::Create()</code> to load the texture</li>
+                <li>Returns TRUE on success, FALSE on failure</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Font created successfully</li>
+                <li><code>FALSE</code> - Creation failed (file not found, invalid format, etc.)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>GS_OGLFont font;
+
+// Create font: 16 chars per line, 16x16 pixels per char
+if (!font.Create("data/font.tga", 16, 16, 16, FALSE, TRUE))
+{
+    GS_Error::Report(__FILE__, __LINE__, "Failed to create font!");
+    return FALSE;
+}
+
+// Font is ready to use
+font.SetText("Hello World!");
+font.SetDestXY(100, 200);
+font.Render();</code></pre>
+
+            <p><strong>Note:</strong> Use <code>bFiltered = FALSE</code> for pixel-perfect fonts. Use <code>bFiltered = TRUE</code> for smoother scaled fonts.</p>
+        </div>
+
+        <div class="endpoint" id="create-texture">
+            <h3>Create() - From Existing Texture</h3>
+            <p><strong>File:</strong> <code>gs_ogl_font.cpp</code></p>
+            <p>Creates a font using an existing OpenGL texture ID and configures the character grid.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL Create(GLuint glTexture, int nWidth, int nHeight, int nCharsPerLine,
+            int nLetterWidth, int nLetterHeight)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>glTexture</code> - OpenGL texture ID (from <code>GS_OGLTexture::GetID()</code>)</li>
+                <li><code>nWidth</code> - Total texture width in pixels</li>
+                <li><code>nHeight</code> - Total texture height in pixels</li>
+                <li><code>nCharsPerLine</code> - Number of characters per row</li>
+                <li><code>nLetterWidth</code> - Width of each character cell in pixels</li>
+                <li><code>nLetterHeight</code> - Height of each character cell in pixels</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>If already created, calls <code>Destroy()</code> first</li>
+                <li>Stores character grid configuration</li>
+                <li>Calls <code>GS_OGLSprite::Create()</code> with the texture ID</li>
+                <li>Does not take ownership of the texture (won't delete it)</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Font created successfully</li>
+                <li><code>FALSE</code> - Creation failed</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Load texture separately
+GS_OGLTexture fontTexture;
+fontTexture.Create("data/font.tga", GS_MIPMAP, GL_NEAREST, GL_NEAREST);
+
+// Create font from texture
+GS_OGLFont font;
+font.Create(fontTexture.GetID(), 
+            fontTexture.GetWidth(), 
+            fontTexture.GetHeight(),
+            16, 16, 16);
+
+// Can share the same texture with multiple fonts
+GS_OGLFont smallFont;
+smallFont.Create(fontTexture.GetID(), 
+                 fontTexture.GetWidth(), 
+                 fontTexture.GetHeight(),
+                 16, 16, 16);
+smallFont.SetScaleXY(0.5f, 0.5f);</code></pre>
+
+            <p><strong>Use Case:</strong> This method is useful when you want to share a single font texture between multiple font objects with different properties (size, color, etc.).</p>
+        </div>
+
+        <div class="endpoint" id="destroy">
+            <h3>Destroy()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_font.cpp</code></p>
+            <p>Destroys the font and releases all associated resources.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void Destroy()</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Returns immediately if not initialized</li>
+                <li>Calls <code>GS_OGLSprite::Destroy()</code> to release texture resources</li>
+                <li>Deletes allocated text string memory</li>
+                <li>Resets all member variables to default values</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>None (void)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>font.Destroy();  // Clean up font resources</pre>
+
+            <p><strong>Note:</strong> This is called automatically by the destructor, so explicit calls are optional unless you need to recreate the font.</p>
+        </div>
+    </section>
+
+    <!-- Rendering Methods -->
+    <section class="api-section">
+        <h2>Rendering Methods</h2>
+
+        <div class="endpoint" id="render">
+            <h3>Render()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_font.cpp</code></p>
+            <p>Renders the current text string to the screen at the specified position.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL Render(HWND hWnd = NULL)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>hWnd</code> - Window handle (ignored, for compatibility with base class)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Returns FALSE if font not initialized</li>
+                <li>Stores original position</li>
+                <li>Iterates through each character in <code>m_pszTextString</code></li>
+                <li>Calls <code>RenderChar()</code> for each character</li>
+                <li>Advances X position by <code>GetLetterWidth()</code> after each character</li>
+                <li>Restores original position after rendering</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Text rendered successfully</li>
+                <li><code>FALSE</code> - Rendering failed (font not ready, character render failed)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>m_gsDisplay.BeginRender2D(GetWindow());
+
+// Render score
+m_gsFont.SetText("SCORE: %06d", m_nScore);
+m_gsFont.SetDestXY(10, 500);
+m_gsFont.SetModulateColor(1.0f, 1.0f, 0.0f, 1.0f);  // Yellow
+m_gsFont.Render();
+
+// Render player name
+m_gsFont.SetText("PLAYER: %s", m_szPlayerName);
+m_gsFont.SetDestXY(10, 480);
+m_gsFont.SetModulateColor(1.0f, 1.0f, 1.0f, 1.0f);  // White
+m_gsFont.Render();
+
+m_gsDisplay.EndRender2D();</code></pre>
+
+            <p><strong>Note:</strong> Position is restored after rendering, so you can call <code>Render()</code> multiple times without changing the destination coordinates.</p>
+        </div>
+
+        <div class="endpoint" id="renderchar">
+            <h3>RenderChar()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_font.cpp</code></p>
+            <p>Renders a single character at the current position.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL RenderChar(char cTextChar, HWND hWnd = NULL)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>cTextChar</code> - ASCII character to render (32-126)</li>
+                <li><code>hWnd</code> - Window handle (ignored)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Returns FALSE if font not initialized</li>
+                <li>Converts character to zero-based index (subtracts 32)</li>
+                <li>Clamps character to valid range (minimum 0)</li>
+                <li>Calculates character position in texture:
+                    <ul>
+                        <li>X offset = (char % charsPerLine) × letterWidth</li>
+                        <li>Y offset = texture height - (row × letterHeight)</li>
+                    </ul>
+                </li>
+                <li>Sets source rectangle to character cell</li>
+                <li>Calls <code>GS_OGLSprite::Render()</code> to draw the character</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Character rendered successfully</li>
+                <li><code>FALSE</code> - Rendering failed</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Render individual characters with custom spacing
+m_gsFont.SetDestXY(100, 200);
+
+for (int i = 0; i < 10; i++)
+{
+    m_gsFont.SetModulateColor(1.0f, (float)i/10.0f, 0.0f, 1.0f);
+    m_gsFont.RenderChar('A' + i);
+    m_gsFont.AddDestX(20);  // Custom spacing
+}
+
+// Render blinking cursor
+if (m_nFrameCount % 60 < 30)
+{
+    m_gsFont.SetDestXY(textEndX, textY);
+    m_gsFont.RenderChar('_');
+}</code></pre>
+
+            <p><strong>Use Cases:</strong></p>
+            <ul>
+                <li>Custom character spacing effects</li>
+                <li>Animated text (character-by-character reveals)</li>
+                <li>Individual character color/scale variations</li>
+                <li>Text input cursors</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Text Configuration Methods -->
+    <section class="api-section">
+        <h2>Text Configuration Methods</h2>
+
+        <div class="endpoint" id="settext">
+            <h3>SetText()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_font.cpp</code></p>
+            <p>Sets the text string to be rendered, with printf-style formatting support.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void SetText(const char* pszTextString, ...)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>pszTextString</code> - Format string (printf-style)</li>
+                <li><code>...</code> - Variable arguments for format string</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Returns immediately if string is NULL</li>
+                <li>Deletes previous text string if exists</li>
+                <li>Uses <code>vsprintf()</code> to parse format string and arguments</li>
+                <li>Allocates new memory for formatted string</li>
+                <li>Stores null-terminated string in <code>m_pszTextString</code></li>
+                <li>Supports up to 256 characters</li>
+            </ul>
+
+            <p><strong>Format Specifiers:</strong></p>
+            <table style="width: 100%; border-collapse: collapse; margin: 1em 0;">
+                <thead>
+                    <tr style="background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Specifier</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Type</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Example</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>%d</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Integer (decimal)</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Score: 12345</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>%06d</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Integer with leading zeros</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Score: 001234</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>%s</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">String</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Name: PLAYER</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>%f</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Float</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Time: 12.34</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>%.2f</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Float with 2 decimals</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">FPS: 60.00</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>%c</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Character</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Grade: A</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p><strong>Examples:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Simple text
+font.SetText("HELLO WORLD");
+
+// Integer formatting
+font.SetText("SCORE: %d", playerScore);
+
+// Leading zeros
+font.SetText("LEVEL %02d", currentLevel);  // "LEVEL 01", "LEVEL 12"
+
+// Multiple values
+font.SetText("X:%d Y:%d", playerX, playerY);
+
+// Float values
+font.SetText("TIME: %.1f", elapsedTime);
+
+// String substitution
+font.SetText("WINNER: %s", playerName);
+
+// Combined formatting
+font.SetText("%s  SCORE:%06d  TIME:%.2f", 
+             playerName, score, time);</code></pre>
+
+            <p><strong>Note:</strong> Maximum string length is 256 characters (including formatting).</p>
+        </div>
+
+        <div class="endpoint" id="gettext">
+            <h3>GetText()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_font.cpp</code></p>
+            <p>Retrieves the current text string.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void GetText(char* pszTextString)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>pszTextString</code> - Buffer to receive the text string</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Copies current text string to provided buffer</li>
+                <li>Uses <code>strncpy()</code> to prevent buffer overflow</li>
+                <li>Copies up to <code>strlen(pszTextString) - 1</code> characters</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>char buffer[256];
+font.SetText("HELLO WORLD");
+font.GetText(buffer);
+// buffer now contains "HELLO WORLD"</code></pre>
+
+            <p><strong>Warning:</strong> Ensure the buffer is large enough to hold the text string to avoid truncation.</p>
+        </div>
+    </section>
+
+    <!-- Font Metrics Methods -->
+    <section class="api-section">
+        <h2>Font Metrics Methods</h2>
+
+        <div class="endpoint" id="getcharsperline">
+            <h3>GetCharsPerLine()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_font.cpp</code></p>
+            <p>Returns the number of characters per line in the font texture grid.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>int GetCharsPerLine()</pre>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Number of characters per row (e.g., 16)</li>
+            </ul>
+        </div>
+
+        <div class="endpoint" id="setcharsperline">
+            <h3>SetCharsPerLine()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_font.cpp</code></p>
+            <p>Sets the number of characters per line in the font texture grid.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void SetCharsPerLine(int nCharsPerLine)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>nCharsPerLine</code> - Number of characters per row</li>
+            </ul>
+        </div>
+
+        <div class="endpoint" id="getletterwidth">
+            <h3>GetLetterWidth()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_font.cpp</code></p>
+            <p>Returns the scaled width of each character.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>float GetLetterWidth()</pre>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Character width in pixels (base width × X scale factor)</li>
+            </ul>
+
+            <p><strong>Formula:</strong></p>
+            <pre>letterWidth = m_nLetterWidth × GetScaleX()</pre>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Base letter width: 16 pixels
+// Scale: 2.0x
+float width = font.GetLetterWidth();  // Returns 32.0</code></pre>
+        </div>
+
+        <div class="endpoint" id="setletterwidth">
+            <h3>SetLetterWidth()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_font.cpp</code></p>
+            <p>Sets the base width of each character cell.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void SetLetterWidth(int nLetterWidth)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>nLetterWidth</code> - Base character width in pixels</li>
+            </ul>
+        </div>
+
+        <div class="endpoint" id="getletterheight">
+            <h3>GetLetterHeight()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_font.cpp</code></p>
+            <p>Returns the scaled height of each character.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>float GetLetterHeight()</pre>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Character height in pixels (base height × Y scale factor)</li>
+            </ul>
+
+            <p><strong>Formula:</strong></p>
+            <pre>letterHeight = m_nLetterHeight × GetScaleY()</pre>
+        </div>
+
+        <div class="endpoint" id="setletterheight">
+            <h3>SetLetterHeight()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_font.cpp</code></p>
+            <p>Sets the base height of each character cell.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void SetLetterHeight(int nLetterHeight)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>nLetterHeight</code> - Base character height in pixels</li>
+            </ul>
+        </div>
+
+        <div class="endpoint" id="gettextwidth">
+            <h3>GetTextWidth()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_font.cpp</code></p>
+            <p>Returns the total width of the current text string.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>float GetTextWidth()</pre>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Total width in pixels (letterWidth × string length)</li>
+            </ul>
+
+            <p><strong>Formula:</strong></p>
+            <pre>textWidth = GetLetterWidth() × strlen(m_pszTextString)</pre>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>font.SetText("HELLO");  // 5 characters
+// If letter width = 16 pixels:
+float width = font.GetTextWidth();  // Returns 80.0
+
+// Center text horizontally
+font.SetDestX((SCREEN_WIDTH - font.GetTextWidth()) / 2);</code></pre>
+        </div>
+
+        <div class="endpoint" id="gettextheight">
+            <h3>GetTextHeight()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_font.cpp</code></p>
+            <p>Returns the height of the text string.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>float GetTextHeight()</pre>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Text height in pixels (same as letter height)</li>
+            </ul>
+
+            <p><strong>Formula:</strong></p>
+            <pre>textHeight = GetLetterHeight()</pre>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Center text vertically
+font.SetDestY((SCREEN_HEIGHT - font.GetTextHeight()) / 2);</code></pre>
+        </div>
+    </section>
+
+    <!-- Position Methods -->
+    <section class="api-section">
+        <h2>Position Methods</h2>
+
+        <div class="endpoint" id="getdestrect">
+            <h3>GetDestRect()</h3>
+            <p><strong>File:</strong> <code>gs_ogl_font.cpp</code></p>
+            <p>Returns the bounding rectangle of the text string.</p>
+            
+            <p><strong>Signatures:</strong></p>
+            <pre>void GetDestRect(long* pLeft, long* pTop, long* pRight, long* pBottom)
+void GetDestRect(RECT* pDestRect)</pre>
+
+            <p><strong>Parameters (variant 1):</strong></p>
+            <ul>
+                <li><code>pLeft</code> - Pointer to receive left coordinate</li>
+                <li><code>pTop</code> - Pointer to receive top coordinate</li>
+                <li><code>pRight</code> - Pointer to receive right coordinate</li>
+                <li><code>pBottom</code> - Pointer to receive bottom coordinate</li>
+            </ul>
+
+            <p><strong>Parameters (variant 2):</strong></p>
+            <ul>
+                <li><code>pDestRect</code> - Pointer to RECT structure to receive bounds</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Left = current X position</li>
+                <li>Bottom = current Y position</li>
+                <li>Right = left + text width</li>
+                <li>Top = bottom + text height</li>
+            </ul>
+
+            <p><strong>Coordinate System:</strong></p>
+            <p>Uses OpenGL convention: origin at bottom-left, Y increases upward.</p>
+
+            <p><strong>Examples:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Using RECT structure
+RECT textBounds;
+font.SetText("CLICK ME");
+font.SetDestXY(100, 200);
+font.GetDestRect(&textBounds);
+
+// Check if mouse is over text
+if (collide.IsCoordInRect(mouseX, mouseY, textBounds))
+{
+    // Mouse is over the text
+    font.SetModulateColor(1.0f, 1.0f, 0.0f, 1.0f);  // Highlight
+}
+
+// Using individual coordinates
+long left, top, right, bottom;
+font.GetDestRect(&left, &top, &right, &bottom);
+printf("Text spans from (%ld,%ld) to (%ld,%ld)\n", 
+       left, bottom, right, top);</code></pre>
+
+            <p><strong>Use Cases:</strong></p>
+            <ul>
+                <li>Mouse click detection on text</li>
+                <li>Text collision detection</li>
+                <li>UI layout calculations</li>
+                <li>Text bounds visualization</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Practical Examples -->
+    <section class="api-section">
+        <h2>Practical Examples</h2>
+        <div class="endpoint">
+            <h3>Creating and Using a Font</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// In GameInit()
+GS_OGLTexture m_fontTexture;
+GS_OGLFont m_font;
+
+// Load font texture
+m_fontTexture.Create("data/font.tga", GS_MIPMAP, GL_NEAREST, GL_NEAREST);
+
+// Create font (16 chars per line, 16x16 pixels)
+m_font.Create(m_fontTexture.GetID(), 
+              m_fontTexture.GetWidth(),
+              m_fontTexture.GetHeight(),
+              16, 16, 16);
+
+// In GameLoop() - Render text
+m_gsDisplay.BeginRender2D(GetWindow());
+
+m_font.SetText("SCORE: %06d", playerScore);
+m_font.SetDestXY(10, 520);
+m_font.Render();
+
+m_gsDisplay.EndRender2D();</code></pre>
+
+            <h3>Centered Text</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Center text on screen
+m_font.SetText("GAME OVER");
+m_font.SetDestX((SCREEN_WIDTH - m_font.GetTextWidth()) / 2);
+m_font.SetDestY((SCREEN_HEIGHT - m_font.GetTextHeight()) / 2);
+m_font.SetModulateColor(1.0f, 0.0f, 0.0f, 1.0f);  // Red
+m_font.Render();</code></pre>
+
+            <h3>Scaled and Colored Text</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Large yellow title
+m_font.SetText("LEVEL %d", currentLevel);
+m_font.SetScaleXY(2.0f, 2.0f);
+m_font.SetModulateColor(1.0f, 1.0f, 0.0f, 1.0f);
+m_font.SetDestXY((SCREEN_WIDTH - m_font.GetTextWidth()) / 2, 400);
+m_font.Render();
+
+// Reset for normal text
+m_font.SetScaleXY(1.0f, 1.0f);
+m_font.SetModulateColor(1.0f, 1.0f, 1.0f, 1.0f);</code></pre>
+
+            <h3>Fading Text Effect</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Fade in effect
+static float alpha = 0.0f;
+alpha += 0.01f;
+if (alpha > 1.0f) alpha = 1.0f;
+
+m_font.SetText("PRESS START");
+m_font.SetModulateColor(1.0f, 1.0f, 1.0f, alpha);
+m_font.SetDestXY(centerX, centerY);
+m_font.Render();</code></pre>
+
+            <h3>Blinking Text</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Blink text every 30 frames
+static int blinkCounter = 0;
+blinkCounter++;
+
+if ((blinkCounter / 30) % 2 == 0)
+{
+    m_font.SetText("INSERT COIN");
+    m_font.SetDestXY(centerX, 50);
+    m_font.Render();
+}</code></pre>
+
+            <h3>Multi-line Text</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Render multiple lines manually
+int startY = 400;
+int lineHeight = m_font.GetLetterHeight() + 5;  // Add spacing
+
+m_font.SetText("GAME CONTROLS");
+m_font.SetDestXY(100, startY);
+m_font.Render();
+
+m_font.SetText("ARROWS - MOVE");
+m_font.SetDestXY(100, startY - lineHeight);
+m_font.Render();
+
+m_font.SetText("SPACE - FIRE");
+m_font.SetDestXY(100, startY - lineHeight * 2);
+m_font.Render();</code></pre>
+
+            <h3>HUD Display</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Complete HUD rendering
+void RenderHUD()
+{
+    m_gsDisplay.BeginRender2D(GetWindow());
+    
+    // Score (top-left)
+    m_font.SetText("SCORE %08d", m_player.score);
+    m_font.SetDestXY(10, SCREEN_HEIGHT - 20);
+    m_font.SetModulateColor(1.0f, 1.0f, 1.0f, 1.0f);
+    m_font.Render();
+    
+    // Lives (top-right)
+    m_font.SetText("LIVES %d", m_player.lives);
+    m_font.SetDestXY(SCREEN_WIDTH - m_font.GetTextWidth() - 10, 
+                     SCREEN_HEIGHT - 20);
+    m_font.Render();
+    
+    // Level (center-top)
+    m_font.SetText("LEVEL %02d", m_currentLevel);
+    m_font.SetDestX((SCREEN_WIDTH - m_font.GetTextWidth()) / 2);
+    m_font.SetDestY(SCREEN_HEIGHT - 20);
+    m_font.Render();
+    
+    // FPS (small, semi-transparent)
+    m_font.SetScaleXY(0.5f, 0.5f);
+    m_font.SetModulateColor(1.0f, 1.0f, 1.0f, 0.5f);
+    m_font.SetText("FPS %.1f", GetCurrentFrameRate());
+    m_font.SetDestXY(SCREEN_WIDTH - m_font.GetTextWidth() - 5, 5);
+    m_font.Render();
+    
+    // Reset scale
+    m_font.SetScaleXY(1.0f, 1.0f);
+    
+    m_gsDisplay.EndRender2D();
+}</code></pre>
+
+            <h3>Interactive Text (Click Detection)</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Menu option with mouse interaction
+void RenderMenuOption(const char* text, int x, int y, bool isHighlighted)
+{
+    m_font.SetText(text);
+    m_font.SetDestXY(x, y);
+    
+    // Get text bounds
+    RECT textBounds;
+    m_font.GetDestRect(&textBounds);
+    
+    // Check mouse hover
+    int mouseX = m_mouse.GetX();
+    int mouseY = m_mouse.GetY();
+    
+    if (m_collide.IsCoordInRect(mouseX, mouseY, textBounds))
+    {
+        // Highlight on hover
+        m_font.SetModulateColor(1.0f, 1.0f, 0.0f, 1.0f);
+        
+        // Check for click
+        if (m_mouse.IsLeftPressed())
+        {
+            OnMenuOptionClicked(text);
+        }
+    }
+    else if (isHighlighted)
+    {
+        m_font.SetModulateColor(1.0f, 1.0f, 1.0f, 1.0f);
+    }
+    else
+    {
+        m_font.SetModulateColor(0.5f, 0.5f, 0.5f, 1.0f);
+    }
+    
+    m_font.Render();
+}</code></pre>
+
+            <h3>Best Practices</h3>
+            <ul>
+                <li><strong>Reuse Font Objects:</strong> Create fonts once in <code>GameInit()</code></li>
+                <li><strong>Share Textures:</strong> Multiple fonts can share the same texture with different scales</li>
+                <li><strong>Reset Properties:</strong> Always reset scale and color after special effects</li>
+                <li><strong>Use Nearest Filtering:</strong> For pixel-perfect fonts, use <code>GL_NEAREST</code></li>
+                <li><strong>Consider Scaling:</strong> Letter width/height are affected by <code>SetScaleXY()</code></li>
+                <li><strong>Pre-calculate Widths:</strong> Cache <code>GetTextWidth()</code> for centered text</li>
+                <li><strong>Limit String Length:</strong> Maximum 256 characters for <code>SetText()</code></li>
+            </ul>
+
+            <div style="background-color: #fffbcc; padding: 15px; border-left: 4px solid #ffcc00; margin: 20px 0;">
+                <h4 style="margin-top: 0;">💡 Pro Tip</h4>
+                <p style="margin-bottom: 0;">For retro-style games, use <code>GL_NEAREST</code> filtering and avoid scaling (or use integer scales like 2.0x, 3.0x) to maintain pixel-perfect appearance. For modern UIs, <code>GL_LINEAR</code> filtering allows smooth scaling at any size.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Platform Notes -->
+    <section class="api-section">
+        <h2>Platform-Specific Notes</h2>
+        <div class="endpoint">
+            <h3>Cross-Platform Compatibility</h3>
+            <p>GS_OGLFont is completely cross-platform and works identically on all platforms:</p>
+            <ul>
+                <li><strong>Windows</strong> - Full support with native OpenGL</li>
+                <li><strong>Linux</strong> - Full support via SDL2 + OpenGL</li>
+                <li><strong>macOS</strong> - Full support via SDL2 + OpenGL</li>
+            </ul>
+
+            <p>There are no platform-specific implementations or behavior differences.</p>
+
+            <h3>Character Set Support</h3>
+            <p>The default implementation supports ASCII characters 32-126:</p>
+            <ul>
+                <li><strong>Printable Characters:</strong> Space through tilde (~)</li>
+                <li><strong>Not Supported:</strong> Extended ASCII (128-255), Unicode</li>
+                <li><strong>Special Characters:</strong> Punctuation, numbers, uppercase, lowercase letters</li>
+            </ul>
+
+            <h3>Memory Considerations</h3>
+            <ul>
+                <li>Text string limited to 256 characters</li>
+                <li>Font texture shared between multiple font instances (efficient)</li>
+                <li>Minimal memory overhead per font object (< 100 bytes)</li>
+            </ul>
+
+            <div style="background-color: #d4edda; padding: 15px; border-left: 4px solid #28a745; margin: 20px 0;">
+                <h4 style="margin-top: 0;">✅ Performance</h4>
+                <p style="margin-bottom: 0;">GS_OGLFont is highly efficient - rendering text uses the same optimized sprite rendering pipeline. Text rendering has minimal performance impact even with hundreds of text elements on screen.</p>
+            </div>
+        </div>
+    </section>
+</body>
+
+</html>

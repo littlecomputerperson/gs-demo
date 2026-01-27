@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resource Handling</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+
+<body class="endpoint-page">
+    <!-- Resource Index -->
+    <section class="api-section">
+        <h2>Resource Handling Reference</h2>
+        <p><strong>Files:</strong> <code>gs_resource.h</code>, <code>gs_resource.rc</code>, <code>GameSystem.ico</code></p>
+        <p><strong>Platform:</strong> Windows only (not applicable to SDL2 builds)</p>
+        
+        <div class="endpoint-index">
+            <h3>Resource Types</h3>
+            <ul>
+                <li><a href="#icon">Icon Resources <span class="endpoint-desc">- Application icon</span></a></li>
+                <li><a href="#accelerators">Accelerator Keys <span class="endpoint-desc">- Keyboard shortcuts</span></a></li>
+                <li><a href="#menu">Menu Resources <span class="endpoint-desc">- Application menu bar</span></a></li>
+            </ul>
+
+            <h3>Resource IDs</h3>
+            <ul>
+                <li><a href="#resource-ids">Resource Identifiers <span class="endpoint-desc">- Defined constants</span></a></li>
+                <li><a href="#menu-commands">Menu Command IDs <span class="endpoint-desc">- Menu item identifiers</span></a></li>
+            </ul>
+
+            <h3>Platform Differences</h3>
+            <ul>
+                <li><a href="#windows-resources">Windows Implementation <span class="endpoint-desc">- Native resource system</span></a></li>
+                <li><a href="#sdl2-alternatives">SDL2 Implementation <span class="endpoint-desc">- Alternative approaches</span></a></li>
+            </ul>
+        </div>
+    </section>
+    
+    <!-- Overview -->
+    <section class="api-section">
+        <h2>Resource System Overview</h2>
+        <div class="endpoint">
+            <h3>About Resource Handling</h3>
+            <p>Resource handling in GameSystem differs significantly between Windows and SDL2 platforms. On Windows, the framework uses the native Win32 resource system to embed application icons, menus, and keyboard accelerators directly into the executable. On SDL2 platforms (Linux/macOS), these features are either handled differently or not available.</p>
+
+            <h3>Windows Resource System</h3>
+            <p>The Windows build includes three resource-related files:</p>
+            <ul>
+                <li><code>gs_resource.h</code> - Resource ID definitions and constants</li>
+                <li><code>gs_resource.rc</code> - Resource script that defines icons, menus, and accelerators</li>
+                <li><code>GameSystem.ico</code> - Application icon file</li>
+            </ul>
+
+            <p>These resources are compiled into the executable by the resource compiler and accessed at runtime through the Windows API.</p>
+
+            <h3>SDL2 Platform Differences</h3>
+            <p>SDL2 builds do not use Windows resources. Instead:</p>
+            <ul>
+                <li><strong>No Menu Bar:</strong> SDL2 doesn't support native menu bars</li>
+                <li><strong>No Accelerators:</strong> Keyboard shortcuts must be handled manually in message processing</li>
+                <li><strong>Window Icon:</strong> Set programmatically using <code>SDL_SetWindowIcon()</code> (not currently implemented)</li>
+            </ul>
+
+            <div style="background-color: #fff3cd; padding: 15px; border-left: 4px solid #ffc107; margin: 20px 0;">
+                <h4 style="margin-top: 0;">⚠️ Platform Compatibility Note</h4>
+                <p style="margin-bottom: 0;">The resource files (<code>gs_resource.h</code>, <code>gs_resource.rc</code>) are only compiled on Windows. They are excluded from SDL2 builds via CMake configuration. Any code that references menu IDs or accelerators must be wrapped in <code>#ifdef GS_PLATFORM_WINDOWS</code> blocks.</p>
+            </div>
+
+            <h3>Key Features (Windows Only)</h3>
+            <ul>
+                <li><strong>Application Icon:</strong> Custom icon displayed in taskbar, title bar, and Alt+Tab switcher</li>
+                <li><strong>Menu Bar:</strong> Native Windows menu with Program, Display, and Sound menus</li>
+                <li><strong>Keyboard Accelerators:</strong> System-wide shortcuts (Alt+X to quit, Alt+Enter to toggle fullscreen)</li>
+                <li><strong>Embedded Resources:</strong> All resources compiled into the executable (no external files needed)</li>
+            </ul>
+
+            <h3>Resource Compilation</h3>
+            <p>On Windows, the resource script is automatically compiled during the build process:</p>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code># CMakeLists.txt (Windows only)
+if(WIN32)
+    target_sources(${PROJECT_NAME} PRIVATE gs_resource.rc)
+endif()</code></pre>
+        </div>
+    </section>
+
+    <!-- Icon Resources -->
+    <section class="api-section">
+        <h2>Icon Resources</h2>
+
+        <div class="endpoint" id="icon">
+            <h3>Application Icon (IDI_MAIN)</h3>
+            <p><strong>File:</strong> <code>gs_resource.rc</code>, <code>GameSystem.ico</code></p>
+            <p><strong>Platform:</strong> Windows only</p>
+            <p>Defines the application icon displayed in the window title bar, taskbar, and Alt+Tab switcher.</p>
+            
+            <h4>Resource Definition</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// gs_resource.h
+#define IDI_MAIN 101
+
+// gs_resource.rc
+IDI_MAIN ICON DISCARDABLE "GameSystem.ico"</code></pre>
+
+            <h4>Usage in Code</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// gs_app.cpp (Windows only)
+WNDCLASSEX wndClass;
+wndClass.hIcon         = LoadIcon(m_hInstance, MAKEINTRESOURCE(IDI_MAIN));
+wndClass.hIconSm       = LoadIcon(m_hInstance, MAKEINTRESOURCE(IDI_MAIN));</code></pre>
+
+            <h4>Icon Specifications</h4>
+            <ul>
+                <li><strong>Format:</strong> .ico file (multi-resolution)</li>
+                <li><strong>Recommended Sizes:</strong> 16×16, 32×32, 48×48, 256×256 pixels</li>
+                <li><strong>Color Depth:</strong> 32-bit with alpha channel</li>
+            </ul>
+
+            <h4>SDL2 Alternative</h4>
+            <p>On SDL2 platforms, window icons must be set programmatically:</p>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Load icon from file
+SDL_Surface* icon = IMG_Load("GameSystem.png");
+if (icon)
+{
+    SDL_SetWindowIcon(window, icon);
+    SDL_FreeSurface(icon);
+}</code></pre>
+
+            <p><strong>Note:</strong> This functionality is not currently implemented in the template but can be added to <code>gs_app_sdl.cpp</code>.</p>
+        </div>
+    </section>
+
+    <!-- Accelerator Resources -->
+    <section class="api-section">
+        <h2>Accelerator Resources</h2>
+
+        <div class="endpoint" id="accelerators">
+            <h3>Keyboard Accelerators (IDR_MAIN_ACCEL)</h3>
+            <p><strong>File:</strong> <code>gs_resource.rc</code></p>
+            <p><strong>Platform:</strong> Windows only</p>
+            <p>Defines system-wide keyboard shortcuts that work even when menus are not visible.</p>
+            
+            <h4>Resource Definition</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// gs_resource.h
+#define IDR_MAIN_ACCEL 102
+
+// gs_resource.rc
+IDR_MAIN_ACCEL ACCELERATORS DISCARDABLE
+BEGIN
+    "X",       IDM_QUIT,       VIRTKEY, ALT, NOINVERT
+    VK_RETURN, IDM_CHANGEMODE, VIRTKEY, ALT, NOINVERT
+END</code></pre>
+
+            <h4>Accelerator Keys</h4>
+            <table style="width: 100%; border-collapse: collapse; margin: 1em 0;">
+                <thead>
+                    <tr style="background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Key Combination</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Command</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>Alt+X</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>IDM_QUIT</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Exit application</td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>Alt+Enter</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>IDM_CHANGEMODE</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Toggle fullscreen/windowed mode</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4>Usage in Code</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// gs_app.cpp (Windows only)
+HACCEL hAccel = LoadAccelerators(m_hInstance, MAKEINTRESOURCE(IDR_MAIN_ACCEL));
+
+// In message loop
+while (GetMessage(&msg, NULL, 0, 0))
+{
+    if (!TranslateAccelerator(m_hWnd, hAccel, &msg))
+    {
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
+    }
+}</code></pre>
+
+            <h4>SDL2 Alternative</h4>
+            <p>On SDL2 platforms, accelerator functionality is implemented manually in the event handler:</p>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// gs_app_sdl.cpp
+case SDL_KEYDOWN:
+{
+    // Alt+Enter for fullscreen toggle
+    if (event.key.keysym.sym == SDLK_RETURN && 
+        (event.key.keysym.mod & KMOD_ALT))
+    {
+        OnChangeMode();
+    }
+    break;
+}</code></pre>
+        </div>
+    </section>
+
+    <!-- Menu Resources -->
+    <section class="api-section">
+        <h2>Menu Resources</h2>
+
+        <div class="endpoint" id="menu">
+            <h3>Application Menu (IDR_MENU)</h3>
+            <p><strong>File:</strong> <code>gs_resource.rc</code></p>
+            <p><strong>Platform:</strong> Windows only</p>
+            <p>Defines the application menu bar with Program, Display, and Sound submenus.</p>
+            
+            <h4>Resource Definition</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// gs_resource.h
+#define IDR_MENU 103
+
+// gs_resource.rc
+IDR_MENU MENU DISCARDABLE
+BEGIN
+    POPUP "&Program "
+    BEGIN
+        MENUITEM "Next Demonstration\tSpacebar", IDM_NEXTDEMO
+        MENUITEM "Toggle Turbo Mode\tT",         IDM_TURBO
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit\tAlt+X",                 IDM_QUIT
+    END
+    POPUP "&Display "
+    BEGIN
+        MENUITEM "Toggle Full-Screen\tAlt+Enter", IDM_CHANGEMODE
+        MENUITEM SEPARATOR
+        MENUITEM "Toggle Blending\tB", IDM_BLENDING
+        MENUITEM "Toggle Lighting\tL", IDM_LIGHTING
+        MENUITEM "Toggle VSync\tV"   , IDM_VSYNC
+        MENUITEM SEPARATOR
+        MENUITEM "320x240\tF1",  IDM_320X240
+        MENUITEM "400x300\tF2",  IDM_400X300
+        MENUITEM "640x480\tF3",  IDM_640X480
+        MENUITEM "800x600\tF4",  IDM_800X600
+        MENUITEM "1024x768\tF5", IDM_1024X768
+    END
+    POPUP "&Sound "
+    BEGIN
+        MENUITEM "Increase Volume\t+", IDM_VOL_PLUS
+        MENUITEM "Decrease Volume\t-", IDM_VOL_MINUS
+        MENUITEM SEPARATOR
+        MENUITEM "Play Sample 1\t1", IDM_SAMPLE_1
+        MENUITEM "Play Sample 2\t2", IDM_SAMPLE_2
+        MENUITEM "Play Sample 3\t3", IDM_SAMPLE_3
+        MENUITEM "Play Sample 4\t4", IDM_SAMPLE_4
+        MENUITEM "Play Sample 5\t5", IDM_SAMPLE_5
+    END
+END</code></pre>
+
+            <h4>Menu Structure</h4>
+            <div style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; margin: 15px 0;">
+                <h5 style="margin-top: 0;">Program Menu</h5>
+                <ul style="margin-bottom: 10px;">
+                    <li>Next Demonstration (Spacebar)</li>
+                    <li>Toggle Turbo Mode (T)</li>
+                    <li>Exit (Alt+X)</li>
+                </ul>
+
+                <h5>Display Menu</h5>
+                <ul style="margin-bottom: 10px;">
+                    <li>Toggle Full-Screen (Alt+Enter)</li>
+                    <li>Toggle Blending (B)</li>
+                    <li>Toggle Lighting (L)</li>
+                    <li>Toggle VSync (V)</li>
+                    <li>Resolution options (F1-F5)</li>
+                </ul>
+
+                <h5>Sound Menu</h5>
+                <ul style="margin-bottom: 0;">
+                    <li>Increase/Decrease Volume (+/-)</li>
+                    <li>Play Sample 1-5 (1-5 keys)</li>
+                </ul>
+            </div>
+
+            <h4>Usage in Code</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// gs_app.cpp (Windows only)
+HMENU hMenu = LoadMenu(m_hInstance, MAKEINTRESOURCE(IDR_MENU));
+SetMenu(m_hWnd, hMenu);
+
+// Handle menu commands in WndProc
+case WM_COMMAND:
+{
+    switch (LOWORD(wParam))
+    {
+    case IDM_QUIT:
+        PostQuitMessage(0);
+        return 0;
+    
+    case IDM_CHANGEMODE:
+        OnChangeMode();
+        return 0;
+    
+    case IDM_BLENDING:
+        m_gsDisplay.EnableBlending(!m_gsDisplay.IsBlendingEnabled());
+        return 0;
+    
+    // ... other menu handlers
+    }
+    break;
+}</code></pre>
+
+            <h4>SDL2 Alternative</h4>
+            <p>SDL2 does not support native menu bars. All menu functionality must be implemented using in-game UI:</p>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Create in-game menu using GS_OGLMenu
+GS_OGLMenu menu;
+menu.SetTitle("OPTIONS");
+menu.AddOption("Toggle Fullscreen");
+menu.AddOption("Toggle VSync");
+menu.AddOption("Change Resolution");
+menu.AddOption("Quit");
+
+// Handle keyboard input
+int nKey = m_gsKeyboard.GetBufferedKey();
+if (nKey == GSK_UP)   menu.HighlightPrev();
+if (nKey == GSK_DOWN) menu.HighlightNext();
+if (nKey == GSK_ENTER)
+{
+    switch (menu.GetHighlight())
+    {
+        case 0: OnChangeMode(); break;
+        case 1: m_gsDisplay.EnableVSync(!m_gsDisplay.IsVSyncEnabled()); break;
+        // ...
+    }
+}</code></pre>
+
+            <div style="background-color: #fffbcc; padding: 15px; border-left: 4px solid #ffcc00; margin: 20px 0;">
+                <h4 style="margin-top: 0;">💡 Design Recommendation</h4>
+                <p style="margin-bottom: 0;">For cross-platform compatibility, implement all game controls using keyboard shortcuts and in-game menus rather than relying on Windows menu bars. The template already demonstrates this approach in the options and pause screens.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Resource IDs -->
+    <section class="api-section">
+        <h2>Resource Identifiers</h2>
+
+        <div class="endpoint" id="resource-ids">
+            <h3>Resource ID Definitions</h3>
+            <p><strong>File:</strong> <code>gs_resource.h</code></p>
+            <p>Constant definitions for resource identifiers used throughout the application.</p>
+
+            <h4>Primary Resource IDs</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>#define IDI_MAIN       101  // Application icon
+#define IDR_MAIN_ACCEL 102  // Keyboard accelerators
+#define IDR_MENU       103  // Menu bar</code></pre>
+
+            <h4>Naming Convention</h4>
+            <table style="width: 100%; border-collapse: collapse; margin: 1em 0;">
+                <thead>
+                    <tr style="background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Prefix</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Resource Type</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Example</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>IDI_</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Icon</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>IDI_MAIN</code></td>
+                    </tr>
+                    <tr style="background-color: #f9f9f9;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>IDR_</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Resource (generic)</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>IDR_MENU</code></td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>IDM_</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Menu command</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>IDM_QUIT</code></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="endpoint" id="menu-commands">
+            <h3>Menu Command IDs</h3>
+            <p><strong>File:</strong> <code>gs_resource.h</code></p>
+            <p>Command identifiers for menu items, used in <code>WM_COMMAND</code> message handling.</p>
+
+            <h4>Complete Command List</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Program Menu
+#define IDM_QUIT       1001  // Exit application
+#define IDM_CHANGEMODE 1002  // Toggle fullscreen/windowed
+#define IDM_NEXTDEMO   1003  // Next demonstration (template)
+#define IDM_TURBO      1004  // Toggle frame rate cap
+
+// Display Menu
+#define IDM_BLENDING   1005  // Toggle alpha blending
+#define IDM_LIGHTING   1006  // Toggle OpenGL lighting
+#define IDM_VSYNC      1007  // Toggle vertical sync
+#define IDM_320X240    1008  // Set resolution to 320×240
+#define IDM_400X300    1009  // Set resolution to 400×300
+#define IDM_640X480    1010  // Set resolution to 640×480
+#define IDM_800X600    1011  // Set resolution to 800×600
+#define IDM_1024X768   1012  // Set resolution to 1024×768
+
+// Sound Menu
+#define IDM_VOL_PLUS   1013  // Increase master volume
+#define IDM_VOL_MINUS  1014  // Decrease master volume
+#define IDM_SAMPLE_1   1015  // Play sound sample 1
+#define IDM_SAMPLE_2   1016  // Play sound sample 2
+#define IDM_SAMPLE_3   1017  // Play sound sample 3
+#define IDM_SAMPLE_4   1018  // Play sound sample 4
+#define IDM_SAMPLE_5   1019  // Play sound sample 5</code></pre>
+
+            <h4>ID Range Allocation</h4>
+            <p>Next available values for new resources:</p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>#ifdef APSTUDIO_INVOKED
+#ifndef APSTUDIO_READONLY_SYMBOLS
+#define _APS_NEXT_RESOURCE_VALUE        104   // Next resource ID
+#define _APS_NEXT_COMMAND_VALUE         40001 // Next command ID
+#define _APS_NEXT_CONTROL_VALUE         1020  // Next control ID
+#define _APS_NEXT_SYMED_VALUE           101   // Next symbol ID
+#endif
+#endif</code></pre>
+        </div>
+    </section>
+
+    <!-- Platform Implementations -->
+    <section class="api-section">
+        <h2>Platform-Specific Implementations</h2>
+
+        <div class="endpoint" id="windows-resources">
+            <h3>Windows Implementation</h3>
+            <p><strong>Files:</strong> <code>gs_resource.h</code>, <code>gs_resource.rc</code>, <code>gs_app.cpp</code></p>
+            
+            <h4>Resource Loading</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// gs_app.cpp - Windows-specific initialization
+BOOL GS_Application::Create(int nWidth, int nHeight, int nDepth, BOOL bIsWindowed)
+{
+    // Load icon resource
+    wndClass.hIcon   = LoadIcon(m_hInstance, MAKEINTRESOURCE(IDI_MAIN));
+    wndClass.hIconSm = LoadIcon(m_hInstance, MAKEINTRESOURCE(IDI_MAIN));
+    
+    // Register window class
+    RegisterClassEx(&wndClass);
+    
+    // Create window with menu
+    HMENU hMenu = LoadMenu(m_hInstance, MAKEINTRESOURCE(IDR_MENU));
+    m_hWnd = CreateWindowEx(0, szClassName, szWindowTitle, dwStyle,
+                            CW_USEDEFAULT, CW_USEDEFAULT, nWidth, nHeight,
+                            NULL, hMenu, m_hInstance, NULL);
+    
+    // Load accelerators
+    HACCEL hAccel = LoadAccelerators(m_hInstance, MAKEINTRESOURCE(IDR_MAIN_ACCEL));
+    
+    return TRUE;
+}</code></pre>
+
+            <h4>Message Handling</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// gs_app.cpp - WM_COMMAND handler
+LRESULT GS_Application::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+    switch (uMsg)
+    {
+    case WM_COMMAND:
+        switch (LOWORD(wParam))
+        {
+        case IDM_QUIT:
+            PostQuitMessage(0);
+            return 0;
+            
+        case IDM_CHANGEMODE:
+            OnChangeMode();
+            return 0;
+            
+        case IDM_BLENDING:
+            m_gsDisplay.EnableBlending(!m_gsDisplay.IsBlendingEnabled());
+            return 0;
+            
+        case IDM_VSYNC:
+            m_gsDisplay.EnableVSync(!m_gsDisplay.IsVSyncEnabled());
+            return 0;
+            
+        case IDM_320X240:
+            SetMode(320, 240, GetColorDepth(), IsWindowed());
+            return 0;
+            
+        // ... other commands
+        }
+        break;
+    }
+    
+    return DefWindowProc(hWnd, uMsg, wParam, lParam);
+}</code></pre>
+
+            <h4>Build Integration</h4>
+            <p>The resource compiler is invoked automatically by CMake on Windows:</p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code># CMakeLists.txt
+if(WIN32)
+    # Add resource file to compilation
+    target_sources(${PROJECT_NAME} PRIVATE gs_resource.rc)
+    
+    # Resource compiler generates .res file
+    # Linker embeds it into the .exe
+endif()</code></pre>
+        </div>
+
+        <div class="endpoint" id="sdl2-alternatives">
+            <h3>SDL2 Implementation</h3>
+            <p><strong>Files:</strong> <code>gs_app_sdl.cpp</code></p>
+            
+            <h4>No Resource System</h4>
+            <p>SDL2 platforms do not use the Windows resource system. The resource files are excluded from the build:</p>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code># CMakeLists.txt
+if(NOT WIN32)
+    # gs_resource.rc NOT included
+    # gs_resource.h NOT used
+    # GameSystem.ico NOT embedded
+endif()</code></pre>
+
+            <h4>Alternative: Manual Key Handling</h4>
+            <p>Menu commands are implemented via keyboard input in <code>MsgProc()</code>:</p>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// gs_demo.cpp - Cross-platform key handling
+LRESULT GS_Demo::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+    switch (uMsg)
+    {
+    case WM_CHAR:
+        switch (wParam)
+        {
+        case 'B':  // Toggle blending
+        case 'b':
+            m_gsDisplay.EnableBlending(!m_gsDisplay.IsBlendingEnabled());
+            break;
+            
+        case 'V':  // Toggle VSync
+        case 'v':
+            m_gsDisplay.EnableVSync(!m_gsDisplay.IsVSyncEnabled());
+            break;
+            
+        case 'T':  // Toggle turbo mode
+        case 't':
+            if (GetFrameRate() > 0.0f)
+                SetFrameRate(0.0f);
+            else
+                SetFrameRate(60.0f);
+            break;
+        }
+        break;
+        
+    case WM_KEYDOWN:
+        switch (wParam)
+        {
+        case GSK_F1:  // 320×240
+            SetMode(320, 240, GetColorDepth(), IsWindowed());
+            break;
+            
+        case GSK_F2:  // 400×300
+            SetMode(400, 300, GetColorDepth(), IsWindowed());
+            break;
+            
+        // ... other function keys
+        }
+        break;
+    }
+    
+    return GS_Application::MsgProc(hWnd, uMsg, wParam, lParam);
+}</code></pre>
+
+            <h4>Alternative: In-Game Menus</h4>
+            <p>Use <code>GS_OGLMenu</code> for graphical menu systems:</p>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Create options menu
+GS_OGLMenu optionsMenu;
+optionsMenu.SetTitle("OPTIONS");
+optionsMenu.AddOption("Toggle Fullscreen");
+optionsMenu.AddOption("Toggle VSync");
+optionsMenu.AddOption("Toggle Blending");
+optionsMenu.AddOption("Change Resolution");
+optionsMenu.AddOption("Back");
+
+// Render menu
+optionsMenu.Render(textColor, highlightColor);
+
+// Process selection
+if (selectedOption == 0)  // Fullscreen
+{
+    SetMode(GetWidth(), GetHeight(), GetColorDepth(), !IsWindowed());
+}
+else if (selectedOption == 1)  // VSync
+{
+    m_gsDisplay.EnableVSync(!m_gsDisplay.IsVSyncEnabled());
+}
+// ...</code></pre>
+
+            <h4>Window Icon (Optional)</h4>
+            <p>Window icons can be set programmatically on SDL2:</p>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Optional: Set window icon on SDL2 (not currently implemented)
+#include <SDL2/SDL_image.h>
+
+// In GS_Application::Create()
+SDL_Surface* icon = IMG_Load("GameSystem.png");
+if (icon)
+{
+    SDL_SetWindowIcon(m_pWindow, icon);
+    SDL_FreeSurface(icon);
+}</code></pre>
+        </div>
+    </section>
+
+    <!-- Best Practices -->
+    <section class="api-section">
+        <h2>Best Practices</h2>
+        <div class="endpoint">
+            <h3>Cross-Platform Development</h3>
+            <ul>
+                <li><strong>Don't Rely on Menus:</strong> Implement all functionality via keyboard shortcuts and in-game UI</li>
+                <li><strong>Test on All Platforms:</strong> Menu-dependent features won't work on SDL2</li>
+                <li><strong>Use Conditional Compilation:</strong> Wrap Windows-specific resource code in <code>#ifdef GS_PLATFORM_WINDOWS</code></li>
+                <li><strong>Provide Alternatives:</strong> Every menu command should have a keyboard equivalent</li>
+                <li><strong>Document Shortcuts:</strong> List all keyboard shortcuts in your game's help or readme</li>
+            </ul>
+
+            <h3>Adding New Menu Items (Windows)</h3>
+            <ol>
+                <li>Add command ID to <code>gs_resource.h</code></li>
+                <li>Add menu item to <code>gs_resource.rc</code></li>
+                <li>Handle <code>WM_COMMAND</code> in <code>WndProc()</code></li>
+                <li>Implement corresponding keyboard shortcut for SDL2 compatibility</li>
+            </ol>
+
+            <h3>Icon Creation Tips</h3>
+            <ul>
+                <li>Include multiple resolutions in .ico file (16×16, 32×32, 48×48, 256×256)</li>
+                <li>Use transparent backgrounds for modern appearance</li>
+                <li>Test icon appearance on light and dark taskbars</li>
+                <li>Keep design simple and recognizable at small sizes</li>
+            </ul>
+
+            <div style="background-color: #d4edda; padding: 15px; border-left: 4px solid #28a745; margin: 20px 0;">
+                <h4 style="margin-top: 0;">✅ Recommended Approach</h4>
+                <p>The template demonstrates the recommended pattern: use keyboard shortcuts for all controls, provide in-game menus using <code>GS_OGLMenu</code>, and treat the Windows menu bar as a convenience feature rather than a requirement. This ensures your game works identically on all platforms.</p>
+                <p style="margin-bottom: 0;">All essential functionality in the template (play, options, high scores, quit) is accessible via keyboard and in-game menus, making it fully cross-platform compatible.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Common Issues -->
+    <section class="api-section">
+        <h2>Common Issues</h2>
+        <div class="endpoint">
+            <h3>Windows Platform</h3>
+            <div style="background-color: #fff3cd; padding: 15px; border-left: 4px solid #ffc107; margin: 20px 0;">
+                <h4 style="margin-top: 0;">⚠️ Troubleshooting</h4>
+                <ul style="margin-bottom: 0;">
+                    <li><strong>Menu Not Appearing:</strong> Verify <code>gs_resource.rc</code> is included in CMakeLists.txt for Windows builds</li>
+                    <li><strong>Icon Not Showing:</strong> Ensure <code>GameSystem.ico</code> exists in the project directory</li>
+                    <li><strong>Accelerators Not Working:</strong> Check that <code>TranslateAccelerator()</code> is called in message loop</li>
+                    <li><strong>Menu Commands Ignored:</strong> Verify <code>WM_COMMAND</code> handler includes all menu IDs</li>
+                    <li><strong>Build Errors:</strong> Resource compiler (rc.exe) must be in PATH or use Visual Studio</li>
+                </ul>
+            </div>
+
+            <h3>SDL2 Platforms</h3>
+            <div style="background-color: #fff3cd; padding: 15px; border-left: 4px solid #ffc107; margin: 20px 0;">
+                <h4 style="margin-top: 0;">⚠️ Limitations</h4>
+                <ul style="margin-bottom: 0;">
+                    <li><strong>No Native Menus:</strong> Must use in-game UI (<code>GS_OGLMenu</code>) instead</li>
+                    <li><strong>No System Accelerators:</strong> Alt+X, Alt+Enter handled manually in event processing</li>
+                    <li><strong>Window Icon Optional:</strong> Requires SDL_image library and manual implementation</li>
+                    <li><strong>Platform Guidelines:</strong> Some Linux desktop environments discourage menu bars in games</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+</body>
+
+</html>

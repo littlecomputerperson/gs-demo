@@ -1,0 +1,17 @@
+- [DONE] Define score area and play area (with rc's);
+- [DONE] Add score area (Level: 1-1    Rats: 1/10    Lives: 3    Score: 10);
+- [DONE] Fix bug when changing to fullscreen/windowed mode during gameplay;
+- [DONE] Implement easy mode: rat is static, score per rat is halved
+- [DONE] Implement hard mode: rat and snake speed +2, score = score + points + (points/2)
+- [DONE] Add title music;
+- [DONE] Change music and sound levels to work from 0-100 (not 0-255);
+- [DONE] Add a "Cap Framerate" "Yes/No" option to settings menu (VSYNC off by default, Cap Framerate on);
+- [DONE] Change credits screen to give credit for music and background;
+- [DONE] Save level to hiscores;
+- Add game mode to hiscores;
+- Change snake moving sound;
+- Perhaps add a screen shaking effect when the snake crashes;
+- Perhaps make provision for 4 modes: Normal (snake and rat moving with levels), Classic (only snake moving with levels), 
+  Random (snake and rat moving with randomly generated levels), and Endless (snake and rat moving no levels);
+- Perhaps enable seperate high scores for each play mode;
+- Perhaps add music for each level;
