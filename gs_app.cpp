@@ -16,6 +16,7 @@
 // ---------------------------------------------------------------------------------------------
 #include "gs_app.h"
 #include "gs_keyboard.h"
+#include "gs_sdl_controller.h"
 //==============================================================================================
 
 //==============================================================================================
@@ -1169,6 +1170,106 @@ INT GS_Application::Run()
                 {
                     MsgProc((HWND)m_pWindow, WM_KEYUP, gskKey, 0);
                 }
+            }
+            else if (event.type == SDL_CONTROLLERDEVICEADDED)
+            {
+                // Controller connected
+                GS_Controller* controller = dynamic_cast<GS_Controller*>(g_pGSApp);
+                if (!controller)
+                {
+                    // Access controller through derived class if needed
+                    // For now, we'll handle this in MsgProc via a custom approach
+                }
+            }
+            else if (event.type == SDL_CONTROLLERDEVICEREMOVED)
+            {
+                // Controller disconnected - handle in derived class
+            }
+            else if (event.type == SDL_CONTROLLERBUTTONDOWN)
+            {
+                // Map SDL controller button to GSC button code
+                int gscButton = -1;
+                switch (event.cbutton.button)
+                {
+                    case SDL_CONTROLLER_BUTTON_A: gscButton = GSC_BUTTON_A; break;
+                    case SDL_CONTROLLER_BUTTON_B: gscButton = GSC_BUTTON_B; break;
+                    case SDL_CONTROLLER_BUTTON_X: gscButton = GSC_BUTTON_X; break;
+                    case SDL_CONTROLLER_BUTTON_Y: gscButton = GSC_BUTTON_Y; break;
+                    case SDL_CONTROLLER_BUTTON_BACK: gscButton = GSC_BUTTON_BACK; break;
+                    case SDL_CONTROLLER_BUTTON_GUIDE: gscButton = GSC_BUTTON_GUIDE; break;
+                    case SDL_CONTROLLER_BUTTON_START: gscButton = GSC_BUTTON_START; break;
+                    case SDL_CONTROLLER_BUTTON_LEFTSTICK: gscButton = GSC_BUTTON_LEFTSTICK; break;
+                    case SDL_CONTROLLER_BUTTON_RIGHTSTICK: gscButton = GSC_BUTTON_RIGHTSTICK; break;
+                    case SDL_CONTROLLER_BUTTON_LEFTSHOULDER: gscButton = GSC_BUTTON_LEFTSHOULDER; break;
+                    case SDL_CONTROLLER_BUTTON_RIGHTSHOULDER: gscButton = GSC_BUTTON_RIGHTSHOULDER; break;
+                    case SDL_CONTROLLER_BUTTON_DPAD_UP: gscButton = GSC_BUTTON_DPAD_UP; break;
+                    case SDL_CONTROLLER_BUTTON_DPAD_DOWN: gscButton = GSC_BUTTON_DPAD_DOWN; break;
+                    case SDL_CONTROLLER_BUTTON_DPAD_LEFT: gscButton = GSC_BUTTON_DPAD_LEFT; break;
+                    case SDL_CONTROLLER_BUTTON_DPAD_RIGHT: gscButton = GSC_BUTTON_DPAD_RIGHT; break;
+                }
+                
+                if (gscButton != -1)
+                {
+                    // Send as WM_KEYDOWN with the GSC button code
+                    MsgProc((HWND)m_pWindow, WM_KEYDOWN, gscButton, 0);
+                }
+            }
+            else if (event.type == SDL_CONTROLLERBUTTONUP)
+            {
+                // Map SDL controller button to GSC button code (same mapping as button down)
+                int gscButton = -1;
+                switch (event.cbutton.button)
+                {
+                    case SDL_CONTROLLER_BUTTON_A: gscButton = GSC_BUTTON_A; break;
+                    case SDL_CONTROLLER_BUTTON_B: gscButton = GSC_BUTTON_B; break;
+                    case SDL_CONTROLLER_BUTTON_X: gscButton = GSC_BUTTON_X; break;
+                    case SDL_CONTROLLER_BUTTON_Y: gscButton = GSC_BUTTON_Y; break;
+                    case SDL_CONTROLLER_BUTTON_BACK: gscButton = GSC_BUTTON_BACK; break;
+                    case SDL_CONTROLLER_BUTTON_GUIDE: gscButton = GSC_BUTTON_GUIDE; break;
+                    case SDL_CONTROLLER_BUTTON_START: gscButton = GSC_BUTTON_START; break;
+                    case SDL_CONTROLLER_BUTTON_LEFTSTICK: gscButton = GSC_BUTTON_LEFTSTICK; break;
+                    case SDL_CONTROLLER_BUTTON_RIGHTSTICK: gscButton = GSC_BUTTON_RIGHTSTICK; break;
+                    case SDL_CONTROLLER_BUTTON_LEFTSHOULDER: gscButton = GSC_BUTTON_LEFTSHOULDER; break;
+                    case SDL_CONTROLLER_BUTTON_RIGHTSHOULDER: gscButton = GSC_BUTTON_RIGHTSHOULDER; break;
+                    case SDL_CONTROLLER_BUTTON_DPAD_UP: gscButton = GSC_BUTTON_DPAD_UP; break;
+                    case SDL_CONTROLLER_BUTTON_DPAD_DOWN: gscButton = GSC_BUTTON_DPAD_DOWN; break;
+                    case SDL_CONTROLLER_BUTTON_DPAD_LEFT: gscButton = GSC_BUTTON_DPAD_LEFT; break;
+                    case SDL_CONTROLLER_BUTTON_DPAD_RIGHT: gscButton = GSC_BUTTON_DPAD_RIGHT; break;
+                }
+                
+                if (gscButton != -1)
+                {
+                    // Send as WM_KEYUP with the GSC button code
+                    MsgProc((HWND)m_pWindow, WM_KEYUP, gscButton, 0);
+                }
+            }
+            else if (event.type == SDL_CONTROLLERAXISMOTION)
+            {
+                // Normalize axis value from SDL range (-32768 to 32767) to -1.0 to 1.0
+                float axisValue = event.caxis.value / 32768.0f;
+                
+                // Map SDL axis to GSC axis
+                int gscAxis = -1;
+                switch (event.caxis.axis)
+                {
+                    case SDL_CONTROLLER_AXIS_LEFTX: gscAxis = GSC_AXIS_LEFTX; break;
+                    case SDL_CONTROLLER_AXIS_LEFTY: gscAxis = GSC_AXIS_LEFTY; break;
+                    case SDL_CONTROLLER_AXIS_RIGHTX: gscAxis = GSC_AXIS_RIGHTX; break;
+                    case SDL_CONTROLLER_AXIS_RIGHTY: gscAxis = GSC_AXIS_RIGHTY; break;
+                    case SDL_CONTROLLER_AXIS_TRIGGERLEFT: 
+                        gscAxis = GSC_AXIS_TRIGGERLEFT;
+                        // Triggers go from 0 to 1, not -1 to 1
+                        axisValue = (event.caxis.value + 32768) / 65535.0f;
+                        break;
+                    case SDL_CONTROLLER_AXIS_TRIGGERRIGHT: 
+                        gscAxis = GSC_AXIS_TRIGGERRIGHT;
+                        // Triggers go from 0 to 1, not -1 to 1
+                        axisValue = (event.caxis.value + 32768) / 65535.0f;
+                        break;
+                }
+                
+                // Note: Axis motion events would need to be handled differently
+                // For now, we'll just store them for polling-based input
             }
             else if (event.type == SDL_MOUSEMOTION)
             {

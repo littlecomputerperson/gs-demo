@@ -187,6 +187,19 @@ BOOL GS_Demo::GameInit()
     SetRect(&m_rcScreen, 0, INTERNAL_RES_Y, INTERNAL_RES_X, 0);
 
     /////////////////////////////////////////////////////////////////////////////////////////////
+    // Initialize Controller Input //////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////////
+
+    // Initialize controller input.
+    // (Controller auto-initializes in constructor, just log if connected)
+    if (m_gsController.GetConnectedCount() > 0)
+    {
+        char szDebugMsg[256];
+        sprintf(szDebugMsg, "Controller connected: %s\n", m_gsController.GetControllerName(0));
+        GS_Platform::OutputDebugString(szDebugMsg);
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////
     // OpenGL Initialization Code ///////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -329,6 +342,9 @@ BOOL GS_Demo::GameShutdown()
     // Reset mouse data.
     m_gsMouse.Reset();
 
+    // Reset controller data.
+    m_gsController.Reset();
+
     // Clear all menu items.
     m_gsMenu.ClearOptions();
 
@@ -426,7 +442,7 @@ BOOL GS_Demo::GameRestore()
 
 BOOL GS_Demo::GameLoop()
 {
-
+    // Handle buffered keyboard input
     static BOOL bWasKeyReleased = TRUE;
 
     int KeyList[3] = { GSK_SPACE, GSK_L, GSK_B };
@@ -507,6 +523,7 @@ BOOL GS_Demo::GameLoop()
         break;
     // Was the '+' key pressed?
     case GSK_ADD:
+    case GSC_AXIS_TRIGGERRIGHT:
         // Increase sound master volume.
         if (m_nVolume<255)
         {
@@ -516,6 +533,7 @@ BOOL GS_Demo::GameLoop()
         break;
     // Was the '-' key pressed?
     case GSK_SUBTRACT:
+    case GSC_AXIS_TRIGGERLEFT:
         // Decrease sound master volume.
         if (m_nVolume>0)
         {
@@ -523,7 +541,43 @@ BOOL GS_Demo::GameLoop()
         }
         m_gsSound.SetMasterVolume(m_nVolume);
         break;
-    } // end switch(nKey)
+    } // end switch(nButton)
+
+    // Handle buffered controller input
+    static BOOL bWasButtonReleased = TRUE;
+
+    int ButtonList[3] = { GSC_BUTTON_GUIDE, GSC_BUTTON_X, GSC_BUTTON_Y };
+
+    // Were all the buttons in the button list released?
+    if (TRUE == m_gsController.AreButtonsUp(3, ButtonList))
+    {
+        // Set flag to indicate that all the keys were released.
+        bWasButtonReleased = TRUE;
+    }
+
+    // Get button from buffer (if any).
+    int nButton = m_gsController.GetBufferedButton();
+
+    // Act depending on key pressed.
+    switch (nButton)
+    {
+    // Was the SPACE key pressed?
+    case GSC_BUTTON_BACK:
+        // Was this key released?
+        if (bWasButtonReleased)
+        {
+            // Run the next demonstration.
+            m_nGameProgress++;
+            // Restart if the last demo.
+            if (m_nGameProgress > 11)
+            {
+                m_nGameProgress = 0;
+            }
+            // Key is pressed.
+            bWasButtonReleased = FALSE;
+        }
+        break;
+    } // end switch(nButton)
 
     // Setup particles for particle demo.
     if (m_nGameProgress != 11)
@@ -838,6 +892,13 @@ LRESULT GS_Demo::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         m_gsKeyboard.KeyDown(wParam);
         // Add key to keyboard buffer.
         m_gsKeyboard.AddKeyToBuffer(wParam);
+
+        // Also add to controller buffer if it's a controller button
+        if (wParam >= GSC_BUTTON_A && wParam <= GSC_BUTTON_DPAD_RIGHT)
+        {
+            m_gsController.SetButtonDown(wParam);
+            m_gsController.AddButtonToBuffer(wParam);
+        }
         break;
 
     // Received when a nonsystem key is released. A nonsystem key is a key that is pressed
@@ -845,6 +906,12 @@ LRESULT GS_Demo::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     case WM_KEYUP:
         // Mark key that was released.
         m_gsKeyboard.KeyUp(wParam);
+
+        // Also add to controller buffer if it's a controller button
+        if (wParam >= GSC_BUTTON_A && wParam <= GSC_BUTTON_DPAD_RIGHT)
+        {
+            m_gsController.SetButtonUp(wParam);
+        }
         break;
 
     // Received when the user holds down the ALT key and then presses another key.
@@ -1726,14 +1793,21 @@ BOOL GS_Demo::TextureDemo()
     static GLfloat glfRotSpeedY = 0;  // Y rotation speed.
     static GLfloat glfDepthZ = -5.0f; // How deep the cube is on the Z axis.
 
-    // Check to see wether a key was pressed.
+    // Check to see wether a key or button was pressed.
     int nKey = m_gsKeyboard.GetKeyPressed();
+    int nButton = m_gsController.GetButtonPressed();
+
+    if( nButton != -1 )
+    {
+        nKey = nButton;
+    }
 
     // Act depending on key pressed.
     switch (nKey)
     {
     // Was the left cursor key pressed?
     case GSK_LEFT:
+    case GSC_BUTTON_DPAD_LEFT:
         if (glfRotSpeedY > -10.0f)
         {
             glfRotSpeedY -= 0.05f;
@@ -1741,6 +1815,7 @@ BOOL GS_Demo::TextureDemo()
         break;
     // Was the right cursor key pressed?
     case GSK_RIGHT:
+    case GSC_BUTTON_DPAD_RIGHT:
         if (glfRotSpeedY < 10.0f)
         {
             glfRotSpeedY += 0.05f;
@@ -1748,6 +1823,7 @@ BOOL GS_Demo::TextureDemo()
         break;
     // Was the up cursor key pressed?
     case GSK_UP:
+    case GSC_BUTTON_DPAD_UP:
         if (glfRotSpeedX > -10.0f)
         {
             glfRotSpeedX -= 0.05f;
@@ -1755,6 +1831,7 @@ BOOL GS_Demo::TextureDemo()
         break;
     // Was the down cursor key pressed?
     case GSK_DOWN:
+    case GSC_BUTTON_DPAD_DOWN:
         if (glfRotSpeedX < 10.0f)
         {
             glfRotSpeedX += 0.05f;
@@ -1762,6 +1839,7 @@ BOOL GS_Demo::TextureDemo()
         break;
     // Was the page down key pressed?
     case GSK_PAGEDOWN:
+    case GSC_BUTTON_LEFTSHOULDER:
         if (glfDepthZ > -100.0f)
         {
             glfDepthZ -= 0.05f;
@@ -1769,6 +1847,7 @@ BOOL GS_Demo::TextureDemo()
         break;
     // Was the page up key pressed?
     case GSK_PAGEUP:
+    case GSC_BUTTON_RIGHTSHOULDER:
         if (glfDepthZ < 0.0f)
         {
             glfDepthZ += 0.05f;
@@ -1776,6 +1855,7 @@ BOOL GS_Demo::TextureDemo()
         break;
     // Was the home key pressed?
     case GSK_HOME:
+    case GSC_BUTTON_START:
         // Reset all variables.
         glfRotateX   = 0.0f;
         glfRotateY   = 0.0f;
@@ -1994,14 +2074,21 @@ BOOL GS_Demo::SpriteDemo()
     static GLfloat glfRotSpeed = 0.0f; // Rotation speed.
     static GLfloat glfTransparency = 1.0f; // Sprite transparency.
 
-    // Check to see wether a key was pressed.
+    // Check to see wether a key or button was pressed.
     int nKey = m_gsKeyboard.GetKeyPressed();
+    int nButton = m_gsController.GetButtonPressed();
+
+    if( nButton != -1 )
+    {
+        nKey = nButton;
+    }
 
     // Act depending on key pressed.
     switch (nKey)
     {
     // Was the left cursor key pressed?
     case GSK_LEFT:
+    case GSC_BUTTON_DPAD_LEFT:
         if (glfRotSpeed < 10.0f)
         {
             glfRotSpeed += 0.1f;
@@ -2009,6 +2096,7 @@ BOOL GS_Demo::SpriteDemo()
         break;
     // Was the right cursor key pressed?
     case GSK_RIGHT:
+    case GSC_BUTTON_DPAD_RIGHT:
         if (glfRotSpeed > -10.0f)
         {
             glfRotSpeed -= 0.1f;
@@ -2016,6 +2104,7 @@ BOOL GS_Demo::SpriteDemo()
         break;
     // Was the up cursor key pressed?
     case GSK_UP:
+    case GSC_BUTTON_DPAD_UP:
         m_gsSprite.AddScaleX(0.02f);
         m_gsSprite.AddScaleY(0.02f);
         m_gsBackgrnd.AddScaleX(0.02f);
@@ -2023,6 +2112,7 @@ BOOL GS_Demo::SpriteDemo()
         break;
     // Was the down cursor key pressed?
     case GSK_DOWN:
+    case GSC_BUTTON_DPAD_DOWN:
         m_gsSprite.AddScaleX(-0.02f);
         m_gsSprite.AddScaleY(-0.02f);
         if (m_gsBackgrnd.GetScaleX() > 0.2f)
@@ -2033,6 +2123,7 @@ BOOL GS_Demo::SpriteDemo()
         break;
     // Was the page up key pressed?
     case GSK_PAGEUP:
+    case GSC_BUTTON_LEFTSHOULDER:
         if (glfTransparency < 1.0f)
         {
             glfTransparency += 0.05f;
@@ -2040,6 +2131,7 @@ BOOL GS_Demo::SpriteDemo()
         break;
     // Was the page down key pressed?
     case GSK_PAGEDOWN:
+    case GSC_BUTTON_RIGHTSHOULDER:
         if (glfTransparency > 0.0f)
         {
             glfTransparency -= 0.05f;
@@ -2047,6 +2139,7 @@ BOOL GS_Demo::SpriteDemo()
         break;
     // Was the home key pressed?
     case GSK_HOME:
+    case GSC_BUTTON_START:
         // Reset all variables.
         m_gsSprite.SetScaleX(1.0f);
         m_gsSprite.SetScaleY(1.0f);
@@ -2160,14 +2253,21 @@ BOOL GS_Demo::FontDemo()
     static BOOL bMoveRight = TRUE;
     static BOOL bMoveUp    = TRUE;
 
-    // Check to see wether a key was pressed.
+    // Check to see wether a key or button was pressed.
     int nKey = m_gsKeyboard.GetKeyPressed();
+    int nButton = m_gsController.GetButtonPressed();
+
+    if( nButton != -1 )
+    {
+        nKey = nButton;
+    }
 
     // Act depending on key pressed.
     switch (nKey)
     {
     // Was the left cursor key pressed?
     case GSK_LEFT:
+    case GSC_BUTTON_DPAD_LEFT:
         if (glfRotSpeed < 10.0f)
         {
             glfRotSpeed += 0.1f;
@@ -2175,6 +2275,7 @@ BOOL GS_Demo::FontDemo()
         break;
     // Was the right cursor key pressed?
     case GSK_RIGHT:
+    case GSC_BUTTON_DPAD_RIGHT:
         if (glfRotSpeed > -10.0f)
         {
             glfRotSpeed -= 0.1f;
@@ -2182,16 +2283,19 @@ BOOL GS_Demo::FontDemo()
         break;
     // Was the up cursor key pressed?
     case GSK_UP:
+    case GSC_BUTTON_DPAD_UP:
         m_gsSpriteEx.AddScaleX(0.05f);
         m_gsSpriteEx.AddScaleY(0.05f);
         break;
     // Was the down cursor key pressed?
     case GSK_DOWN:
+    case GSC_BUTTON_DPAD_DOWN:
         m_gsSpriteEx.AddScaleX(-0.05f);
         m_gsSpriteEx.AddScaleY(-0.05f);
         break;
     // Was the page up key pressed?
     case GSK_PAGEUP:
+    case GSC_BUTTON_LEFTSHOULDER:
         if (glfTransparency < 1.0f)
         {
             glfTransparency += 0.05f;
@@ -2199,6 +2303,7 @@ BOOL GS_Demo::FontDemo()
         break;
     // Was the page down key pressed?
     case GSK_PAGEDOWN:
+    case GSC_BUTTON_RIGHTSHOULDER:
         if (glfTransparency > 0.0f)
         {
             glfTransparency -= 0.05f;
@@ -2206,6 +2311,7 @@ BOOL GS_Demo::FontDemo()
         break;
     // Was the home key pressed?
     case GSK_HOME:
+    case GSC_BUTTON_START:
         // Reset all variables.
         m_gsSpriteEx.SetScaleX(1.0f);
         m_gsSpriteEx.SetScaleY(1.0f);
@@ -2377,8 +2483,14 @@ BOOL GS_Demo::CollisionDemo()
 
     static GLfloat glfTransparency = 1.0f; // Sprite transparency.
 
-    // Check to see wether a key was pressed.
+    // Check to see wether a key or button was pressed.
     int nKey = m_gsKeyboard.GetKeyPressed();
+    int nButton = m_gsController.GetButtonPressed();
+
+    if( nButton != -1 )
+    {
+        nKey = nButton;
+    }
 
     // Act depending on key pressed.
     switch (nKey)
@@ -2677,7 +2789,7 @@ BOOL GS_Demo::MenuDemo()
     /////////////////////////////////////////////////////////////////////////////////////////////
 
     /////////////////////////////////////////////////////////////////////////////////////////////
-    // New Code /////////////////////////////////////////////////////////////////////////////////
+    // New Code: Menu Rendering /////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////
 
     static GLfloat glfTransparency = 1.0f;
@@ -2696,6 +2808,7 @@ BOOL GS_Demo::MenuDemo()
 
     static BOOL bWasMouseReleased  = FALSE;
     static BOOL bWasKeyReleased    = TRUE;
+    static BOOL bWasButtonReleased    = TRUE;
     static BOOL bMenuHasTitle      = TRUE;
     static int nOptionSelected     = -1;
 
@@ -2708,8 +2821,14 @@ BOOL GS_Demo::MenuDemo()
         bWasKeyReleased = TRUE;
     }
 
-    // Check to see wether a key was pressed.
+    // Check to see wether a key or button was pressed.
     int nKey = m_gsKeyboard.GetKeyPressed();
+    int nButton = m_gsController.GetButtonPressed();
+
+    if( nButton != -1 )
+    {
+        nKey = nButton;
+    }
 
     // Act depending on key pressed.
     switch (nKey)
@@ -2755,6 +2874,7 @@ BOOL GS_Demo::MenuDemo()
         break;
     // Was the page up key pressed?
     case GSK_PAGEUP:
+    case GSC_BUTTON_LEFTSHOULDER:
         if (glfTransparency < 1.0f)
         {
             glfTransparency += 0.05f;
@@ -2762,6 +2882,7 @@ BOOL GS_Demo::MenuDemo()
         break;
     // Was the page down key pressed?
     case GSK_PAGEDOWN:
+    case GSC_BUTTON_RIGHTSHOULDER:
         if (glfTransparency > 0.0f)
         {
             glfTransparency -= 0.05f;
@@ -2769,6 +2890,7 @@ BOOL GS_Demo::MenuDemo()
         break;
     // Was the right key pressed?
     case GSK_RIGHT:
+    case GSC_BUTTON_DPAD_RIGHT:
         if (glfRollSpeed < 0.1f)
         {
             glfRollSpeed += 0.0001f;
@@ -2776,6 +2898,7 @@ BOOL GS_Demo::MenuDemo()
         break;
     // Was the left key pressed?
     case GSK_LEFT:
+    case GSC_BUTTON_DPAD_LEFT:
         if (glfRollSpeed > -0.1f)
         {
             glfRollSpeed -= 0.0001f;
@@ -2783,9 +2906,66 @@ BOOL GS_Demo::MenuDemo()
         break;
     // Was the home key pressed?
     case GSK_HOME:
+    case GSC_BUTTON_START:
         // Reset all variables.
         glfTransparency = 1.0f;
         glfRollSpeed = 0.001f;
+        break;
+    }
+    
+    int ButtonList[3] = { GSC_BUTTON_A, GSC_BUTTON_DPAD_UP, GSC_BUTTON_DPAD_DOWN };
+
+    // Were all the buttons in the button list released?
+    if (TRUE == m_gsController.AreButtonsUp(3, ButtonList))
+    {
+        // Set flag to indicate that all the buttons were released.
+        bWasButtonReleased = TRUE;
+    }
+
+    // Check to see wether a button was pressed.
+    int nBufferedButton = m_gsController.GetButtonPressed();    
+
+    // Act depending on button pressed.
+    switch (nBufferedButton)
+    {
+    // Was the up key pressed?
+    case GSC_BUTTON_DPAD_UP:
+        // Was this key released?
+        if (bWasButtonReleased)
+        {
+            // Highlight the previous option.
+            m_gsMenu.HighlightPrev();
+            // Play appropriate sound.
+            m_gsSound.PlaySample(SAMPLE_OPTION);
+            // Key is pressed.
+            bWasButtonReleased = FALSE;
+        }
+        break;
+    // Was the down key pressed?
+    case GSC_BUTTON_DPAD_DOWN:
+        // Was this key released?
+        if (bWasButtonReleased)
+        {
+            // Highlight the next option.
+            m_gsMenu.HighlightNext();
+            // Play appropriate sound.
+            m_gsSound.PlaySample(SAMPLE_OPTION);
+            // Key is pressed.
+            bWasButtonReleased = FALSE;
+        }
+        break;
+    // Was the enter key pressed?
+    case GSC_BUTTON_A:
+        // Was this key released?
+        if (bWasButtonReleased)
+        {
+            // Save the highlighted option.
+            nOptionSelected = m_gsMenu.GetHighlight();
+            // Play appropriate sound.
+            m_gsSound.PlaySample(SAMPLE_SELECT);
+            // Key is pressed.
+            bWasButtonReleased = FALSE;
+        }
         break;
     }
 
@@ -3028,14 +3208,21 @@ BOOL GS_Demo::MapDemo()
         bWasKeyReleased = TRUE;
     }
 
-    // Check to see wether a key was pressed.
+    // Check to see wether a key or button was pressed.
     int nKey = m_gsKeyboard.GetKeyPressed();
+    int nButton = m_gsController.GetButtonPressed();
+
+    if( nButton != -1 )
+    {
+        nKey = nButton;
+    }
 
     // Act depending on key pressed.
     switch (nKey)
     {
     // Was the up key pressed?
     case GSK_UP:
+    case GSC_BUTTON_DPAD_UP:
         // Has the player not moved half the height of the clip box?
         if ((m_gsPlayerSprite.GetDestY() + (m_gsPlayerSprite.GetFrameHeight()/2)) <
                 (m_gsMap.GetClipBoxBottom() + (m_gsMap.GetClipBoxHeight()/2)))
@@ -3072,6 +3259,7 @@ BOOL GS_Demo::MapDemo()
         break;
     // Was the down key pressed?
     case GSK_DOWN:
+    case GSC_BUTTON_DPAD_DOWN:
         // Has the player not moved half the height of the clip box?
         if ((m_gsPlayerSprite.GetDestY() + (m_gsPlayerSprite.GetFrameHeight()/2)) <
                 (m_gsMap.GetClipBoxBottom() + (m_gsMap.GetClipBoxHeight()/2)))
@@ -3108,6 +3296,7 @@ BOOL GS_Demo::MapDemo()
         break;
     // Was the right key pressed?
     case GSK_LEFT:
+    case GSC_BUTTON_DPAD_LEFT:
         // Has the player not moved half the width of the clip box?
         if ((m_gsPlayerSprite.GetDestX() + (m_gsPlayerSprite.GetFrameWidth()/2)) <
                 (m_gsMap.GetClipBoxLeft() + (m_gsMap.GetClipBoxWidth()/2)))
@@ -3144,6 +3333,7 @@ BOOL GS_Demo::MapDemo()
         break;
     // Was the left key pressed?
     case GSK_RIGHT:
+    case GSC_BUTTON_DPAD_RIGHT:
         // Has the player not moved half the width of the clip box?
         if ((m_gsPlayerSprite.GetDestX() + (m_gsPlayerSprite.GetFrameWidth()/2)) <
                 (m_gsMap.GetClipBoxLeft() + (m_gsMap.GetClipBoxWidth()/2)))
@@ -3180,6 +3370,7 @@ BOOL GS_Demo::MapDemo()
         break;
     // Was the page up key pressed?
     case GSK_PAGEUP:
+    case GSC_BUTTON_LEFTSHOULDER:
         if (glfTransparency < 1.0f)
         {
             glfTransparency += 0.05f;
@@ -3187,6 +3378,7 @@ BOOL GS_Demo::MapDemo()
         break;
     // Was the page down key pressed?
     case GSK_PAGEDOWN:
+    case GSC_BUTTON_RIGHTSHOULDER:
         if (glfTransparency > 0.0f)
         {
             glfTransparency -= 0.05f;
@@ -3194,6 +3386,7 @@ BOOL GS_Demo::MapDemo()
         break;
     // Was the home key pressed?
     case GSK_HOME:
+    case GSC_BUTTON_START:
         // Reset all variables.
         glfTransparency = 1.0f;
         m_gsMap.SetMapX(0);
@@ -3398,14 +3591,21 @@ BOOL GS_Demo::ParticleDemo()
     int nNumParticles = m_gsParticle.GetNumParticles();
     static float fAddScale = 0.100f;
 
-    // Check to see wether a key was pressed.
+    // Check to see wether a key or button was pressed.
     int nKey = m_gsKeyboard.GetKeyPressed();
+    int nButton = m_gsController.GetButtonPressed();
+
+    if( nButton != -1 )
+    {
+        nKey = nButton;
+    }
 
     // Act depending on key pressed.
     switch (nKey)
     {
     // Was the right key pressed?
     case GSK_RIGHT:
+    case GSC_BUTTON_DPAD_RIGHT:
         // Increase the number of particles.
         nNumParticles++;
         if (nNumParticles > MAX_PARTICLES)
@@ -3418,6 +3618,7 @@ BOOL GS_Demo::ParticleDemo()
         break;
     // Was the left key pressed?
     case GSK_LEFT:
+    case GSC_BUTTON_DPAD_LEFT:
         // Decrease the number of particles.
         nNumParticles--;
         if (nNumParticles < 0)
@@ -3430,6 +3631,7 @@ BOOL GS_Demo::ParticleDemo()
         break;
     // Was the down key pressed?
     case GSK_DOWN:
+    case GSC_BUTTON_DPAD_DOWN:
         // Decrease the scale.
         fAddScale -= 0.001;
         if (fAddScale < 0.000f)
@@ -3439,6 +3641,7 @@ BOOL GS_Demo::ParticleDemo()
         break;
     // Was the up key pressed?
     case GSK_UP:
+    case GSC_BUTTON_DPAD_UP:
         // Increase the scale.
         fAddScale += 0.001;
         if (fAddScale > 0.100f)
@@ -3448,6 +3651,7 @@ BOOL GS_Demo::ParticleDemo()
         break;
     // Was the page up key pressed?
     case GSK_PAGEUP:
+    case GSC_BUTTON_LEFTSHOULDER:
         if (glfTransparency < 1.0f)
         {
             glfTransparency += 0.05f;
@@ -3455,6 +3659,7 @@ BOOL GS_Demo::ParticleDemo()
         break;
     // Was the page down key pressed?
     case GSK_PAGEDOWN:
+    case GSC_BUTTON_RIGHTSHOULDER:
         if (glfTransparency > 0.0f)
         {
             glfTransparency -= 0.05f;
@@ -3462,6 +3667,7 @@ BOOL GS_Demo::ParticleDemo()
         break;
     // Was the home key pressed?
     case GSK_HOME:
+    case GSC_BUTTON_START:
         // Reset all variables.
         m_gsParticle.SetNumParticles(100);
         m_gsParticle.Activate();

@@ -1,0 +1,1554 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GS_Controller Class</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+
+<body class="endpoint-page">
+    <!-- GS_Controller Methods Index -->
+    <section class="api-section">
+        <h2>GS_Controller Class Reference</h2>
+        <p><strong>Files:</strong> <code>gs_sdl_controller.h</code>, <code>gs_sdl_controller.cpp</code></p>
+        
+        <div class="endpoint-index">
+            <h3>Constructor & Destructor</h3>
+            <ul>
+                <li><a href="#constructor">GS_Controller() <span class="endpoint-desc">- Constructor</span></a></li>
+                <li><a href="#destructor">~GS_Controller() <span class="endpoint-desc">- Destructor</span></a></li>
+            </ul>
+
+            <h3>Update & Reset Methods</h3>
+            <ul>
+                <li><a href="#update">Update() <span class="endpoint-desc">- Process controller events</span></a></li>
+                <li><a href="#reset">Reset() <span class="endpoint-desc">- Clear all controller state</span></a></li>
+                <li><a href="#resetcontroller">ResetController() <span class="endpoint-desc">- Reset specific controller</span></a></li>
+            </ul>
+
+            <h3>Connection Management Methods</h3>
+            <ul>
+                <li><a href="#getconnectedcount">GetConnectedCount() <span class="endpoint-desc">- Get number of connected controllers</span></a></li>
+                <li><a href="#iscontrollerconnected">IsControllerConnected() <span class="endpoint-desc">- Check controller connection</span></a></li>
+                <li><a href="#getcontrollername">GetControllerName() <span class="endpoint-desc">- Get controller device name</span></a></li>
+                <li><a href="#setactivecontroller">SetActiveController() <span class="endpoint-desc">- Set default controller</span></a></li>
+                <li><a href="#getactivecontroller">GetActiveController() <span class="endpoint-desc">- Get default controller index</span></a></li>
+            </ul>
+
+            <h3>Event Handling Methods</h3>
+            <ul>
+                <li><a href="#oncontrolleradded">OnControllerAdded() <span class="endpoint-desc">- Handle controller connection</span></a></li>
+                <li><a href="#oncontrollerremoved">OnControllerRemoved() <span class="endpoint-desc">- Handle controller disconnection</span></a></li>
+                <li><a href="#onbuttondown">OnButtonDown() <span class="endpoint-desc">- Handle button press</span></a></li>
+                <li><a href="#onbuttonup">OnButtonUp() <span class="endpoint-desc">- Handle button release</span></a></li>
+                <li><a href="#onaxismotion">OnAxisMotion() <span class="endpoint-desc">- Handle analog stick/trigger movement</span></a></li>
+            </ul>
+
+            <h3>Manual Button State Methods</h3>
+            <ul>
+                <li><a href="#setbuttondown">SetButtonDown() <span class="endpoint-desc">- Manually set button pressed state</span></a></li>
+                <li><a href="#setbuttonup">SetButtonUp() <span class="endpoint-desc">- Manually set button released state</span></a></li>
+            </ul>
+
+            <h3>Button State Methods</h3>
+            <ul>
+                <li><a href="#isbuttondown">IsButtonDown() <span class="endpoint-desc">- Check if button is pressed</span></a></li>
+                <li><a href="#arebuttonsdown">AreButtonsDown() <span class="endpoint-desc">- Check multiple buttons pressed</span></a></li>
+                <li><a href="#arebuttonsup">AreButtonsUp() <span class="endpoint-desc">- Check multiple buttons released</span></a></li>
+                <li><a href="#getbuttonpressed">GetButtonPressed() <span class="endpoint-desc">- Get currently pressed button</span></a></li>
+            </ul>
+
+            <h3>Analog Input Methods</h3>
+            <ul>
+                <li><a href="#getaxisvalue">GetAxisValue() <span class="endpoint-desc">- Get axis value</span></a></li>
+                <li><a href="#getleftstickx">GetLeftStickX() <span class="endpoint-desc">- Get left stick X position</span></a></li>
+                <li><a href="#getleftsticky">GetLeftStickY() <span class="endpoint-desc">- Get left stick Y position</span></a></li>
+                <li><a href="#getrightstickx">GetRightStickX() <span class="endpoint-desc">- Get right stick X position</span></a></li>
+                <li><a href="#getrightsticky">GetRightStickY() <span class="endpoint-desc">- Get right stick Y position</span></a></li>
+                <li><a href="#getlefttrigger">GetLeftTrigger() <span class="endpoint-desc">- Get left trigger pressure</span></a></li>
+                <li><a href="#getrighttrigger">GetRightTrigger() <span class="endpoint-desc">- Get right trigger pressure</span></a></li>
+            </ul>
+
+            <h3>Buffered Input Methods</h3>
+            <ul>
+                <li><a href="#addbuttontobuffer">AddButtonToBuffer() <span class="endpoint-desc">- Add button to input buffer</span></a></li>
+                <li><a href="#clearbuffer">ClearBuffer() <span class="endpoint-desc">- Clear input buffer</span></a></li>
+                <li><a href="#getbufferedbutton">GetBufferedButton() <span class="endpoint-desc">- Get button from buffer</span></a></li>
+                <li><a href="#getbuffer">GetBuffer() <span class="endpoint-desc">- Get input buffer array</span></a></li>
+                <li><a href="#getbuffersize">GetBufferSize() <span class="endpoint-desc">- Get buffer item count</span></a></li>
+            </ul>
+
+            <h3>Utility Methods</h3>
+            <ul>
+                <li><a href="#getbuttondescription">GetButtonDescription() <span class="endpoint-desc">- Get button name string</span></a></li>
+                <li><a href="#enablerumble">EnableRumble() <span class="endpoint-desc">- Activate haptic feedback</span></a></li>
+            </ul>
+        </div>
+    </section>
+    
+    <!-- Class Overview -->
+    <section class="api-section">
+        <h2>Class Overview</h2>
+        <div class="endpoint">
+            <h3>About GS_Controller</h3>
+            <p>The <code>GS_Controller</code> class provides comprehensive game controller (gamepad) input handling for GameSystem applications using SDL2. It automatically detects and manages up to 4 connected controllers, supporting buttons, analog sticks, triggers, and haptic feedback. The class offers both real-time button/axis state checking and buffered input capture for menu systems.</p>
+
+            <p>This class is cross-platform compatible and works seamlessly on Windows, Linux, and macOS through SDL2's game controller API, which provides Xbox-style button mapping for various controller types.</p>
+
+            <h3>Key Features</h3>
+            <ul>
+                <li><strong>Multi-Controller Support:</strong> Manage up to 4 controllers simultaneously</li>
+                <li><strong>Auto-Detection:</strong> Automatically detects and initializes connected controllers</li>
+                <li><strong>Hot-Plugging:</strong> Handles controller connection/disconnection during gameplay</li>
+                <li><strong>Dual Input Modes:</strong> Real-time state checking and buffered input capture</li>
+                <li><strong>Analog Inputs:</strong> Full support for analog sticks and triggers with normalized values</li>
+                <li><strong>Haptic Feedback:</strong> Controller vibration/rumble support</li>
+                <li><strong>Button Codes:</strong> Platform-independent button constants (GSC_BUTTON_*)</li>
+                <li><strong>Active Controller:</strong> Automatic selection of default controller for single-player games</li>
+                <li><strong>Xbox Mapping:</strong> Consistent Xbox-style button layout across different controller brands</li>
+            </ul>
+
+            <h3>Supported Controllers</h3>
+            <p>Through SDL2's game controller database, GS_Controller supports hundreds of controller models:</p>
+            <ul>
+                <li>Xbox 360 / Xbox One / Xbox Series controllers</li>
+                <li>PlayStation 3 / PlayStation 4 / PlayStation 5 controllers</li>
+                <li>Nintendo Switch Pro Controller</li>
+                <li>Steam Controller</li>
+                <li>Generic USB/Bluetooth gamepads</li>
+                <li>And many more through SDL2's controller database</li>
+            </ul>
+
+            <h3>Input Modes</h3>
+            <p>GS_Controller supports two primary input handling modes:</p>
+
+            <table style="width: 100%; border-collapse: collapse; margin: 1em 0;">
+                <thead>
+                    <tr style="background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Mode</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Methods</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Best For</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><strong>Real-Time State</strong></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>IsButtonDown()</code>, <code>GetAxisValue()</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Action games, continuous movement, analog control</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><strong>Buffered Input</strong></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>GetBufferedButton()</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Menus, turn-based games, single button press detection</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Button Codes (GSC_BUTTON_*)</h3>
+            <p>The class uses platform-independent button codes defined in <code>gs_sdl_controller.h</code>. These codes are offset from keyboard codes (starting at 0x1000) to avoid conflicts:</p>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin: 15px 0;">
+                <div>
+                    <h4>Face Buttons</h4>
+                    <code>GSC_BUTTON_A</code> (0x1000)<br>
+                    <code>GSC_BUTTON_B</code> (0x1001)<br>
+                    <code>GSC_BUTTON_X</code> (0x1002)<br>
+                    <code>GSC_BUTTON_Y</code> (0x1003)
+                </div>
+                <div>
+                    <h4>D-Pad</h4>
+                    <code>GSC_BUTTON_DPAD_UP</code> (0x100B)<br>
+                    <code>GSC_BUTTON_DPAD_DOWN</code> (0x100C)<br>
+                    <code>GSC_BUTTON_DPAD_LEFT</code> (0x100D)<br>
+                    <code>GSC_BUTTON_DPAD_RIGHT</code> (0x100E)
+                </div>
+                <div>
+                    <h4>Shoulder Buttons</h4>
+                    <code>GSC_BUTTON_LEFTSHOULDER</code> (0x1009)<br>
+                    <code>GSC_BUTTON_RIGHTSHOULDER</code> (0x100A)
+                </div>
+                <div>
+                    <h4>Stick Buttons</h4>
+                    <code>GSC_BUTTON_LEFTSTICK</code> (0x1007)<br>
+                    <code>GSC_BUTTON_RIGHTSTICK</code> (0x1008)
+                </div>
+                <div>
+                    <h4>Special Buttons</h4>
+                    <code>GSC_BUTTON_START</code> (0x1006)<br>
+                    <code>GSC_BUTTON_BACK</code> (0x1004)<br>
+                    <code>GSC_BUTTON_GUIDE</code> (0x1005)
+                </div>
+            </div>
+
+            <h3>Axis Codes (GSC_AXIS_*)</h3>
+            <p>Analog inputs use axis codes (starting at 0x1010):</p>
+
+            <table style="width: 100%; border-collapse: collapse; margin: 1em 0;">
+                <thead>
+                    <tr style="background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Axis Code</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Value</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Range</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>GSC_AXIS_LEFTX</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">0x1010</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">-1.0 to 1.0</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Left stick horizontal (-1=left, 1=right)</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>GSC_AXIS_LEFTY</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">0x1011</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">-1.0 to 1.0</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Left stick vertical (-1=up, 1=down)</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>GSC_AXIS_RIGHTX</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">0x1012</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">-1.0 to 1.0</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Right stick horizontal</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>GSC_AXIS_RIGHTY</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">0x1013</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">-1.0 to 1.0</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Right stick vertical</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>GSC_AXIS_TRIGGERLEFT</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">0x1014</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">0.0 to 1.0</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Left trigger pressure</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>GSC_AXIS_TRIGGERRIGHT</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">0x1015</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">0.0 to 1.0</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Right trigger pressure</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Member Variables</h3>
+            <p>All member variables are private:</p>
+
+            <table style="width: 100%; border-collapse: collapse; margin: 1em 0;">
+                <thead>
+                    <tr style="background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Variable</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Type</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_controllers[4]</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">ControllerState array</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">State for up to 4 controllers</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_nConnectedCount</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">int</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Number of connected controllers</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_nActiveController</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">int</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Default controller index for queries</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_nButtonBuffer[10]</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">int array</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">FIFO buffer for buffered input</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>m_nItemsInBuffer</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">int</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Number of buttons in buffer</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>ControllerState Structure</h3>
+            <p>Each controller's state is tracked in a ControllerState struct:</p>
+
+            <table style="width: 100%; border-collapse: collapse; margin: 1em 0;">
+                <thead>
+                    <tr style="background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Member</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Type</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>controller</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">SDL_GameController*</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">SDL controller handle</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>instanceID</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">SDL_JoystickID</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Unique SDL instance ID</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>buttonPressed[15]</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">BOOL array</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Current state of all buttons</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>axisValue[6]</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">float array</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Current normalized axis values</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>isConnected</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">BOOL</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Connection status</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>name[256]</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">char array</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Controller device name</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Usage Pattern</h3>
+            <p>Typical workflow for controller input handling:</p>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// In your game class
+GS_Controller m_gsController;
+
+// In GameInit() - Controller auto-initializes in constructor
+if (m_gsController.GetConnectedCount() > 0)
+{
+    char msg[256];
+    sprintf(msg, "Controller connected: %s\n", 
+            m_gsController.GetControllerName(0));
+    GS_Platform::OutputDebugString(msg);
+}
+
+// In GameLoop() - Check button states and analog values
+// Movement with left analog stick
+float leftX = m_gsController.GetLeftStickX();
+float leftY = m_gsController.GetLeftStickY();
+
+if (fabs(leftX) > 0.2f)  // Dead zone
+    player.MoveHorizontal(leftX);
+
+// Jump with A button
+if (m_gsController.IsButtonDown(GSC_BUTTON_A))
+    player.Jump();
+
+// Camera control with right stick
+float rightX = m_gsController.GetRightStickX();
+float rightY = m_gsController.GetRightStickY();
+camera.Rotate(rightX, rightY);
+
+// In menu code - Use buffered input
+int button = m_gsController.GetBufferedButton();
+if (button == GSC_BUTTON_DPAD_UP)
+    menu.SelectPrevious();
+else if (button == GSC_BUTTON_A)
+    menu.Activate();</code></pre>
+        </div>
+    </section>
+
+    <!-- Constructor & Destructor -->
+    <section class="api-section">
+        <h2>Constructor & Destructor</h2>
+
+        <div class="endpoint" id="constructor">
+            <h3>GS_Controller()</h3>
+            <p><strong>File:</strong> <code>gs_sdl_controller.cpp</code></p>
+            <p>Constructor that initializes the controller system and automatically detects connected controllers.</p>
+            
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Initialization:</strong></p>
+            <ul>
+                <li>Initializes SDL2 game controller subsystem</li>
+                <li>Zeros out all controller state arrays</li>
+                <li>Clears the input buffer</li>
+                <li>Auto-detects and opens all connected controllers (up to 4)</li>
+                <li>Sets first connected controller as active</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>GS_Controller m_gsController;  // Ready to use, controllers detected</pre>
+        </div>
+
+        <div class="endpoint" id="destructor">
+            <h3>~GS_Controller()</h3>
+            <p><strong>File:</strong> <code>gs_sdl_controller.cpp</code></p>
+            <p>Destructor that closes all controller handles and cleans up resources.</p>
+            
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Calls <code>CloseControllers()</code> to release all SDL controller handles</li>
+                <li>Automatically called when controller object is destroyed</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Update & Reset Methods -->
+    <section class="api-section">
+        <h2>Update & Reset Methods</h2>
+
+        <div class="endpoint" id="update">
+            <h3>Update()</h3>
+            <p><strong>File:</strong> <code>gs_sdl_controller.cpp</code></p>
+            <p>Placeholder method for compatibility. SDL2 handles controller events in the main event loop.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void Update(HWND hWnd)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>hWnd</code> - Window handle (unused in SDL2 implementation)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Does nothing - controller events are processed in main event loop</li>
+                <li>Provided for API compatibility with keyboard/mouse classes</li>
+            </ul>
+
+            <p><strong>Note:</strong> Controller events are handled through <code>OnButtonDown()</code>, <code>OnButtonUp()</code>, and <code>OnAxisMotion()</code> which are called from the SDL event loop in <code>gs_app.cpp</code>.</p>
+        </div>
+
+        <div class="endpoint" id="reset">
+            <h3>Reset()</h3>
+            <p><strong>File:</strong> <code>gs_sdl_controller.cpp</code></p>
+            <p>Resets all controller states and clears the input buffer.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void Reset()</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Calls <code>ResetController()</code> for all controller slots</li>
+                <li>Clears the buffered input queue</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>// Reset all controllers when starting a new game
+m_gsController.Reset();</pre>
+        </div>
+
+        <div class="endpoint" id="resetcontroller">
+            <h3>ResetController()</h3>
+            <p><strong>File:</strong> <code>gs_sdl_controller.cpp</code></p>
+            <p>Resets button and axis state for a specific controller without affecting the buffer.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void ResetController(int nControllerIndex)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>nControllerIndex</code> - Controller index (0-3)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Sets all button states to FALSE (not pressed)</li>
+                <li>Sets all axis values to 0.0</li>
+                <li>Does nothing if index is invalid</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>// Reset player 2's controller
+m_gsController.ResetController(1);</pre>
+        </div>
+    </section>
+
+    <!-- Connection Management Methods -->
+    <section class="api-section">
+        <h2>Connection Management Methods</h2>
+
+        <div class="endpoint" id="getconnectedcount">
+            <h3>GetConnectedCount()</h3>
+            <p><strong>File:</strong> <code>gs_sdl_controller.h</code> (inline)</p>
+            <p>Returns the number of currently connected controllers.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>int GetConnectedCount()</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Number of connected controllers (0-4)</li>
+            </ul>
+
+            <p><strong>Examples:</strong></p>
+            <pre>// Check if any controllers are connected
+if (m_gsController.GetConnectedCount() == 0)
+    DisplayMessage("Please connect a controller");
+
+// Determine number of players
+int maxPlayers = m_gsController.GetConnectedCount();</pre>
+        </div>
+
+        <div class="endpoint" id="iscontrollerconnected">
+            <h3>IsControllerConnected()</h3>
+            <p><strong>File:</strong> <code>gs_sdl_controller.cpp</code></p>
+            <p>Checks if a specific controller slot has a connected controller.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL IsControllerConnected(int nControllerIndex)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>nControllerIndex</code> - Controller index to check (0-3)</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Controller is connected in this slot</li>
+                <li><code>FALSE</code> - Slot is empty or index is invalid</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>// Check player 1's controller
+if (m_gsController.IsControllerConnected(0))
+    ProcessPlayerInput(0);</pre>
+        </div>
+
+        <div class="endpoint" id="getcontrollername">
+            <h3>GetControllerName()</h3>
+            <p><strong>File:</strong> <code>gs_sdl_controller.cpp</code></p>
+            <p>Gets the device name of a connected controller.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>const char* GetControllerName(int nControllerIndex)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>nControllerIndex</code> - Controller index (0-3)</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Controller device name (e.g., "Xbox 360 Controller")</li>
+                <li><code>"Disconnected"</code> if slot is empty</li>
+                <li><code>"Invalid Controller"</code> if index is out of range</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>// Display connected controllers
+for (int i = 0; i < m_gsController.GetConnectedCount(); i++)
+{
+    printf("Controller %d: %s\n", i, 
+           m_gsController.GetControllerName(i));
+}</pre>
+        </div>
+
+        <div class="endpoint" id="setactivecontroller">
+            <h3>SetActiveController()</h3>
+            <p><strong>File:</strong> <code>gs_sdl_controller.cpp</code></p>
+            <p>Sets which controller is used as the default for input queries.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void SetActiveController(int nControllerIndex)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>nControllerIndex</code> - Controller index to make active (0-3)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Sets the default controller for methods that accept <code>-1</code> as controller index</li>
+                <li>Does nothing if index is invalid or controller is not connected</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>// Let player choose their controller
+int playerController = ShowControllerSelectMenu();
+m_gsController.SetActiveController(playerController);</pre>
+        </div>
+
+        <div class="endpoint" id="getactivecontroller">
+            <h3>GetActiveController()</h3>
+            <p><strong>File:</strong> <code>gs_sdl_controller.h</code> (inline)</p>
+            <p>Returns the index of the currently active controller.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>int GetActiveController()</pre>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Index of active controller (0-3)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>int activeController = m_gsController.GetActiveController();
+printf("Player 1 using controller %d\n", activeController);</pre>
+        </div>
+    </section>
+
+    <!-- Event Handling Methods -->
+    <section class="api-section">
+        <h2>Event Handling Methods</h2>
+        <p>These methods are called from the main SDL event loop in <code>gs_app.cpp</code>. You typically don't call these directly unless implementing custom event handling.</p>
+
+        <div class="endpoint" id="oncontrolleradded">
+            <h3>OnControllerAdded()</h3>
+            <p><strong>File:</strong> <code>gs_sdl_controller.cpp</code></p>
+            <p>Called when a controller is connected (hot-plugged).</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void OnControllerAdded(int nDeviceIndex)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>nDeviceIndex</code> - SDL device index of the newly connected controller</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Finds first free controller slot</li>
+                <li>Opens the SDL controller</li>
+                <li>Stores controller handle and instance ID</li>
+                <li>Retrieves and stores controller name</li>
+                <li>Increments connected count</li>
+                <li>Sets as active controller if it's the first one</li>
+            </ul>
+        </div>
+
+        <div class="endpoint" id="oncontrollerremoved">
+            <h3>OnControllerRemoved()</h3>
+            <p><strong>File:</strong> <code>gs_sdl_controller.cpp</code></p>
+            <p>Called when a controller is disconnected.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void OnControllerRemoved(SDL_JoystickID instanceID)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>instanceID</code> - SDL joystick instance ID of the disconnected controller</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Finds controller by instance ID</li>
+                <li>Closes the SDL controller handle</li>
+                <li>Marks slot as disconnected</li>
+                <li>Decrements connected count</li>
+                <li>Switches active controller if the removed one was active</li>
+            </ul>
+        </div>
+
+        <div class="endpoint" id="onbuttondown">
+            <h3>OnButtonDown()</h3>
+            <p><strong>File:</strong> <code>gs_sdl_controller.cpp</code></p>
+            <p>Called when a controller button is pressed.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void OnButtonDown(SDL_JoystickID instanceID, int nButton)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>instanceID</code> - SDL instance ID of the controller</li>
+                <li><code>nButton</code> - Button index (0-14, maps to GSC_BUTTON_*)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Finds controller by instance ID</li>
+                <li>Sets button state to pressed (TRUE)</li>
+                <li>Adds button to buffered input queue</li>
+            </ul>
+        </div>
+
+        <div class="endpoint" id="onbuttonup">
+            <h3>OnButtonUp()</h3>
+            <p><strong>File:</strong> <code>gs_sdl_controller.cpp</code></p>
+            <p>Called when a controller button is released.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void OnButtonUp(SDL_JoystickID instanceID, int nButton)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>instanceID</code> - SDL instance ID of the controller</li>
+                <li><code>nButton</code> - Button index (0-14)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Finds controller by instance ID</li>
+                <li>Sets button state to released (FALSE)</li>
+            </ul>
+        </div>
+
+        <div class="endpoint" id="onaxismotion">
+            <h3>OnAxisMotion()</h3>
+            <p><strong>File:</strong> <code>gs_sdl_controller.cpp</code></p>
+            <p>Called when an analog stick or trigger moves.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void OnAxisMotion(SDL_JoystickID instanceID, int nAxis, float fValue)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>instanceID</code> - SDL instance ID of the controller</li>
+                <li><code>nAxis</code> - Axis index (0-5, maps to GSC_AXIS_*)</li>
+                <li><code>fValue</code> - Normalized axis value (-1.0 to 1.0 for sticks, 0.0 to 1.0 for triggers)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Finds controller by instance ID</li>
+                <li>Stores the normalized axis value</li>
+                <li>Values are already normalized by SDL event loop</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Manual Button State Methods -->
+    <section class="api-section">
+        <h2>Manual Button State Methods</h2>
+        <p>These methods allow manual control of button states, useful when integrating controller input with other input systems or handling events through non-SDL event loops.</p>
+
+        <div class="endpoint" id="setbuttondown">
+            <h3>SetButtonDown()</h3>
+            <p><strong>File:</strong> <code>gs_sdl_controller.cpp</code></p>
+            <p>Manually sets a button state to pressed. This is useful when receiving controller button events through the Windows message system or integrating with custom event handling.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void SetButtonDown(int nButton, int nControllerIndex = -1)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>nButton</code> - Button code (GSC_BUTTON_* constant)</li>
+                <li><code>nControllerIndex</code> - Controller index, or -1 for active controller (default: -1)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Converts button code to internal array index</li>
+                <li>Updates button state to pressed (TRUE)</li>
+                <li>Does nothing if button code, controller index, or connection is invalid</li>
+                <li>Does NOT add button to buffered input queue (unlike OnButtonDown)</li>
+            </ul>
+
+            <p><strong>Use Cases:</strong></p>
+            <ul>
+                <li>Integrating controller input with keyboard input systems</li>
+                <li>Handling WM_KEYDOWN messages that represent controller buttons</li>
+                <li>Custom event processing outside SDL's event loop</li>
+                <li>Testing or simulating controller input</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// In MsgProc - handling controller buttons as keyboard events
+LRESULT GS_Demo::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+    switch (uMsg)
+    {
+    case WM_KEYDOWN:
+        // Handle keyboard
+        m_gsKeyboard.KeyDown(wParam);
+        m_gsKeyboard.AddKeyToBuffer(wParam);
+        
+        // Also update controller state if it's a controller button
+        if (wParam >= GSC_BUTTON_A && wParam <= GSC_BUTTON_DPAD_RIGHT)
+        {
+            m_gsController.SetButtonDown(wParam);
+            m_gsController.AddButtonToBuffer(wParam);
+        }
+        break;
+    }
+    
+    return GS_Application::MsgProc(hWnd, uMsg, wParam, lParam);
+}</code></pre>
+
+            <p><strong>Note:</strong> This method only updates the button state array. If you also need buffered input, you must call <code>AddButtonToBuffer()</code> separately. The SDL event handler <code>OnButtonDown()</code> calls both automatically.</p>
+        </div>
+
+        <div class="endpoint" id="setbuttonup">
+            <h3>SetButtonUp()</h3>
+            <p><strong>File:</strong> <code>gs_sdl_controller.cpp</code></p>
+            <p>Manually sets a button state to released. This is the complement to <code>SetButtonDown()</code>.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void SetButtonUp(int nButton, int nControllerIndex = -1)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>nButton</code> - Button code (GSC_BUTTON_* constant)</li>
+                <li><code>nControllerIndex</code> - Controller index, or -1 for active controller (default: -1)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Converts button code to internal array index</li>
+                <li>Updates button state to released (FALSE)</li>
+                <li>Does nothing if button code, controller index, or connection is invalid</li>
+            </ul>
+
+            <p><strong>Use Cases:</strong></p>
+            <ul>
+                <li>Handling WM_KEYUP messages that represent controller buttons</li>
+                <li>Ensuring button states are properly released</li>
+                <li>Custom event processing outside SDL's event loop</li>
+                <li>Testing or simulating controller input</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// In MsgProc - handling controller button releases
+case WM_KEYUP:
+    // Handle keyboard
+    m_gsKeyboard.KeyUp(wParam);
+    
+    // Also update controller state if it's a controller button
+    if (wParam >= GSC_BUTTON_A && wParam <= GSC_BUTTON_DPAD_RIGHT)
+    {
+        m_gsController.SetButtonUp(wParam);
+    }
+    break;</code></pre>
+
+            <p><strong>Note:</strong> This method is automatically called by <code>OnButtonUp()</code> in the SDL event loop. Manual calls are only needed for custom event handling.</p>
+        </div>
+    </section>
+
+    <!-- Button State Methods -->
+    <section class="api-section">
+        <h2>Button State Methods</h2>
+
+        <div class="endpoint" id="isbuttondown">
+            <h3>IsButtonDown()</h3>
+            <p><strong>File:</strong> <code>gs_sdl_controller.cpp</code></p>
+            <p>Checks if a specific button is currently pressed.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL IsButtonDown(int nButton, int nControllerIndex = -1)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>nButton</code> - Button code (GSC_BUTTON_* constant)</li>
+                <li><code>nControllerIndex</code> - Controller index, or -1 for active controller (default: -1)</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Button is currently pressed</li>
+                <li><code>FALSE</code> - Button is not pressed or invalid</li>
+            </ul>
+
+            <p><strong>Examples:</strong></p>
+            <pre>// Check A button on active controller
+if (m_gsController.IsButtonDown(GSC_BUTTON_A))
+    player.Jump();
+
+// Check specific controller
+if (m_gsController.IsButtonDown(GSC_BUTTON_START, 1))
+    PausePlayer2();</pre>
+        </div>
+
+        <div class="endpoint" id="arebuttonsdown">
+            <h3>AreButtonsDown()</h3>
+            <p><strong>File:</strong> <code>gs_sdl_controller.cpp</code></p>
+            <p>Checks if all specified buttons are simultaneously pressed.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL AreButtonsDown(int nNumButtons, int* pButtons, int nControllerIndex = -1)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>nNumButtons</code> - Number of buttons to check</li>
+                <li><code>pButtons</code> - Pointer to array of button codes</li>
+                <li><code>nControllerIndex</code> - Controller index, or -1 for active (default: -1)</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - All buttons are pressed</li>
+                <li><code>FALSE</code> - One or more buttons are not pressed</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>// Check for special move combo (L1 + R1 + A)
+int buttons[] = { 
+    GSC_BUTTON_LEFTSHOULDER, 
+    GSC_BUTTON_RIGHTSHOULDER, 
+    GSC_BUTTON_A 
+};
+if (m_gsController.AreButtonsDown(3, buttons))
+    player.SpecialMove();</pre>
+        </div>
+
+        <div class="endpoint" id="arebuttonsup">
+            <h3>AreButtonsUp()</h3>
+            <p><strong>File:</strong> <code>gs_sdl_controller.cpp</code></p>
+            <p>Checks if all specified buttons are released.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL AreButtonsUp(int nNumButtons, int* pButtons, int nControllerIndex = -1)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>nNumButtons</code> - Number of buttons to check</li>
+                <li><code>pButtons</code> - Pointer to array of button codes</li>
+                <li><code>nControllerIndex</code> - Controller index, or -1 for active (default: -1)</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - All buttons are released</li>
+                <li><code>FALSE</code> - One or more buttons are pressed</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>// Wait for buttons to be released
+int menuButtons[] = { 
+    GSC_BUTTON_A, 
+    GSC_BUTTON_B, 
+    GSC_BUTTON_DPAD_UP 
+};
+if (m_gsController.AreButtonsUp(3, menuButtons))
+    m_bButtonsReleased = TRUE;</pre>
+        </div>
+
+        <div class="endpoint" id="getbuttonpressed">
+            <h3>GetButtonPressed()</h3>
+            <p><strong>File:</strong> <code>gs_sdl_controller.cpp</code></p>
+            <p>Returns the first pressed button found (scanning A through D-Pad Right).</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>int GetButtonPressed(int nControllerIndex = -1)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>nControllerIndex</code> - Controller index, or -1 for active (default: -1)</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Button code (GSC_BUTTON_*) of first pressed button</li>
+                <li><code>-1</code> if no buttons are pressed</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>// Get any pressed button
+int button = m_gsController.GetButtonPressed();
+if (button != -1)
+    printf("Pressed: %s\n", 
+           m_gsController.GetButtonDescription(button));</pre>
+        </div>
+    </section>
+
+    <!-- Analog Input Methods -->
+    <section class="api-section">
+        <h2>Analog Input Methods</h2>
+
+        <div class="endpoint" id="getaxisvalue">
+            <h3>GetAxisValue()</h3>
+            <p><strong>File:</strong> <code>gs_sdl_controller.cpp</code></p>
+            <p>Gets the current normalized value of an analog axis.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>float GetAxisValue(int nAxis, int nControllerIndex = -1)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>nAxis</code> - Axis code (GSC_AXIS_* constant)</li>
+                <li><code>nControllerIndex</code> - Controller index, or -1 for active (default: -1)</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>For sticks: -1.0 to 1.0</li>
+                <li>For triggers: 0.0 to 1.0</li>
+                <li><code>0.0</code> if invalid axis or controller</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>// Get left stick horizontal
+float leftX = m_gsController.GetAxisValue(GSC_AXIS_LEFTX);
+
+// Apply dead zone
+if (fabs(leftX) > 0.15f)
+    player.MoveX(leftX * moveSpeed);</pre>
+        </div>
+
+        <div class="endpoint" id="getleftstickx">
+            <h3>GetLeftStickX()</h3>
+            <p><strong>File:</strong> <code>gs_sdl_controller.cpp</code></p>
+            <p>Convenience method to get left analog stick X position.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>float GetLeftStickX(int nControllerIndex = -1)</pre>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>-1.0 (left) to 1.0 (right)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>float stickX = m_gsController.GetLeftStickX();
+player.MoveHorizontal(stickX);</pre>
+        </div>
+
+        <div class="endpoint" id="getleftsticky">
+            <h3>GetLeftStickY()</h3>
+            <p><strong>File:</strong> <code>gs_sdl_controller.cpp</code></p>
+            <p>Convenience method to get left analog stick Y position.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>float GetLeftStickY(int nControllerIndex = -1)</pre>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>-1.0 (up) to 1.0 (down)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>float stickY = m_gsController.GetLeftStickY();
+player.MoveVertical(stickY);</pre>
+        </div>
+
+        <div class="endpoint" id="getrightstickx">
+            <h3>GetRightStickX()</h3>
+            <p><strong>File:</strong> <code>gs_sdl_controller.cpp</code></p>
+            <p>Convenience method to get right analog stick X position.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>float GetRightStickX(int nControllerIndex = -1)</pre>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>-1.0 (left) to 1.0 (right)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>float stickX = m_gsController.GetRightStickX();
+camera.RotateHorizontal(stickX * sensitivity);</pre>
+        </div>
+
+        <div class="endpoint" id="getrightsticky">
+            <h3>GetRightStickY()</h3>
+            <p><strong>File:</strong> <code>gs_sdl_controller.cpp</code></p>
+            <p>Convenience method to get right analog stick Y position.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>float GetRightStickY(int nControllerIndex = -1)</pre>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>-1.0 (up) to 1.0 (down)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>float stickY = m_gsController.GetRightStickY();
+camera.RotateVertical(stickY * sensitivity);</pre>
+        </div>
+
+        <div class="endpoint" id="getlefttrigger">
+            <h3>GetLeftTrigger()</h3>
+            <p><strong>File:</strong> <code>gs_sdl_controller.cpp</code></p>
+            <p>Convenience method to get left trigger pressure.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>float GetLeftTrigger(int nControllerIndex = -1)</pre>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>0.0 (not pressed) to 1.0 (fully pressed)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>float trigger = m_gsController.GetLeftTrigger();
+if (trigger > 0.5f)
+    player.Brake(trigger);</pre>
+        </div>
+
+        <div class="endpoint" id="getrighttrigger">
+            <h3>GetRightTrigger()</h3>
+            <p><strong>File:</strong> <code>gs_sdl_controller.cpp</code></p>
+            <p>Convenience method to get right trigger pressure.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>float GetRightTrigger(int nControllerIndex = -1)</pre>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>0.0 (not pressed) to 1.0 (fully pressed)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>float trigger = m_gsController.GetRightTrigger();
+vehicle.Accelerate(trigger);</pre>
+        </div>
+    </section>
+
+    <!-- Buffered Input Methods -->
+    <section class="api-section">
+        <h2>Buffered Input Methods</h2>
+
+        <div class="endpoint" id="addbuttontobuffer">
+            <h3>AddButtonToBuffer()</h3>
+            <p><strong>File:</strong> <code>gs_sdl_controller.cpp</code></p>
+            <p>Adds a button press to the buffered input queue.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>BOOL AddButtonToBuffer(int nButton)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>nButton</code> - Button code to add (GSC_BUTTON_* constant)</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Adds button to end of FIFO buffer</li>
+                <li>If buffer is full (10 items), removes oldest item</li>
+                <li>Called automatically by <code>OnButtonDown()</code></li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li><code>TRUE</code> - Button added successfully</li>
+                <li><code>FALSE</code> - Buffer was full, oldest button discarded</li>
+            </ul>
+        </div>
+
+        <div class="endpoint" id="clearbuffer">
+            <h3>ClearBuffer()</h3>
+            <p><strong>File:</strong> <code>gs_sdl_controller.cpp</code></p>
+            <p>Removes all button presses from the input buffer.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void ClearBuffer()</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>None</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>// Clear buffer when entering menu
+m_gsController.ClearBuffer();</pre>
+        </div>
+
+        <div class="endpoint" id="getbufferedbutton">
+            <h3>GetBufferedButton()</h3>
+            <p><strong>File:</strong> <code>gs_sdl_controller.cpp</code></p>
+            <p>Retrieves the most recent button press from the buffer.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>int GetBufferedButton(BOOL bRemoveButton = TRUE)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>bRemoveButton</code> - TRUE to remove from buffer, FALSE to peek (default: TRUE)</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Button code (GSC_BUTTON_*) of most recent press</li>
+                <li><code>-1</code> if buffer is empty</li>
+            </ul>
+
+            <p><strong>Examples:</strong></p>
+            <pre>// Menu navigation
+int button = m_gsController.GetBufferedButton();
+switch (button)
+{
+case GSC_BUTTON_DPAD_UP:
+    menu.SelectPrevious();
+    break;
+case GSC_BUTTON_A:
+    menu.Activate();
+    break;
+}
+
+// Peek without removing
+int nextButton = m_gsController.GetBufferedButton(FALSE);</pre>
+        </div>
+
+        <div class="endpoint" id="getbuffer">
+            <h3>GetBuffer()</h3>
+            <p><strong>File:</strong> <code>gs_sdl_controller.h</code> (inline)</p>
+            <p>Returns pointer to the internal button buffer array.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>int* GetBuffer()</pre>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Pointer to <code>m_nButtonBuffer[10]</code> array</li>
+            </ul>
+        </div>
+
+        <div class="endpoint" id="getbuffersize">
+            <h3>GetBufferSize()</h3>
+            <p><strong>File:</strong> <code>gs_sdl_controller.h</code> (inline)</p>
+            <p>Returns the number of button presses currently in the buffer.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>int GetBufferSize()</pre>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Number of buffered button presses (0-10)</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>// Process all buffered input
+while (m_gsController.GetBufferSize() > 0)
+{
+    int button = m_gsController.GetBufferedButton();
+    ProcessButton(button);
+}</pre>
+        </div>
+    </section>
+
+    <!-- Utility Methods -->
+    <section class="api-section">
+        <h2>Utility Methods</h2>
+
+        <div class="endpoint" id="getbuttondescription">
+            <h3>GetButtonDescription()</h3>
+            <p><strong>File:</strong> <code>gs_sdl_controller.cpp</code></p>
+            <p>Returns a human-readable description of a button.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>const char* GetButtonDescription(int nButton)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>nButton</code> - Button code (GSC_BUTTON_* constant)</li>
+            </ul>
+
+            <p><strong>Returns:</strong></p>
+            <ul>
+                <li>Pointer to button description string</li>
+                <li>Examples: "A Button", "D-Pad Up", "Left Shoulder"</li>
+                <li><code>"Unknown"</code> for invalid button codes</li>
+            </ul>
+
+            <p><strong>Example:</strong></p>
+            <pre>// Display button mapping
+int jumpButton = GSC_BUTTON_A;
+printf("Jump: %s\n", 
+       m_gsController.GetButtonDescription(jumpButton));
+// Output: "Jump: A Button"</pre>
+        </div>
+
+        <div class="endpoint" id="enablerumble">
+            <h3>EnableRumble()</h3>
+            <p><strong>File:</strong> <code>gs_sdl_controller.cpp</code></p>
+            <p>Activates haptic feedback (vibration) on a controller.</p>
+            
+            <p><strong>Signature:</strong></p>
+            <pre>void EnableRumble(int nControllerIndex, float fLowFreq, float fHighFreq, int nDurationMs)</pre>
+
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>nControllerIndex</code> - Controller index, or -1 for active (default: -1)</li>
+                <li><code>fLowFreq</code> - Low frequency motor intensity (0.0 to 1.0)</li>
+                <li><code>fHighFreq</code> - High frequency motor intensity (0.0 to 1.0)</li>
+                <li><code>nDurationMs</code> - Vibration duration in milliseconds</li>
+            </ul>
+
+            <p><strong>Behavior:</strong></p>
+            <ul>
+                <li>Converts normalized values to SDL range (0-65535)</li>
+                <li>Activates controller rumble motors</li>
+                <li>Silently fails if controller doesn't support rumble</li>
+            </ul>
+
+            <p><strong>Examples:</strong></p>
+            <pre>// Light rumble for 200ms
+m_gsController.EnableRumble(-1, 0.3f, 0.3f, 200);
+
+// Heavy rumble for collision
+m_gsController.EnableRumble(0, 1.0f, 1.0f, 500);
+
+// Low frequency rumble (engine)
+m_gsController.EnableRumble(-1, 0.8f, 0.2f, 1000);</pre>
+        </div>
+    </section>
+
+    <!-- Best Practices -->
+    <section class="api-section">
+        <h2>Best Practices</h2>
+        <div class="endpoint">
+            <h3>Analog Movement</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Apply dead zone to prevent drift
+const float DEAD_ZONE = 0.15f;
+
+float leftX = m_gsController.GetLeftStickX();
+float leftY = m_gsController.GetLeftStickY();
+
+if (fabs(leftX) > DEAD_ZONE)
+    player.MoveX(leftX * moveSpeed * deltaTime);
+
+if (fabs(leftY) > DEAD_ZONE)
+    player.MoveY(leftY * moveSpeed * deltaTime);</code></pre>
+
+            <h3>Camera Control</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Right stick for camera with sensitivity
+const float CAMERA_SENSITIVITY = 2.0f;
+
+float rightX = m_gsController.GetRightStickX();
+float rightY = m_gsController.GetRightStickY();
+
+camera.yaw += rightX * CAMERA_SENSITIVITY * deltaTime;
+camera.pitch += rightY * CAMERA_SENSITIVITY * deltaTime;</code></pre>
+
+            <h3>Trigger-Based Input</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Analog triggers for acceleration/braking
+float rightTrigger = m_gsController.GetRightTrigger();
+float leftTrigger = m_gsController.GetLeftTrigger();
+
+if (rightTrigger > 0.1f)
+    vehicle.Accelerate(rightTrigger);
+
+if (leftTrigger > 0.1f)
+    vehicle.Brake(leftTrigger);</code></pre>
+
+            <h3>Menu Navigation</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Use buffered input for menus
+int button = m_gsController.GetBufferedButton();
+switch (button)
+{
+case GSC_BUTTON_DPAD_UP:
+    menu.SelectPrevious();
+    PlaySound(SOUND_MENU_MOVE);
+    break;
+
+case GSC_BUTTON_DPAD_DOWN:
+    menu.SelectNext();
+    PlaySound(SOUND_MENU_MOVE);
+    break;
+
+case GSC_BUTTON_A:
+    menu.ActivateSelection();
+    PlaySound(SOUND_MENU_SELECT);
+    break;
+
+case GSC_BUTTON_B:
+    menu.GoBack();
+    PlaySound(SOUND_MENU_BACK);
+    break;
+}</code></pre>
+
+            <h3>Multi-Player Support</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Handle multiple controllers
+for (int i = 0; i < m_gsController.GetConnectedCount(); i++)
+{
+    // Movement
+    float leftX = m_gsController.GetLeftStickX(i);
+    float leftY = m_gsController.GetLeftStickY(i);
+    
+    players[i].Move(leftX, leftY);
+    
+    // Actions
+    if (m_gsController.IsButtonDown(GSC_BUTTON_A, i))
+        players[i].Jump();
+    
+    if (m_gsController.IsButtonDown(GSC_BUTTON_B, i))
+        players[i].Attack();
+}</code></pre>
+
+            <h3>Hot-Plug Handling</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Check controller status each frame
+void UpdateControllerStatus()
+{
+    static int prevConnectedCount = 0;
+    int currentCount = m_gsController.GetConnectedCount();
+    
+    if (currentCount > prevConnectedCount)
+    {
+        // Controller connected
+        const char* name = m_gsController.GetControllerName(
+            currentCount - 1);
+        DisplayMessage("Controller connected: %s", name);
+        
+        // Rumble to confirm
+        m_gsController.EnableRumble(currentCount - 1, 
+                                    0.5f, 0.5f, 300);
+    }
+    else if (currentCount < prevConnectedCount)
+    {
+        // Controller disconnected
+        DisplayMessage("Controller disconnected");
+        
+        // Pause if in single-player game
+        if (currentCount == 0)
+            PauseGame();
+    }
+    
+    prevConnectedCount = currentCount;
+}</code></pre>
+
+            <h3>Button Release Detection</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Detect single button press (not held)
+static bool wasButtonPressed = false;
+bool isButtonNow = m_gsController.IsButtonDown(GSC_BUTTON_A);
+
+if (isButtonNow && !wasButtonPressed)
+{
+    // Button just pressed (rising edge)
+    player.Jump();
+}
+
+wasButtonPressed = isButtonNow;</code></pre>
+
+            <h3>Vibration Effects</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Different rumble patterns for different events
+
+// Light hit
+m_gsController.EnableRumble(-1, 0.3f, 0.5f, 150);
+
+// Heavy collision
+m_gsController.EnableRumble(-1, 1.0f, 1.0f, 500);
+
+// Engine rumble (continuous low frequency)
+if (vehicle.IsEngineRunning())
+{
+    float rpm = vehicle.GetRPM() / vehicle.GetMaxRPM();
+    m_gsController.EnableRumble(-1, rpm * 0.4f, 0.0f, 100);
+}
+
+// Heartbeat effect
+for (int i = 0; i < 2; i++)
+{
+    m_gsController.EnableRumble(-1, 0.6f, 0.6f, 100);
+    Sleep(150);
+}</code></pre>
+
+            <h3>State Management</h3>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Clear state when changing game states
+void EnterMenuState()
+{
+    m_gsController.ClearBuffer();
+    m_currentState = STATE_MENU;
+}
+
+void EnterGameplayState()
+{
+    // Don't clear buffer - might have queued input
+    // Just reset button states
+    for (int i = 0; i < m_gsController.GetConnectedCount(); i++)
+    {
+        m_gsController.ResetController(i);
+    }
+    m_currentState = STATE_GAMEPLAY;
+}</code></pre>
+
+            <h3>Tips and Recommendations</h3>
+            <ul>
+                <li><strong>Always Apply Dead Zones:</strong> Analog sticks can drift; use a dead zone of 0.15-0.25</li>
+                <li><strong>Normalize Stick Input:</strong> For 8-way movement, normalize diagonal input</li>
+                <li><strong>Handle Disconnection:</strong> Check <code>GetConnectedCount()</code> and pause if needed</li>
+                <li><strong>Test Multiple Controllers:</strong> Verify your game works with different controller brands</li>
+                <li><strong>Provide Remapping:</strong> Let players customize button assignments</li>
+                <li><strong>Use Buffered Input for Menus:</strong> Prevents repeated menu actions from held buttons</li>
+                <li><strong>Use Real-Time State for Gameplay:</strong> Allows smooth analog movement</li>
+                <li><strong>Don't Spam Rumble:</strong> Overuse of vibration is annoying; use it sparingly</li>
+                <li><strong>Support Keyboard Fallback:</strong> Not everyone has a controller</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Integration Example -->
+    <section class="api-section">
+        <h2>Integration with Keyboard Input</h2>
+        <div class="endpoint">
+            <h3>Unified Input Handling</h3>
+            <p>The snake game integrates keyboard and controller input seamlessly using the same virtual key code range (0x1000+) for controller buttons:</p>
+
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// In MsgProc() - Handle both keyboard and controller
+LRESULT GS_Snake::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+    switch (uMsg)
+    {
+    case WM_KEYDOWN:
+        // wParam contains either GSK_* (keyboard) or GSC_BUTTON_* (controller)
+        m_gsKeyboard.KeyDown(wParam);
+        m_gsKeyboard.AddKeyToBuffer(wParam);
+        
+        // Update controller button state if it's a controller button
+        if (wParam >= GSC_BUTTON_A && wParam <= GSC_BUTTON_DPAD_RIGHT)
+        {
+            m_gsController.SetButtonDown(wParam);
+            m_gsController.AddButtonToBuffer(wParam);
+        }
+        break;
+
+    case WM_KEYUP:
+        m_gsKeyboard.KeyUp(wParam);
+        
+        // Update controller button state if it's a controller button
+        if (wParam >= GSC_BUTTON_A && wParam <= GSC_BUTTON_DPAD_RIGHT)
+        {
+            m_gsController.SetButtonUp(wParam);
+        }
+        break;
+    }
+    
+    return GS_Application::MsgProc(hWnd, uMsg, wParam, lParam);
+}
+
+// In game code - Check both keyboard and controller
+int nKey = m_gsKeyboard.GetBufferedKey();
+
+switch (nKey)
+{
+// Both keyboard and controller work the same way!
+case GSK_UP:
+case GSC_BUTTON_DPAD_UP:
+    menu.SelectPrevious();
+    break;
+
+case GSK_ENTER:
+case GSC_BUTTON_A:
+    menu.Activate();
+    break;
+
+case GSK_ESCAPE:
+case GSC_BUTTON_B:
+    menu.GoBack();
+    break;
+}</code></pre>
+
+            <h3>How It Works</h3>
+            <p>The integration is possible because:</p>
+            <ul>
+                <li>Controller button codes (0x1000-0x100E) don't conflict with keyboard codes (0x00-0xFF)</li>
+                <li>SDL event loop converts controller events to WM_KEYDOWN/WM_KEYUP messages</li>
+                <li>Keyboard class accepts any virtual key code (including controller buttons)</li>
+                <li>Same buffered input system works for both input types</li>
+            </ul>
+
+            <div style="background-color: #d4edda; padding: 15px; border-left: 4px solid #28a745; margin: 20px 0;">
+                <h4 style="margin-top: 0;">✅ Best Practice</h4>
+                <p style="margin-bottom: 0;">This unified approach means you only need to handle input once in your game code. Players can seamlessly switch between keyboard and controller, or even use both simultaneously!</p>
+            </div>
+        </div>
+    </section>
+</body>
+
+</html>

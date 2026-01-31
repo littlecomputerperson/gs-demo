@@ -68,6 +68,7 @@ set(SOURCES
     gs_ogl_sprite_ex.cpp
     gs_ogl_texture.cpp
     gs_platform.cpp
+    gs_sdl_controller.cpp
     gs_sdl_mixer_sound.cpp
     gs_demo.cpp
 )

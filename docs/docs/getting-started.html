@@ -378,116 +378,71 @@ open build/Demo.app</pre>
             <table style="width: 100%; border-collapse: collapse; margin: 15px 0;">
                 <thead>
                     <tr style="background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
-                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Key</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Keyboard</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Controller</th>
                         <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Action</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
                         <td style="padding: 10px; border: 1px solid #ddd;"><kbd>↑</kbd> <kbd>↓</kbd></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">D-Pad Up/Down</td>
                         <td style="padding: 10px; border: 1px solid #ddd;">Navigate menus</td>
                     </tr>
                     <tr style="background-color: #f9f9f9;">
                         <td style="padding: 10px; border: 1px solid #ddd;"><kbd>Enter</kbd></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">A Button</td>
                         <td style="padding: 10px; border: 1px solid #ddd;">Select menu option</td>
                     </tr>
                     <tr>
                         <td style="padding: 10px; border: 1px solid #ddd;"><kbd>Esc</kbd></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">B Button</td>
                         <td style="padding: 10px; border: 1px solid #ddd;">Back / Cancel / Quit</td>
                     </tr>
                     <tr style="background-color: #f9f9f9;">
                         <td style="padding: 10px; border: 1px solid #ddd;"><kbd>Space</kbd></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">A Button</td>
                         <td style="padding: 10px; border: 1px solid #ddd;">Advance / End game</td>
                     </tr>
                     <tr>
                         <td style="padding: 10px; border: 1px solid #ddd;"><kbd>P</kbd></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Start Button</td>
                         <td style="padding: 10px; border: 1px solid #ddd;">Pause / Resume</td>
                     </tr>
                     <tr style="background-color: #f9f9f9;">
                         <td style="padding: 10px; border: 1px solid #ddd;"><kbd>Alt</kbd>+<kbd>Enter</kbd></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">-</td>
                         <td style="padding: 10px; border: 1px solid #ddd;">Toggle fullscreen (Windows with menu)</td>
                     </tr>
                     <tr>
                         <td style="padding: 10px; border: 1px solid #ddd;"><kbd>V</kbd></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">-</td>
                         <td style="padding: 10px; border: 1px solid #ddd;">Toggle VSync</td>
                     </tr>
                     <tr style="background-color: #f9f9f9;">
                         <td style="padding: 10px; border: 1px solid #ddd;"><kbd>B</kbd></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">-</td>
                         <td style="padding: 10px; border: 1px solid #ddd;">Toggle blending (transparency)</td>
                     </tr>
                     <tr>
                         <td style="padding: 10px; border: 1px solid #ddd;"><kbd>F1</kbd>-<kbd>F5</kbd></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">-</td>
                         <td style="padding: 10px; border: 1px solid #ddd;">Quick resolution change</td>
                     </tr>
                 </tbody>
             </table>
 
-            <h3>Configuration Files</h3>
-            <p>After first run, two INI files are created in the build directory:</p>
-
-            <h4>settings.ini</h4>
-            <pre style="background-color: #f5f5f5; padding: 10px; overflow-x: auto;">[Display]
-DisplayWidth=960
-DisplayHeight=540
-ColorDepth=32
-WindowMode=1         ; 0=Fullscreen, 1=Windowed
-EnableVSync=0
-EnableAliasing=0
-
-[Sound]
-MusicVolume=255
-EffectsVolume=255</pre>
-
-            <h4>hiscores.ini</h4>
-            <pre style="background-color: #f5f5f5; padding: 10px; overflow-x: auto;">[Score0]
-Name=PLAYER.1..
-Score=0
-
-[Score1]
-Name=..........
-Score=0
-...
-</pre>
-
-            <p>These files are preserved between builds by the build scripts.</p>
-
-            <div style="background-color: #fff3cd; padding: 15px; border-left: 4px solid #ffc107; margin: 20px 0;">
-                <h4 style="margin-top: 0;">⚠️ Troubleshooting</h4>
-                <p><strong>If the window doesn't appear:</strong></p>
-                <ul>
-                    <li>Check that the <code>data/</code> folder exists in the build directory</li>
-                    <li>Ensure graphics drivers are up to date</li>
-                    <li>Try running from the command line to see error messages</li>
+            <div style="background-color: #d4edda; padding: 15px; border-left: 4px solid #28a745; margin: 20px 0;">
+                <h4 style="margin-top: 0;">🎮 Controller Support</h4>
+                <p>GameSystem automatically detects and supports up to 4 game controllers simultaneously, including:</p>
+                <ul style="margin-bottom: 10px;">
+                    <li>Xbox 360, Xbox One, Xbox Series controllers</li>
+                    <li>PlayStation 3, PlayStation 4, PlayStation 5 controllers</li>
+                    <li>Nintendo Switch Pro Controller</li>
+                    <li>Steam Controller</li>
+                    <li>Generic USB/Bluetooth gamepads</li>
                 </ul>
-                <p><strong>If you see "Failed to load" errors:</strong></p>
-                <ul>
-                    <li>Verify all image and sound files are in <code>build/data/</code></li>
-                    <li>Check file permissions (readable)</li>
-                </ul>
-                <p><strong>On Windows, if DLLs are missing:</strong></p>
-                <ul style="margin-bottom: 0;">
-                    <li>vcpkg: DLLs should be in <code>build/Release/</code> automatically</li>
-                    <li>MinGW: Copy SDL2.dll and SDL2_mixer.dll to executable directory</li>
-                </ul>
-            </div>
-        </div>
-    </section>
-
-    <!-- Framework Architecture (existing content) -->
-    <section class="api-section" id="architecture">
-        <h2>5. Framework Architecture</h2>
-        <div class="endpoint">
-            <h3>Introduction</h3>
-            <p>The GameSystem framework follows an object-oriented, inheritance-based architecture:</p>
-            
-            <div style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; margin: 15px 0;">
-                <h4 style="margin-top: 0;">Class Hierarchy</h4>
-                <pre style="margin: 0; font-family: 'Courier New', monospace;">
-GS_Application (base class)
-    ↓
-GS_Demo (your game class)
-</pre>
-                <p style="margin-bottom: 0; margin-top: 10px;">Your game inherits from <code>GS_Application</code> and overrides key methods to implement your game logic.</p>
+                <p style="margin-bottom: 0;"><strong>Hot-plugging is supported:</strong> Controllers can be connected or disconnected during gameplay without restarting the game.</p>
             </div>
 
             <h3>Core Components</h3>
@@ -496,6 +451,8 @@ GS_Demo (your game class)
                 <li><strong>GS_Application:</strong> Main application base class with window management and game loop</li>
                 <li><strong>GS_OGLDisplay:</strong> OpenGL rendering system for 2D and 3D graphics</li>
                 <li><strong>GS_Keyboard:</strong> Input handling with buffered and real-time key detection</li>
+                <li><strong>GS_Mouse:</strong> Mouse input with position tracking and button states</li>
+                <li><strong>GS_Controller:</strong> Game controller/gamepad support with analog sticks, triggers, and rumble</li>
                 <li><strong>GS_Sound:</strong> Audio system (FMOD or SDL_mixer) for music and sound effects</li>
                 <li><strong>GS_Sprite:</strong> 2D sprite rendering with transformations and animations</li>
                 <li><strong>GS_Font:</strong> Bitmap font rendering system</li>
@@ -734,6 +691,15 @@ if (nKey == GSK_ENTER) { /* action */ }
 // Continuous input (held down)
 if (m_gsKeyboard.IsKeyPressed(GSK_LEFT)) { /* action */ }
 
+// Controller support - works alongside keyboard
+if (nKey == GSC_BUTTON_A) { /* same action as Enter */ }
+if (m_gsController.IsButtonDown(GSC_BUTTON_DPAD_LEFT)) { /* move left */ }
+
+// Analog stick input
+float stickX = m_gsController.GetLeftStickX();
+if (fabs(stickX) > 0.2f)  // Apply dead zone
+    player.MoveX(stickX * moveSpeed);
+
 // Key release detection
 if (!m_gsKeyboard.IsKeyPressed(GSK_SPACE)) 
 {
@@ -755,11 +721,13 @@ m_gsMenu.AddOption("OPTIONS");
 m_gsMenu.AddOption("QUIT");
 m_gsMenu.SetHighlight(0);
 
-// Handle menu navigation
+// Handle menu navigation (keyboard and controller)
 int nKey = m_gsKeyboard.GetBufferedKey();
-if (nKey == GSK_UP)   m_gsMenu.HighlightPrev();
-if (nKey == GSK_DOWN) m_gsMenu.HighlightNext();
-if (nKey == GSK_ENTER)
+if (nKey == GSK_UP || nKey == GSC_BUTTON_DPAD_UP)
+    m_gsMenu.HighlightPrev();
+if (nKey == GSK_DOWN || nKey == GSC_BUTTON_DPAD_DOWN)
+    m_gsMenu.HighlightNext();
+if (nKey == GSK_ENTER || nKey == GSC_BUTTON_A)
 {
     switch (m_gsMenu.GetHighlight())
     {
@@ -841,10 +809,24 @@ BOOL GS_Demo::BossFight()
         LoadLevel(m_currentLevel);
     }
 
-    // Handle input
+    // Handle keyboard input
     if (m_gsKeyboard.IsKeyPressed(GSK_LEFT))  m_player.MoveLeft();
     if (m_gsKeyboard.IsKeyPressed(GSK_RIGHT)) m_player.MoveRight();
     if (m_gsKeyboard.GetBufferedKey() == GSK_SPACE) m_player.Fire();
+    
+    // Handle controller input (analog movement)
+    float leftX = m_gsController.GetLeftStickX();
+    float leftY = m_gsController.GetLeftStickY();
+    if (fabs(leftX) > 0.15f)  // Dead zone
+        m_player.MoveX(leftX * 5.0f);
+    if (fabs(leftY) > 0.15f)
+        m_player.MoveY(leftY * 5.0f);
+    
+    // Controller buttons
+    if (m_gsController.IsButtonDown(GSC_BUTTON_A))
+        m_player.Fire();
+    if (m_gsController.IsButtonDown(GSC_BUTTON_B))
+        m_player.Jump();
 
     // Update game logic
     m_fInterval += this->GetActionInterval(60);
@@ -855,7 +837,11 @@ BOOL GS_Demo::BossFight()
         CheckCollisions();
         
         if (m_player.IsDead())
+        {
+            // Controller rumble on death
+            m_gsController.EnableRumble(-1, 1.0f, 1.0f, 500);
             m_nGameProgress = PLAY_OUTRO;
+        }
         else if (LevelComplete())
             m_nGameProgress = PLAY_UPDATE;
             
@@ -863,7 +849,7 @@ BOOL GS_Demo::BossFight()
     }
 
     // Render everything
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClearColor(0.2f, 0.4f, 0.8f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
     
@@ -1026,6 +1012,9 @@ BOOL GS_Demo::BossFight()
                 <li><strong>Resource Management:</strong> Load resources in <code>GameInit()</code>, cleanup in <code>GameShutdown()</code></li>
                 <li><strong>Separation of Concerns:</strong> Keep input, update, and rendering separate</li>
                 <li><strong>Error Handling:</strong> Check return values of Create() and other initialization functions</li>
+                <li><strong>Dead Zones:</strong> Apply dead zones (0.15-0.25) to analog sticks to prevent drift</li>
+                <li><strong>Controller Support:</strong> Always support both keyboard and controller for accessibility</li>
+                <li><strong>Rumble Sparingly:</strong> Don't overuse haptic feedback as it can be annoying</li>
             </ul>
 
             <h3>Common Tasks</h3>
@@ -1060,6 +1049,7 @@ if (m_gsCollide.CheckCollision(&m_playerSprite, &m_enemySprite[i]))
 {
     // Handle collision
     m_gsSound.PlaySample(SND_EXPLOSION);
+    m_gsController.EnableRumble(-1, 0.7f, 0.7f, 200);  // Rumble feedback
     m_playerLives--;
 }</code></pre>
 
@@ -1073,23 +1063,125 @@ m_gsSound.PlayStream(MUS_LEVEL1, TRUE);
 // Stop music
 m_gsSound.StopStream();</code></pre>
 
-            <h3>Next Steps</h3>
+            <h4>Controller Detection and Management</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Check if any controllers are connected
+if (m_gsController.GetConnectedCount() > 0)
+{
+    char msg[256];
+    sprintf(msg, "Controller connected: %s", 
+            m_gsController.GetControllerName(0));
+    DisplayMessage(msg);
+}
+
+// Multi-player support
+for (int i = 0; i < m_gsController.GetConnectedCount(); i++)
+{
+    // Each player uses their own controller
+    float stickX = m_gsController.GetLeftStickX(i);
+    float stickY = m_gsController.GetLeftStickY(i);
+    
+    players[i].Move(stickX, stickY);
+    
+    if (m_gsController.IsButtonDown(GSC_BUTTON_A, i))
+        players[i].Jump();
+}</code></pre>
+
+            <h4>Haptic Feedback (Rumble)</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Light rumble for minor hits
+m_gsController.EnableRumble(-1, 0.3f, 0.5f, 150);
+
+// Heavy rumble for explosions
+m_gsController.EnableRumble(-1, 1.0f, 1.0f, 500);
+
+// Engine rumble effect (continuous)
+if (vehicle.IsEngineRunning())
+{
+    float rpm = vehicle.GetRPM() / vehicle.GetMaxRPM();
+    m_gsController.EnableRumble(-1, rpm * 0.4f, 0.0f, 100);
+}</code></pre>
+
+            <h4>Unified Input Handling</h4>
+            <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007acc; overflow-x: auto;"><code>// Both keyboard and controller work together seamlessly
+int nKey = m_gsKeyboard.GetBufferedKey();
+
+switch (nKey)
+{
+    // Keyboard OR controller can trigger the same actions
+    case GSK_UP:
+    case GSC_BUTTON_DPAD_UP:
+        menu.SelectPrevious();
+        break;
+        
+    case GSK_ENTER:
+    case GSC_BUTTON_A:
+        menu.Activate();
+        break;
+        
+    case GSK_ESCAPE:
+    case GSC_BUTTON_B:
+        menu.GoBack();
+        break;
+}
+
+// Controller state queries also work
+if (m_gsController.IsButtonDown(GSC_BUTTON_A))
+    player.Jump();
+
+// Analog inputs work independently
+float leftX = m_gsController.GetLeftStickX();
+if (fabs(leftX) > 0.15f)
+    player.MoveX(leftX * speed);</code></pre>
+
+            <h3>How It Works</h3>
+            <p>The integration is possible because:</p>
             <ul>
-                <li>Review the complete demo game code to see all features in action</li>
-                <li>Explore the API documentation for detailed class references</li>
-                <li>Experiment with sprite transformations and effects</li>
-                <li>Implement particle systems for visual effects</li>
-                <li>Add scrolling backgrounds for depth</li>
-                <li>Create complex collision systems</li>
-                <li>Build level editors or data-driven content</li>
+                <li>Controller button codes (0x1000-0x100E) don't conflict with keyboard codes (0x00-0xFF)</li>
+                <li>SDL event loop converts controller events to WM_KEYDOWN/WM_KEYUP messages with controller button codes</li>
+                <li>The new <code>SetButtonDown()</code> and <code>SetButtonUp()</code> methods update controller button states when called from MsgProc</li>
+                <li>Keyboard class accepts any virtual key code (including controller buttons) for buffered input</li>
+                <li>Same buffered input system works for both input types</li>
+                <li><code>GetButtonPressed()</code> and <code>IsButtonDown()</code> queries work on the manually updated button states</li>
             </ul>
 
-            <div style="background-color: #fffbcc; padding: 15px; border-left: 4px solid #ffcc00; margin: 20px 0;">
-                <h4 style="margin-top: 0;">💡 Pro Tip</h4>
-                <p style="margin-bottom: 0;">Start by modifying the <code>PlayGame()</code> method with simple changes, then gradually expand to new states and features. The template provides a complete working example you can learn from and build upon. Don't be afraid to experiment!</p>
+            <h3>Manual Button State Methods</h3>
+            <p>Two new methods allow manual control of controller button states:</p>
+
+            <table style="width: 100%; border-collapse: collapse; margin: 15px 0;">
+                <thead>
+                    <tr style="background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Method</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Purpose</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Typical Use</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>SetButtonDown(int nButton)</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Sets button state to pressed</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Called in WM_KEYDOWN handler for controller buttons</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;"><code>SetButtonUp(int nButton)</code></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Sets button state to released</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Called in WM_KEYUP handler for controller buttons</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p><strong>Important:</strong> <code>SetButtonDown()</code> only updates the button state array. To also add the button press to the buffered input queue, you must call <code>AddButtonToBuffer()</code> separately, as shown in the example above.</p>
+
+            <div style="background-color: #d4edda; padding: 15px; border-left: 4px solid #28a745; margin: 20px 0;">
+                <h4 style="margin-top: 0;">✅ Best Practice</h4>
+                <p>This unified approach means you only need to handle input once in your game code. The key features are:</p>
+                <ul style="margin-bottom: 10px;">
+                    <li><strong>Dual Input Modes:</strong> Controller buttons work through both buffered input (GetBufferedButton) and state queries (IsButtonDown, GetButtonPressed)</li>
+                    <li><strong>Seamless Switching:</strong> Players can switch between keyboard and controller mid-game</li>
+                    <li><strong>Simultaneous Input:</strong> Both input devices can be used at the same time</li>
+                    <li><strong>Analog Support:</strong> Analog sticks and triggers work independently through dedicated methods</li>
+                </ul>
+                <p style="margin-bottom: 0;">The manual button state methods (<code>SetButtonDown/Up</code>) are the bridge that makes this integration work, allowing controller button events from SDL to update the controller state arrays that your game queries.</p>
             </div>
         </div>
     </section>
-
 </body>
 </html>

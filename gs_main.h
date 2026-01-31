@@ -60,6 +60,7 @@
 #include "gs_ogl_sprite.h"
 #include "gs_ogl_sprite_ex.h"
 #include "gs_ogl_texture.h"
+#include "gs_sdl_controller.h"
 
 #ifdef GS_USE_SDL_MIXER
 #include "gs_sdl_mixer_sound.h"
