@@ -11,6 +11,17 @@ add_definitions(-DGS_USE_SDL_MIXER)
 # Find SDL2
 find_package(SDL2 REQUIRED)
 
+# Tell CMake to use the modern behavior for finding OpenGL libraries
+cmake_policy(SET CMP0072 NEW)
+
+# LEGACY to ensure compatibility with older systems
+set(OpenGL_GL_PREFERENCE LEGACY)
+
+# GLVND for modern systems
+#set(OpenGL_GL_PREFERENCE GLVND)
+
+find_package(OpenGL REQUIRED)
+
 # Find OpenGL (includes both GL and GLU on most systems)
 find_package(OpenGL REQUIRED)
 
