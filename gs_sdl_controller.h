@@ -37,33 +37,40 @@
 //==============================================================================================
 // Controller button defines.
 // ---------------------------------------------------------------------------------------------
-#define GSC_BUTTON_A 0x1000
-#define GSC_BUTTON_B 0x1001
-#define GSC_BUTTON_X 0x1002
-#define GSC_BUTTON_Y 0x1003
-#define GSC_BUTTON_BACK 0x1004
-#define GSC_BUTTON_GUIDE 0x1005
-#define GSC_BUTTON_START 0x1006
-#define GSC_BUTTON_LEFTSTICK 0x1007
-#define GSC_BUTTON_RIGHTSTICK 0x1008
-#define GSC_BUTTON_LEFTSHOULDER 0x1009
-#define GSC_BUTTON_RIGHTSHOULDER 0x100A
-#define GSC_BUTTON_DPAD_UP 0x100B
-#define GSC_BUTTON_DPAD_DOWN 0x100C
-#define GSC_BUTTON_DPAD_LEFT 0x100D
-#define GSC_BUTTON_DPAD_RIGHT 0x100E
+// Note: These values are chosen to fit within the keyboard code range (0-255) to avoid
+// array index overflow when used with keyboard input arrays, while avoiding conflicts with
+// existing keyboard codes defined in gs_keyboard.h (which go up to 0xFE).
+// Using range 0xE0-0xEE (224-238) for buttons.
+#define GSC_BUTTON_A 0xE0
+#define GSC_BUTTON_B 0xE1
+#define GSC_BUTTON_X 0xE2
+#define GSC_BUTTON_Y 0xE3
+#define GSC_BUTTON_BACK 0xE4
+#define GSC_BUTTON_GUIDE 0xE5
+#define GSC_BUTTON_START 0xE6
+#define GSC_BUTTON_LEFTSTICK 0xE7
+#define GSC_BUTTON_RIGHTSTICK 0xE8
+#define GSC_BUTTON_LEFTSHOULDER 0xE9
+#define GSC_BUTTON_RIGHTSHOULDER 0xEA
+#define GSC_BUTTON_DPAD_UP 0xEB
+#define GSC_BUTTON_DPAD_DOWN 0xEC
+#define GSC_BUTTON_DPAD_LEFT 0xED
+#define GSC_BUTTON_DPAD_RIGHT 0xEE
 #define GSC_BUTTON_COUNT 15
 //==============================================================================================
 
 //==============================================================================================
 // Controller axis defines.
 // ---------------------------------------------------------------------------------------------
-#define GSC_AXIS_LEFTX 0x1010
-#define GSC_AXIS_LEFTY 0x1011
-#define GSC_AXIS_RIGHTX 0x1012
-#define GSC_AXIS_RIGHTY 0x1013
-#define GSC_AXIS_TRIGGERLEFT 0x1014
-#define GSC_AXIS_TRIGGERRIGHT 0x1015
+// Note: Axis codes don't need to fit in keyboard range as they're not used for key indexing.
+// However, keeping them distinct from button codes for clarity.
+// Using range 0x2000+ to keep them completely separate.
+#define GSC_AXIS_LEFTX 0x2000
+#define GSC_AXIS_LEFTY 0x2001
+#define GSC_AXIS_RIGHTX 0x2002
+#define GSC_AXIS_RIGHTY 0x2003
+#define GSC_AXIS_TRIGGERLEFT 0x2004
+#define GSC_AXIS_TRIGGERRIGHT 0x2005
 #define GSC_AXIS_COUNT 6
 //==============================================================================================
 

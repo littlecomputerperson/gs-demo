@@ -10,13 +10,11 @@
  |                                                                                    08/2003 |
  +============================================================================================*/
 
-
 //==============================================================================================
 // Include header files.
 // ---------------------------------------------------------------------------------------------
 #include "gs_demo.h"
 //==============================================================================================
-
 
 //==============================================================================================
 // Global variables.
@@ -24,11 +22,9 @@
 GS_Demo g_gsDemo;
 //==============================================================================================
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////
 // Constructor/Destructor Methods //////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 //==============================================================================================
 // GS_Demo::GS_Demo():
@@ -47,7 +43,7 @@ GS_Demo::GS_Demo() : GS_Application()
 
     m_bIsFirstRun = TRUE;
 
-    m_bUseVSync    = FALSE;
+    m_bUseVSync = FALSE;
     m_bUseAliasing = FALSE;
     m_bUseLighting = FALSE;
     m_bUseBlending = TRUE;
@@ -55,9 +51,7 @@ GS_Demo::GS_Demo() : GS_Application()
     this->GameSetup();
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 //==============================================================================================
 // GS_Demo::~GS_Demo():
@@ -70,18 +64,14 @@ GS_Demo::GS_Demo() : GS_Application()
 GS_Demo::~GS_Demo()
 {
 
-
     // Does nothing at the moment.
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 // Setup Methods ///////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 //==============================================================================================
 // GS_Demo::GameSetup():
@@ -94,7 +84,7 @@ GS_Demo::~GS_Demo()
 BOOL GS_Demo::GameSetup()
 {
 
-    char szTempString[_MAX_PATH] = { 0 };
+    char szTempString[_MAX_PATH] = {0};
     GS_IniFile gsIniFile;
 
     // Determine the full pathname of the INI file.
@@ -106,13 +96,13 @@ BOOL GS_Demo::GameSetup()
     gsIniFile.Open(szTempString);
 
     // Read all the game display settings from the ini file (-1 if failed).
-    int  nWidth    = gsIniFile.ReadInt("Display", "DisplayWidth",  -1);
-    int  nHeight   = gsIniFile.ReadInt("Display", "DisplayHeight", -1);
-    int  nDepth    = gsIniFile.ReadInt("Display", "ColorDepth",    -1);
-    BOOL bWindowed = gsIniFile.ReadInt("Display", "WindowMode",     1);
+    int nWidth = gsIniFile.ReadInt("Display", "DisplayWidth", -1);
+    int nHeight = gsIniFile.ReadInt("Display", "DisplayHeight", -1);
+    int nDepth = gsIniFile.ReadInt("Display", "ColorDepth", -1);
+    BOOL bWindowed = gsIniFile.ReadInt("Display", "WindowMode", 1);
 
     // Were all the settings read valid?
-    if ((nWidth>0) && (nHeight>0) && (nDepth>0))
+    if ((nWidth > 0) && (nHeight > 0) && (nDepth > 0))
     {
         // Use the ini display values.
         this->SetMode(nWidth, nHeight, nDepth, bWindowed);
@@ -142,14 +132,11 @@ BOOL GS_Demo::GameSetup()
     return TRUE;
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 // Initialize/Shutdown Methods /////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 //==============================================================================================
 // GS_Demo::GameInit():
@@ -164,7 +151,7 @@ BOOL GS_Demo::GameInit()
 
     // Seed the timer for random numbers.
     time_t t;
-    srand((unsigned) time(&t));
+    srand((unsigned)time(&t));
 
     // Set the text in the window title bar.
     this->SetTitle("GameSystem OpenGL v1.48b Demo");
@@ -179,8 +166,8 @@ BOOL GS_Demo::GameInit()
     // Are we in fullscreen mode?
     // if (!this->IsWindowed())
     // {
-        // Hide the mouse cursor.
-        m_gsMouse.HideCursor(TRUE);
+    // Hide the mouse cursor.
+    m_gsMouse.HideCursor(TRUE);
     // }
 
     // Set up a rectangle the size of the screen for rendering tiles.
@@ -209,8 +196,8 @@ BOOL GS_Demo::GameInit()
     m_gsDisplay.EnableBlending(TRUE);
 
     // Setup a light for lighting effects.
-    m_gsDisplay.SetLightAmbient( 0.5f, 0.5f, 0.5f, 1.0f);
-    m_gsDisplay.SetLightDiffuse( 1.0f, 1.0f, 1.0f, 1.0f);
+    m_gsDisplay.SetLightAmbient(0.5f, 0.5f, 0.5f, 1.0f);
+    m_gsDisplay.SetLightDiffuse(1.0f, 1.0f, 1.0f, 1.0f);
     m_gsDisplay.SetLightPosition(0.0f, 0.0f, 2.0f, 1.0f);
 
     /////////////////////////////////////////////////////////////////////////////////////////////
@@ -233,21 +220,21 @@ BOOL GS_Demo::GameInit()
     // Create an unfiltered OpenGL mipmap texture for the asteroid sprites.
     m_gsSpriteTexture.Create("data/asteroid_s.tga", GS_MIPMAP, GL_NEAREST, GL_NEAREST);
     // Create an arry of sprites using the OpenGL texture.
-    for (int nLoop=0; nLoop<MAXIMUM_SPRITES; nLoop++)
+    for (int nLoop = 0; nLoop < MAXIMUM_SPRITES; nLoop++)
     {
         // Create a sprite with 24 frames, 8 frames per line and a 64x64 frame size from an
         // OpenGL texture with a width 0f 512 and height of 256.
         m_gsSprites[nLoop].Create(m_gsSpriteTexture.GetID(), 512, 256, 24, 8, 64, 64);
         // Set random starting coordinates within the screen area.
-        m_gsSprites[nLoop].SetDestX(rand()%(int)(INTERNAL_RES_X - m_gsSprites[nLoop].GetFrameWidth()));
-        m_gsSprites[nLoop].SetDestY(rand()%(int)(INTERNAL_RES_Y - m_gsSprites[nLoop].GetFrameHeight()));
+        m_gsSprites[nLoop].SetDestX(rand() % (int)(INTERNAL_RES_X - m_gsSprites[nLoop].GetFrameWidth()));
+        m_gsSprites[nLoop].SetDestY(rand() % (int)(INTERNAL_RES_Y - m_gsSprites[nLoop].GetFrameHeight()));
         // Determine random directions to move in.
-        m_bMoveRight[nLoop] = rand()%1;
-        m_bMoveDown[nLoop]  = rand()%1;
+        m_bMoveRight[nLoop] = rand() % 1;
+        m_bMoveDown[nLoop] = rand() % 1;
         // Set a random velocity for the sprite to move at.
-        m_fVelocity[nLoop]  = (rand()%MAXIMUM_VELOCITY) + 1.0f;
+        m_fVelocity[nLoop] = (rand() % MAXIMUM_VELOCITY) + 1.0f;
         // Determine a random speed for the sprite to rotate at.
-        m_fRotation[nLoop]  = (rand()%MAXIMUM_ROTATION) + 1.0f;
+        m_fRotation[nLoop] = (rand() % MAXIMUM_ROTATION) + 1.0f;
     }
 
     // Create textures for the ground and clouds.
@@ -255,7 +242,7 @@ BOOL GS_Demo::GameInit()
     m_gsCloudsTexture.Create("data/clouds.tga");
     // Create a menu using the "menu.tga" and "menu_font.tga" images that has 16 characters per
     // line with dimensions of 16x16 per letter/frame.
-    m_gsMenu.Create("data/menu.tga","data/menu_font.tga", 16, 16, 16);
+    m_gsMenu.Create("data/menu.tga", "data/menu_font.tga", 16, 16, 16);
 
     // Create a map using the "map.tga" image that has 64 frames with 8 frames per line and
     // a frame size of 32x32 pixels.
@@ -277,7 +264,7 @@ BOOL GS_Demo::GameInit()
     // Create sprite with 4 frames, 4 frames per line and 32x32 size.
     m_gsPlayerSprite.Create("data/player.tga", 4, 4, 32, 32);
     // Set the sprite position one tile up and right from the bottom left corner of the clip box.
-    m_gsPlayerSprite.SetDestX(m_gsMap.GetClipBoxLeft()   +  m_gsMap.GetTileWidth());
+    m_gsPlayerSprite.SetDestX(m_gsMap.GetClipBoxLeft() + m_gsMap.GetTileWidth());
     m_gsPlayerSprite.SetDestY(m_gsMap.GetClipBoxBottom() + m_gsMap.GetTileHeight());
 
     // Create 100 particles using the "particle.tga" image.
@@ -324,7 +311,6 @@ BOOL GS_Demo::GameInit()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-
 //==============================================================================================
 // GS_Demo::GameShutdown():
 // ---------------------------------------------------------------------------------------------
@@ -357,14 +343,11 @@ BOOL GS_Demo::GameShutdown()
     return TRUE;
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 // Release/Restore Methods /////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 //==============================================================================================
 // GS_Demo::GameRelease():
@@ -397,9 +380,7 @@ BOOL GS_Demo::GameRelease()
     return TRUE;
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 //==============================================================================================
 // GS_Demo::GameRestore():
@@ -423,14 +404,11 @@ BOOL GS_Demo::GameRestore()
     return TRUE;
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 // Main Loop ///////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 //==============================================================================================
 // GS_Demo::GameLoop():
@@ -445,23 +423,32 @@ BOOL GS_Demo::GameLoop()
     // Handle buffered keyboard input
     static BOOL bWasKeyReleased = TRUE;
 
-    int KeyList[3] = { GSK_SPACE, GSK_L, GSK_B };
+    int KeyList[3] = {GSK_SPACE, GSK_L, GSK_B};
+    int ButtonList[3] = {GSC_BUTTON_GUIDE, GSC_BUTTON_X, GSC_BUTTON_Y};
 
     // Were all the keys in the key list released?
-    if (TRUE == m_gsKeyboard.AreKeysUp(3, KeyList))
+    if (TRUE == m_gsKeyboard.AreKeysUp(3, KeyList) && 
+        TRUE == m_gsController.AreButtonsUp(3, ButtonList))
     {
         // Set flag to indicate that all the keys were released.
         bWasKeyReleased = TRUE;
     }
 
-    // Get key from buffer (if any).
+    // Get keybaord and controller input from buffer (if any).
     int nKey = m_gsKeyboard.GetBufferedKey();
+    int nButton = m_gsController.GetBufferedButton();
+
+    if( nButton != -1 )
+    {
+        nKey = nButton;
+    }
 
     // Act depending on key pressed.
     switch (nKey)
     {
     // Was the SPACE key pressed?
     case GSK_SPACE:
+    case GSC_BUTTON_BACK:
         // Was this key released?
         if (bWasKeyReleased)
         {
@@ -474,6 +461,32 @@ BOOL GS_Demo::GameLoop()
             }
             // Key is pressed.
             bWasKeyReleased = FALSE;
+        }
+        break;
+    case GSC_BUTTON_X:
+        // Are we using alpha blending?
+        if (m_gsDisplay.IsBlendingEnabled())
+        {
+            // Disable blending.
+            m_gsDisplay.EnableBlending(FALSE);
+        }
+        else
+        {
+            // Enable blending.
+            m_gsDisplay.EnableBlending(TRUE);
+        }
+        break;
+    case GSC_BUTTON_Y:
+        // Are we using lighting?
+        if (m_gsDisplay.IsLightingEnabled())
+        {
+            // Disable lighting.
+            m_gsDisplay.EnableLighting(FALSE);
+        }
+        else
+        {
+            // Enable lighting.
+            m_gsDisplay.EnableLighting(TRUE);
         }
         break;
     // Was the '1' key pressed?
@@ -525,9 +538,9 @@ BOOL GS_Demo::GameLoop()
     case GSK_ADD:
     case GSC_AXIS_TRIGGERRIGHT:
         // Increase sound master volume.
-        if (m_nVolume<255)
+        if (m_nVolume < 255)
         {
-            m_nVolume+=5;
+            m_nVolume += 5;
         }
         m_gsSound.SetMasterVolume(m_nVolume);
         break;
@@ -535,47 +548,11 @@ BOOL GS_Demo::GameLoop()
     case GSK_SUBTRACT:
     case GSC_AXIS_TRIGGERLEFT:
         // Decrease sound master volume.
-        if (m_nVolume>0)
+        if (m_nVolume > 0)
         {
-            m_nVolume-=5;
+            m_nVolume -= 5;
         }
         m_gsSound.SetMasterVolume(m_nVolume);
-        break;
-    } // end switch(nButton)
-
-    // Handle buffered controller input
-    static BOOL bWasButtonReleased = TRUE;
-
-    int ButtonList[3] = { GSC_BUTTON_GUIDE, GSC_BUTTON_X, GSC_BUTTON_Y };
-
-    // Were all the buttons in the button list released?
-    if (TRUE == m_gsController.AreButtonsUp(3, ButtonList))
-    {
-        // Set flag to indicate that all the keys were released.
-        bWasButtonReleased = TRUE;
-    }
-
-    // Get button from buffer (if any).
-    int nButton = m_gsController.GetBufferedButton();
-
-    // Act depending on key pressed.
-    switch (nButton)
-    {
-    // Was the SPACE key pressed?
-    case GSC_BUTTON_BACK:
-        // Was this key released?
-        if (bWasButtonReleased)
-        {
-            // Run the next demonstration.
-            m_nGameProgress++;
-            // Restart if the last demo.
-            if (m_nGameProgress > 11)
-            {
-                m_nGameProgress = 0;
-            }
-            // Key is pressed.
-            bWasButtonReleased = FALSE;
-        }
         break;
     } // end switch(nButton)
 
@@ -633,14 +610,11 @@ BOOL GS_Demo::GameLoop()
     return TRUE;
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 // Message Handling ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 //==============================================================================================
 // GS_Demo::OnChangeMode():
@@ -659,9 +633,7 @@ void GS_Demo::OnChangeMode()
     this->SetRenderScaling(this->GetWidth(), this->GetHeight(), true);
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 //==============================================================================================
 // GS_Demo::MsgProc():
@@ -683,7 +655,7 @@ LRESULT GS_Demo::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     // translated.
     case WM_COMMAND:
         // Check for message sent by accelerator.
-        switch(LOWORD(wParam))
+        switch (LOWORD(wParam))
         {
         // Demo options.
         case IDM_NEXTDEMO:
@@ -720,7 +692,7 @@ LRESULT GS_Demo::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 m_gsDisplay.EnableBlending(TRUE);
             }
             return 0L;
-        case IDM_LIGHTING :
+        case IDM_LIGHTING:
             // Are we using lighting?
             if (m_gsDisplay.IsLightingEnabled())
             {
@@ -747,19 +719,19 @@ LRESULT GS_Demo::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             }
             return 0L;
         case IDM_320X240:
-            SetMode(320, 240,  this->GetColorDepth(), this->IsWindowed());
+            SetMode(320, 240, this->GetColorDepth(), this->IsWindowed());
             this->SetRenderScaling(this->GetWidth(), this->GetHeight(), true);
             return 0L;
         case IDM_400X300:
-            SetMode(400, 300,  this->GetColorDepth(), this->IsWindowed());
+            SetMode(400, 300, this->GetColorDepth(), this->IsWindowed());
             this->SetRenderScaling(this->GetWidth(), this->GetHeight(), true);
             return 0L;
         case IDM_640X480:
-            SetMode(640, 480,  this->GetColorDepth(), this->IsWindowed());
+            SetMode(640, 480, this->GetColorDepth(), this->IsWindowed());
             this->SetRenderScaling(this->GetWidth(), this->GetHeight(), true);
             return 0L;
         case IDM_800X600:
-            SetMode(800, 600,  this->GetColorDepth(), this->IsWindowed());
+            SetMode(800, 600, this->GetColorDepth(), this->IsWindowed());
             this->SetRenderScaling(this->GetWidth(), this->GetHeight(), true);
             return 0L;
         case IDM_1024X768:
@@ -813,8 +785,10 @@ LRESULT GS_Demo::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         case 'P':
         case 'p':
             // Pause application if unpause, unpause if paused.
-            if (this->IsPaused()) this->Pause(FALSE);
-            else this->Pause(TRUE);
+            if (this->IsPaused())
+                this->Pause(FALSE);
+            else
+                this->Pause(TRUE);
             break;
         // User pressed 'b' or 'B'.
         case 'B':
@@ -998,14 +972,11 @@ LRESULT GS_Demo::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     return GS_Application::MsgProc(hWnd, uMsg, wParam, lParam);
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 // Demonstartion Methods ///////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 //==============================================================================================
 // GS_Demo::ClearDemo():
@@ -1072,16 +1043,14 @@ BOOL GS_Demo::ClearDemo()
 
     // Disable texturing for this demo (we're drawing colored shapes)
     glDisable(GL_TEXTURE_2D);
-    
+
     // Swap buffers (double buffering) to display results.
     SwapBuffers(this->GetDevice());
 
     return TRUE;
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 //==============================================================================================
 // GS_Demo::PolyDemo():
@@ -1125,7 +1094,7 @@ BOOL GS_Demo::PolyDemo()
 
     // Disable texturing for this demo (we're drawing colored shapes)
     glDisable(GL_TEXTURE_2D);
-    
+
     /////////////////////////////////////////////////////////////////////////////////////////////
     // New Code /////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////
@@ -1134,14 +1103,14 @@ BOOL GS_Demo::PolyDemo()
     // three parameters in the brackets are red, green and blue intensity values. The values can
     // be from 0.0f to 1.0f. It works the same way as the color values we use to clear the
     // background of the screen.
-    glColor3f(1.0f,1.0f,1.0f);
+    glColor3f(1.0f, 1.0f, 1.0f);
 
     // glTranslatef(x, y, z) moves along the X, Y and Z axis, in that order. The line of code
     // below moves left on the X axis 1.5 units. It does not move on the Y axis at all (0.0),
     // and it moves into the screen 6.0 units. When you translate, you are not moving a set
     // amount from the center of the screen, you are moving a set amount from wherever you
     // currently were on the screen.
-    glTranslatef(-1.5f,0.0f,-6.0f);
+    glTranslatef(-1.5f, 0.0f, -6.0f);
 
     // Now that we have moved to the left half of the screen, and we've set the view deep enough
     // into the screen (-6.0) that we can see our entire scene we will create the Triangle.
@@ -1169,14 +1138,14 @@ BOOL GS_Demo::PolyDemo()
     // unit, and down one unit. This gives us the bottom right point of the triangle. glEnd()
     // tells OpenGL there are no more points. The filled triangle will be displayed.
     glBegin(GL_TRIANGLES);
-    glVertex3f( 0.0f, 1.0f, 0.0f); // Top of triangle.
-    glVertex3f(-1.0f,-1.0f, 0.0f); // Bottom left of triangle.
-    glVertex3f( 1.0f,-1.0f, 0.0f); // Bottom right of triangle.
+    glVertex3f(0.0f, 1.0f, 0.0f);   // Top of triangle.
+    glVertex3f(-1.0f, -1.0f, 0.0f); // Bottom left of triangle.
+    glVertex3f(1.0f, -1.0f, 0.0f);  // Bottom right of triangle.
     // Finished drawing the triangle.
     glEnd();
 
     // Move right 3 units from current position.
-    glTranslatef(3.0f,0.0f,0.0f);
+    glTranslatef(3.0f, 0.0f, 0.0f);
 
     // Now we create the square. We'll do this using GL_QUADS. A quad is basically a 4 sided
     // polygon. Perfect for making a square. The code for creating a square is very similar to
@@ -1187,10 +1156,10 @@ BOOL GS_Demo::PolyDemo()
     // see is actually the back. Objects drawn in a counter clockwise order will be facing us.
     // Not important at the moment, but later on you will need to know this.
     glBegin(GL_QUADS);
-    glVertex3f(-1.0f, 1.0f, 0.0f); // Top left of quad.
-    glVertex3f( 1.0f, 1.0f, 0.0f); // Top right of quad.
-    glVertex3f( 1.0f,-1.0f, 0.0f); // Bottom right of quad.
-    glVertex3f(-1.0f,-1.0f, 0.0f); // Bottom left of quad.
+    glVertex3f(-1.0f, 1.0f, 0.0f);  // Top left of quad.
+    glVertex3f(1.0f, 1.0f, 0.0f);   // Top right of quad.
+    glVertex3f(1.0f, -1.0f, 0.0f);  // Bottom right of quad.
+    glVertex3f(-1.0f, -1.0f, 0.0f); // Bottom left of quad.
     // Finished drawing the quad.
     glEnd();
 
@@ -1202,9 +1171,7 @@ BOOL GS_Demo::PolyDemo()
     return TRUE;
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 //==============================================================================================
 // GS_Demo::ColorDemo():
@@ -1248,9 +1215,9 @@ BOOL GS_Demo::ColorDemo()
 
     // Disable texturing for this demo (we're drawing colored shapes)
     glDisable(GL_TEXTURE_2D);
-        
+
     // Move left 1.5 units and into the screen 6.0.
-    glTranslatef(-1.5f,0.0f,-6.0f);
+    glTranslatef(-1.5f, 0.0f, -6.0f);
 
     /////////////////////////////////////////////////////////////////////////////////////////////
     // New Code /////////////////////////////////////////////////////////////////////////////////
@@ -1262,28 +1229,28 @@ BOOL GS_Demo::ColorDemo()
     // code right after that is the first vertex (the top of the triangle), and will be drawn
     // using the current color which is red. Anything we draw from now on will be red until
     // we change the color to something other than red.
-    glColor3f(1.0f,0.0f,0.0f);
-    glVertex3f( 0.0f, 1.0f, 0.0f);
+    glColor3f(1.0f, 0.0f, 0.0f);
+    glVertex3f(0.0f, 1.0f, 0.0f);
     // We've placed the first vertex on the screen, setting it's color to red. Now before we
     // set the second vertex we'll change the color to green. That way the second vertex which
     // is the left corner of the triangle will be set to green.
-    glColor3f(0.0f,1.0f,0.0f);
-    glVertex3f(-1.0f,-1.0f, 0.0f);
+    glColor3f(0.0f, 1.0f, 0.0f);
+    glVertex3f(-1.0f, -1.0f, 0.0f);
     // Now we're on the third and final vertex. Just before we draw it, we set the color to
     // blue. This will be the right corner of the triangle. As soon as the glEnd() command is
     // issued, the polygon will be filled in. But because it has a different color at each
     // vertex, rather than one solid color throughout, the color will spread out from each
     // corner, eventually meeting in the middle, where the colors will blend together.
     // This is smooth coloring.
-    glColor3f(0.0f,0.0f,1.0f);
-    glVertex3f( 1.0f,-1.0f, 0.0f);
+    glColor3f(0.0f, 0.0f, 1.0f);
+    glVertex3f(1.0f, -1.0f, 0.0f);
     // Finished drawing the triangle.
     glEnd();
 
     /////////////////////////////////////////////////////////////////////////////////////////////
 
     // Move right 3 units from current position.
-    glTranslatef(3.0f,0.0f,0.0f);
+    glTranslatef(3.0f, 0.0f, 0.0f);
 
     /////////////////////////////////////////////////////////////////////////////////////////////
     // New Code /////////////////////////////////////////////////////////////////////////////////
@@ -1293,16 +1260,16 @@ BOOL GS_Demo::ColorDemo()
     // like (blue in this example), then draw the square. The color blue will be used for each
     // vertex because we're not telling OpenGL to change the color at each vertex. The final
     // result... a solid blue square.
-    glColor3f(0.5f,0.5f,1.0f);
+    glColor3f(0.5f, 0.5f, 1.0f);
 
     /////////////////////////////////////////////////////////////////////////////////////////////
 
     // Begin drawing using quads.
     glBegin(GL_QUADS);
-    glVertex3f(-1.0f, 1.0f, 0.0f); // Top left of quad.
-    glVertex3f( 1.0f, 1.0f, 0.0f); // Top right of quad.
-    glVertex3f( 1.0f,-1.0f, 0.0f); // Bottom right of quad.
-    glVertex3f(-1.0f,-1.0f, 0.0f); // Bottom left of quad.
+    glVertex3f(-1.0f, 1.0f, 0.0f);  // Top left of quad.
+    glVertex3f(1.0f, 1.0f, 0.0f);   // Top right of quad.
+    glVertex3f(1.0f, -1.0f, 0.0f);  // Bottom right of quad.
+    glVertex3f(-1.0f, -1.0f, 0.0f); // Bottom left of quad.
     // Finished drawing the quad.
     glEnd();
 
@@ -1312,9 +1279,7 @@ BOOL GS_Demo::ColorDemo()
     return TRUE;
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 //==============================================================================================
 // GS_Demo::RotateDemo():
@@ -1334,7 +1299,7 @@ BOOL GS_Demo::RotateDemo()
     }
 
     static GLfloat glfRotTrianle = 0.0f; // Rotation angle for the triangle. (NEW)
-    static GLfloat glfRotQuad    = 0.0f; // Rotation angle for the quad. (NEW)
+    static GLfloat glfRotQuad = 0.0f;    // Rotation angle for the quad. (NEW)
 
     // Is the game paused?
     if (IsPaused())
@@ -1356,9 +1321,9 @@ BOOL GS_Demo::RotateDemo()
 
     // Enable depth testing so faces are drawn in correct order
     glEnable(GL_DEPTH_TEST);
-    
+
     // Move left 1.5 units and into the screen 6.0.
-    glTranslatef(-1.5f,0.0f,-6.0f);
+    glTranslatef(-1.5f, 0.0f, -6.0f);
 
     /////////////////////////////////////////////////////////////////////////////////////////////
     // New Code /////////////////////////////////////////////////////////////////////////////////
@@ -1402,18 +1367,18 @@ BOOL GS_Demo::RotateDemo()
     // It's important to note that rotations are done in degrees. If glfRotTrianle had a value of
     // 10, we would be rotating 10 degrees on the y-axis.
 
-    glRotatef(glfRotTrianle,0.0f,1.0f,0.0f); // Rotate the triangle on the Y axis.
+    glRotatef(glfRotTrianle, 0.0f, 1.0f, 0.0f); // Rotate the triangle on the Y axis.
 
     /////////////////////////////////////////////////////////////////////////////////////////////
 
     // Beigin drawing using triangles.
     glBegin(GL_TRIANGLES);
-    glColor3f(1.0f,0.0f,0.0f);     // Set color to red.
-    glVertex3f( 0.0f, 1.0f, 0.0f); // Top of triangle.
-    glColor3f(0.0f,1.0f,0.0f);     // Set color to green.
-    glVertex3f(-1.0f,-1.0f, 0.0f); // Bottom left of triangle.
-    glColor3f(0.0f,0.0f,1.0f);     // Set color to blue.
-    glVertex3f( 1.0f,-1.0f, 0.0f); // Bottom right of triangle.
+    glColor3f(1.0f, 0.0f, 0.0f);    // Set color to red.
+    glVertex3f(0.0f, 1.0f, 0.0f);   // Top of triangle.
+    glColor3f(0.0f, 1.0f, 0.0f);    // Set color to green.
+    glVertex3f(-1.0f, -1.0f, 0.0f); // Bottom left of triangle.
+    glColor3f(0.0f, 0.0f, 1.0f);    // Set color to blue.
+    glVertex3f(1.0f, -1.0f, 0.0f);  // Bottom right of triangle.
     // Finished drawing the triangle.
     glEnd();
 
@@ -1436,24 +1401,24 @@ BOOL GS_Demo::RotateDemo()
     // on the right side of zero we dont have to move 1.5 from left to center then 1.5 to the
     // right (total of 3.0) we only have to move from center to the right which is just 1.5
     // units.
-    glTranslatef(1.5f,0.0f,-6.0f);
+    glTranslatef(1.5f, 0.0f, -6.0f);
 
     // After we have moved to our new location on the right side of the screen, we rotate the
     // quad, on the X axis. This will cause the square to spin up and down.
 
-    glRotatef(glfRotQuad,1.0f,0.0f,0.0f); // Rotate the quad on the X axis.
+    glRotatef(glfRotQuad, 1.0f, 0.0f, 0.0f); // Rotate the quad on the X axis.
 
     /////////////////////////////////////////////////////////////////////////////////////////////
 
     // Set color to blue before drawing square.
-    glColor3f(0.5f,0.5f,1.0f);
+    glColor3f(0.5f, 0.5f, 1.0f);
 
     // Begin drawing using quads.
     glBegin(GL_QUADS);
-    glVertex3f(-1.0f, 1.0f, 0.0f); // Top left of quad.
-    glVertex3f( 1.0f, 1.0f, 0.0f); // Top right of quad.
-    glVertex3f( 1.0f,-1.0f, 0.0f); // Bottom right of quad.
-    glVertex3f(-1.0f,-1.0f, 0.0f); // Bottom left of quad.
+    glVertex3f(-1.0f, 1.0f, 0.0f);  // Top left of quad.
+    glVertex3f(1.0f, 1.0f, 0.0f);   // Top right of quad.
+    glVertex3f(1.0f, -1.0f, 0.0f);  // Bottom right of quad.
+    glVertex3f(-1.0f, -1.0f, 0.0f); // Bottom left of quad.
     // Finished drawing the quad.
     glEnd();
 
@@ -1484,9 +1449,7 @@ BOOL GS_Demo::RotateDemo()
     return TRUE;
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 //==============================================================================================
 // GS_Demo::ShapesDemo():
@@ -1506,7 +1469,7 @@ BOOL GS_Demo::ShapesDemo()
     }
 
     static GLfloat glfRotTrianle = 0.0f; // Rotation angle for the triangle.
-    static GLfloat glfRotQuad    = 0.0f; // Rotation angle for the quad.
+    static GLfloat glfRotQuad = 0.0f;    // Rotation angle for the quad.
 
     // Is the game paused?
     if (IsPaused())
@@ -1530,9 +1493,9 @@ BOOL GS_Demo::ShapesDemo()
     glEnable(GL_DEPTH_TEST);
 
     // Move left 1.5 units and into the screen 6.0.
-    glTranslatef(-1.5f,0.0f,-6.0f);
+    glTranslatef(-1.5f, 0.0f, -6.0f);
     // Rotate the triangle on the Y axis.
-    glRotatef(glfRotTrianle,0.0f,1.0f,0.0f);
+    glRotatef(glfRotTrianle, 0.0f, 1.0f, 0.0f);
 
     /////////////////////////////////////////////////////////////////////////////////////////////
     // New Code /////////////////////////////////////////////////////////////////////////////////
@@ -1558,12 +1521,12 @@ BOOL GS_Demo::ShapesDemo()
     // green right point. By alternating the bottom two colors on each face, we make a common
     // colored point at the bottom of each face.
 
-    glColor4f(1.0f,0.0f,0.0f,0.5);  // Set color to red.
-    glVertex3f( 0.0f, 1.0f, 0.0f);  // Top of triangle (front).
-    glColor4f(0.0f,1.0f,0.0f,0.5f); // Set color to green.
-    glVertex3f(-1.0f,-1.0f, 1.0f);  // Left of triangle (front).
-    glColor4f(0.0f,0.0f,1.0f,0.5f); // Set color to blue.
-    glVertex3f( 1.0f,-1.0f, 1.0f);  // Right of triangle (front).
+    glColor4f(1.0f, 0.0f, 0.0f, 0.5);  // Set color to red.
+    glVertex3f(0.0f, 1.0f, 0.0f);      // Top of triangle (front).
+    glColor4f(0.0f, 1.0f, 0.0f, 0.5f); // Set color to green.
+    glVertex3f(-1.0f, -1.0f, 1.0f);    // Left of triangle (front).
+    glColor4f(0.0f, 0.0f, 1.0f, 0.5f); // Set color to blue.
+    glVertex3f(1.0f, -1.0f, 1.0f);     // Right of triangle (front).
 
     // Now we draw the right face. Notice then the two bottom point are drawn one to the right
     // of center, and the top point is drawn one up on the y axis, and right in the middle of
@@ -1583,33 +1546,33 @@ BOOL GS_Demo::ShapesDemo()
     // triangle. It would not draw a Quad. So make sure you don't add any extra points by
     // accident.
 
-    glColor4f(1.0f,0.0f,0.0f,0.5f); // Set color to red.
-    glVertex3f( 0.0f, 1.0f, 0.0f);  // Top of triangle (right).
-    glColor4f(0.0f,0.0f,1.0f,0.5f); // Set color to blue.
-    glVertex3f( 1.0f,-1.0f, 1.0f);  // Left of triangle (right).
-    glColor4f(0.0f,1.0f,0.0f,0.5f); // Set color to green.
-    glVertex3f( 1.0f,-1.0f, -1.0f); // Right of triangle (right).
+    glColor4f(1.0f, 0.0f, 0.0f, 0.5f); // Set color to red.
+    glVertex3f(0.0f, 1.0f, 0.0f);      // Top of triangle (right).
+    glColor4f(0.0f, 0.0f, 1.0f, 0.5f); // Set color to blue.
+    glVertex3f(1.0f, -1.0f, 1.0f);     // Left of triangle (right).
+    glColor4f(0.0f, 1.0f, 0.0f, 0.5f); // Set color to green.
+    glVertex3f(1.0f, -1.0f, -1.0f);    // Right of triangle (right).
 
     // Now for the back face. Again the colors switch. The left point is now green again,
     // because the corner it shares with the right face is green.
 
-    glColor4f(1.0f,0.0f,0.0f,0.5f); // Set color to red.
-    glVertex3f( 0.0f, 1.0f, 0.0f);  // Top of triangle (back).
-    glColor4f(0.0f,1.0f,0.0f,0.5f); // Set color to green.
-    glVertex3f( 1.0f,-1.0f, -1.0f); // Left of triangle (back).
-    glColor4f(0.0f,0.0f,1.0f,0.5f); // Set color to blue.
-    glVertex3f(-1.0f,-1.0f, -1.0f); // Right of triangle (back).
+    glColor4f(1.0f, 0.0f, 0.0f, 0.5f); // Set color to red.
+    glVertex3f(0.0f, 1.0f, 0.0f);      // Top of triangle (back).
+    glColor4f(0.0f, 1.0f, 0.0f, 0.5f); // Set color to green.
+    glVertex3f(1.0f, -1.0f, -1.0f);    // Left of triangle (back).
+    glColor4f(0.0f, 0.0f, 1.0f, 0.5f); // Set color to blue.
+    glVertex3f(-1.0f, -1.0f, -1.0f);   // Right of triangle (back).
 
     // Finally we draw the left face. The colors switch one last time. The left point is blue,
     // and blends with the right point of the back face. The right point is green, and blends
     // with the left point of the front face.
 
-    glColor4f(1.0f,0.0f,0.0f,0.5f); // Set color to red.
-    glVertex3f( 0.0f, 1.0f, 0.0f);  // Top of triangle (left).
-    glColor4f(0.0f,0.0f,1.0f,0.5f); // Set color to blue.
-    glVertex3f(-1.0f,-1.0f,-1.0f);  // Left of triangle (left).
-    glColor4f(0.0f,1.0f,0.0f,0.5f); // Set color to green.
-    glVertex3f(-1.0f,-1.0f, 1.0f);  // Right of triangle (left).
+    glColor4f(1.0f, 0.0f, 0.0f, 0.5f); // Set color to red.
+    glVertex3f(0.0f, 1.0f, 0.0f);      // Top of triangle (left).
+    glColor4f(0.0f, 0.0f, 1.0f, 0.5f); // Set color to blue.
+    glVertex3f(-1.0f, -1.0f, -1.0f);   // Left of triangle (left).
+    glColor4f(0.0f, 1.0f, 0.0f, 0.5f); // Set color to green.
+    glVertex3f(-1.0f, -1.0f, 1.0f);    // Right of triangle (left).
 
     // We're done drawing the pyramid. Because the pyramid only spins on the Y axis, we will
     // never see the bottom, so there is no need to put a bottom on the pyramid. If you feel
@@ -1638,9 +1601,9 @@ BOOL GS_Demo::ShapesDemo()
     // in the distance should appear smaller :)
 
     // Move right 1.5 units and into the screen 7.0.
-    glTranslatef(1.5f,0.0f,-7.0f);
+    glTranslatef(1.5f, 0.0f, -7.0f);
     // Rotate the quad on the X, Y and Z axis.
-    glRotatef(glfRotQuad,1.0f,1.0f,1.0f);
+    glRotatef(glfRotQuad, 1.0f, 1.0f, 1.0f);
 
     // Now we'll draw the cube. It's made up of six quads. All of the quads are drawn in a
     // counter clockwise order. Meaning the first point is the top right, the second point is the
@@ -1661,11 +1624,11 @@ BOOL GS_Demo::ShapesDemo()
     // draw the bottom of the quad towards the viewer. so to do this, instead of going into
     // the screen, we move one unit towards the screen. Make sense?
 
-    glColor4f(0.0f,1.0f,0.0f,0.5f); // Set color to green.
-    glVertex3f( 1.0f, 1.0f,-1.0f);  // Top right of the quad (top).
-    glVertex3f(-1.0f, 1.0f,-1.0f);  // Top left of the quad (top).
-    glVertex3f(-1.0f, 1.0f, 1.0f);  // Bottom left of the quad (top).
-    glVertex3f( 1.0f, 1.0f, 1.0f);  // Bottom right of the quad (top).
+    glColor4f(0.0f, 1.0f, 0.0f, 0.5f); // Set color to green.
+    glVertex3f(1.0f, 1.0f, -1.0f);     // Top right of the quad (top).
+    glVertex3f(-1.0f, 1.0f, -1.0f);    // Top left of the quad (top).
+    glVertex3f(-1.0f, 1.0f, 1.0f);     // Bottom left of the quad (top).
+    glVertex3f(1.0f, 1.0f, 1.0f);      // Bottom right of the quad (top).
 
     // The bottom is drawn the exact same way as the top, but because it's the bottom, it's
     // drawn down one unit from the center of the cube. Notice the Y axis is always minus one.
@@ -1679,11 +1642,11 @@ BOOL GS_Demo::ShapesDemo()
     // to -1, and it would work, but ignoring the order the quad is drawn in can cause weird
     // results once you get into fancy things such as texture mapping.
 
-    glColor4f(1.0f,0.5f,0.0f,0.5f); // Set color to orange.
-    glVertex3f( 1.0f,-1.0f, 1.0f);  // Top right of the quad (bottom).
-    glVertex3f(-1.0f,-1.0f, 1.0f);  // Top left of the quad (bottom).
-    glVertex3f(-1.0f,-1.0f,-1.0f);  // Bottom left of the quad (bottom).
-    glVertex3f( 1.0f,-1.0f,-1.0f);  // Bottom right of the quad (bottom).
+    glColor4f(1.0f, 0.5f, 0.0f, 0.5f); // Set color to orange.
+    glVertex3f(1.0f, -1.0f, 1.0f);     // Top right of the quad (bottom).
+    glVertex3f(-1.0f, -1.0f, 1.0f);    // Top left of the quad (bottom).
+    glVertex3f(-1.0f, -1.0f, -1.0f);   // Bottom left of the quad (bottom).
+    glVertex3f(1.0f, -1.0f, -1.0f);    // Bottom right of the quad (bottom).
 
     // Now we draw the front of the Quad. We move one unit towards the screen, and away from
     // the center to draw the front face. Notice the Z axis is always one. In the pyramid the
@@ -1691,40 +1654,40 @@ BOOL GS_Demo::ShapesDemo()
     // Z axis to zero in the following code, you'd notice that the corner you changed it on
     // would slope into the screen. That's not something we want to do right now :)
 
-    glColor4f(1.0f,0.0f,0.0f,0.5f); // Set color to red.
-    glVertex3f( 1.0f, 1.0f, 1.0f);  // Top right of the quad (front).
-    glVertex3f(-1.0f, 1.0f, 1.0f);  // Top left of the quad (front).
-    glVertex3f(-1.0f,-1.0f, 1.0f);  // Bottom left of the quad (front).
-    glVertex3f( 1.0f,-1.0f, 1.0f);  // Bottom right of the quad (front).
+    glColor4f(1.0f, 0.0f, 0.0f, 0.5f); // Set color to red.
+    glVertex3f(1.0f, 1.0f, 1.0f);      // Top right of the quad (front).
+    glVertex3f(-1.0f, 1.0f, 1.0f);     // Top left of the quad (front).
+    glVertex3f(-1.0f, -1.0f, 1.0f);    // Bottom left of the quad (front).
+    glVertex3f(1.0f, -1.0f, 1.0f);     // Bottom right of the quad (front).
 
     // The back face is a quad the same as the front face, but it's set deeper into the
     // screen. Notice the Z axis is now minus one for all of the points.
 
-    glColor4f(1.0f,1.0f,0.0f,0.5f); // Set color to yellow.
-    glVertex3f( 1.0f,-1.0f,-1.0f);  // Top right of the quad (back).
-    glVertex3f(-1.0f,-1.0f,-1.0f);  // Top left of the quad (back).
-    glVertex3f(-1.0f, 1.0f,-1.0f);  // Bottom left of the quad (back).
-    glVertex3f( 1.0f, 1.0f,-1.0f);  // Bottom right of the quad (back).
+    glColor4f(1.0f, 1.0f, 0.0f, 0.5f); // Set color to yellow.
+    glVertex3f(1.0f, -1.0f, -1.0f);    // Top right of the quad (back).
+    glVertex3f(-1.0f, -1.0f, -1.0f);   // Top left of the quad (back).
+    glVertex3f(-1.0f, 1.0f, -1.0f);    // Bottom left of the quad (back).
+    glVertex3f(1.0f, 1.0f, -1.0f);     // Bottom right of the quad (back).
 
     // Now we only have two more quads to draw and we're done. As usual, you'll notice one
     // axis is always the same for all the points. In this case the X axis is always minus
     // one. That's because we're always drawing to the left of center because this is the left
     // face.
 
-    glColor4f(0.0f,0.0f,1.0f,0.5f); // Set color to blue.
-    glVertex3f(-1.0f, 1.0f, 1.0f);  // Top right of the quad (left).
-    glVertex3f(-1.0f, 1.0f,-1.0f);  // Top left of the quad (left).
-    glVertex3f(-1.0f,-1.0f,-1.0f);  // Bottom left of the quad (left).
-    glVertex3f(-1.0f,-1.0f, 1.0f);  // Bottom right of the quad (left).
+    glColor4f(0.0f, 0.0f, 1.0f, 0.5f); // Set color to blue.
+    glVertex3f(-1.0f, 1.0f, 1.0f);     // Top right of the quad (left).
+    glVertex3f(-1.0f, 1.0f, -1.0f);    // Top left of the quad (left).
+    glVertex3f(-1.0f, -1.0f, -1.0f);   // Bottom left of the quad (left).
+    glVertex3f(-1.0f, -1.0f, 1.0f);    // Bottom right of the quad (left).
 
     // This is the last face to complete the cube. The X axis is always one. Drawing is
     // counter clockwise. If you wanted to, you could leave this face out, and make a box :)
 
-    glColor4f(1.0f,0.0f,1.0f,0.5f); // Set color to violet.
-    glVertex3f( 1.0f, 1.0f,-1.0f);  // Top right of the quad (right).
-    glVertex3f( 1.0f, 1.0f, 1.0f);  // Top left of the quad (right).
-    glVertex3f( 1.0f,-1.0f, 1.0f);  // Bottom left of the quad (right).
-    glVertex3f( 1.0f,-1.0f,-1.0f);  // Bottom right of the quad (right).
+    glColor4f(1.0f, 0.0f, 1.0f, 0.5f); // Set color to violet.
+    glVertex3f(1.0f, 1.0f, -1.0f);     // Top right of the quad (right).
+    glVertex3f(1.0f, 1.0f, 1.0f);      // Top left of the quad (right).
+    glVertex3f(1.0f, -1.0f, 1.0f);     // Bottom left of the quad (right).
+    glVertex3f(1.0f, -1.0f, -1.0f);    // Bottom right of the quad (right).
 
     // Finished drawing the quad.
     glEnd();
@@ -1740,9 +1703,7 @@ BOOL GS_Demo::ShapesDemo()
     return TRUE;
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 //==============================================================================================
 // GS_Demo::TextureDemo():
@@ -1797,7 +1758,7 @@ BOOL GS_Demo::TextureDemo()
     int nKey = m_gsKeyboard.GetKeyPressed();
     int nButton = m_gsController.GetButtonPressed();
 
-    if( nButton != -1 )
+    if (nButton != -1)
     {
         nKey = nButton;
     }
@@ -1857,17 +1818,17 @@ BOOL GS_Demo::TextureDemo()
     case GSK_HOME:
     case GSC_BUTTON_START:
         // Reset all variables.
-        glfRotateX   = 0.0f;
-        glfRotateY   = 0.0f;
-        glfRotateZ   = 0.0f;
+        glfRotateX = 0.0f;
+        glfRotateY = 0.0f;
+        glfRotateZ = 0.0f;
         glfRotSpeedY = 0;
         glfRotSpeedX = 0;
-        glfDepthZ    = -5.0f;
+        glfDepthZ = -5.0f;
         break;
     }
 
     // Change the postion of the camera.
-    glTranslatef(0.0f,0.0f,glfDepthZ);
+    glTranslatef(0.0f, 0.0f, glfDepthZ);
 
     // The following three lines of code will rotate the cube on the x axis, then the y axis,
     // and finally the z axis. How much it rotates on each axis will depend on the value stored
@@ -1879,7 +1840,7 @@ BOOL GS_Demo::TextureDemo()
     // This makes sure we draw the textures on a white background to make sure the texture is
     // displayed with the correct colors. Changing the color of the color of the background the
     // texture will be drawn upon will give the texture a different hue depending on the color.
-    glColor4f(1.0f,1.0f,1.0f,1.0f);
+    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
     // The next line of code selects which texture we want to use. If there was more than one
     // texture you wanted to use in your scene, you would select the texture using
@@ -1936,68 +1897,68 @@ BOOL GS_Demo::TextureDemo()
     // Front face.
     glNormal3f(0.0f, 0.0f, 1.0f);
     glTexCoord2f(0.0f, 0.0f);
-    glVertex3f(-1.0f, -1.0f,  1.0f);
+    glVertex3f(-1.0f, -1.0f, 1.0f);
     glTexCoord2f(1.0f, 0.0f);
-    glVertex3f( 1.0f, -1.0f,  1.0f);
+    glVertex3f(1.0f, -1.0f, 1.0f);
     glTexCoord2f(1.0f, 1.0f);
-    glVertex3f( 1.0f,  1.0f,  1.0f);
+    glVertex3f(1.0f, 1.0f, 1.0f);
     glTexCoord2f(0.0f, 1.0f);
-    glVertex3f(-1.0f,  1.0f,  1.0f);
+    glVertex3f(-1.0f, 1.0f, 1.0f);
 
     // Back face.
     glNormal3f(0.0f, 0.0f, -1.0f);
     glTexCoord2f(1.0f, 0.0f);
     glVertex3f(-1.0f, -1.0f, -1.0f);
     glTexCoord2f(1.0f, 1.0f);
-    glVertex3f(-1.0f,  1.0f, -1.0f);
+    glVertex3f(-1.0f, 1.0f, -1.0f);
     glTexCoord2f(0.0f, 1.0f);
-    glVertex3f( 1.0f,  1.0f, -1.0f);
+    glVertex3f(1.0f, 1.0f, -1.0f);
     glTexCoord2f(0.0f, 0.0f);
-    glVertex3f( 1.0f, -1.0f, -1.0f);
+    glVertex3f(1.0f, -1.0f, -1.0f);
 
     // Top face.
     glNormal3f(0.0f, 1.0f, 0.0f);
     glTexCoord2f(0.0f, 1.0f);
-    glVertex3f(-1.0f,  1.0f, -1.0f);
+    glVertex3f(-1.0f, 1.0f, -1.0f);
     glTexCoord2f(0.0f, 0.0f);
-    glVertex3f(-1.0f,  1.0f,  1.0f);
+    glVertex3f(-1.0f, 1.0f, 1.0f);
     glTexCoord2f(1.0f, 0.0f);
-    glVertex3f( 1.0f,  1.0f,  1.0f);
+    glVertex3f(1.0f, 1.0f, 1.0f);
     glTexCoord2f(1.0f, 1.0f);
-    glVertex3f( 1.0f,  1.0f, -1.0f);
+    glVertex3f(1.0f, 1.0f, -1.0f);
 
     // Bottom face.
     glNormal3f(0.0f, -1.0f, 0.0f);
     glTexCoord2f(1.0f, 1.0f);
     glVertex3f(-1.0f, -1.0f, -1.0f);
     glTexCoord2f(0.0f, 1.0f);
-    glVertex3f( 1.0f, -1.0f, -1.0f);
+    glVertex3f(1.0f, -1.0f, -1.0f);
     glTexCoord2f(0.0f, 0.0f);
-    glVertex3f( 1.0f, -1.0f,  1.0f);
+    glVertex3f(1.0f, -1.0f, 1.0f);
     glTexCoord2f(1.0f, 0.0f);
-    glVertex3f(-1.0f, -1.0f,  1.0f);
+    glVertex3f(-1.0f, -1.0f, 1.0f);
 
     // Right face
     glNormal3f(1.0f, 0.0f, 0.0f);
     glTexCoord2f(1.0f, 0.0f);
-    glVertex3f( 1.0f, -1.0f, -1.0f);
+    glVertex3f(1.0f, -1.0f, -1.0f);
     glTexCoord2f(1.0f, 1.0f);
-    glVertex3f( 1.0f,  1.0f, -1.0f);
+    glVertex3f(1.0f, 1.0f, -1.0f);
     glTexCoord2f(0.0f, 1.0f);
-    glVertex3f( 1.0f,  1.0f,  1.0f);
+    glVertex3f(1.0f, 1.0f, 1.0f);
     glTexCoord2f(0.0f, 0.0f);
-    glVertex3f( 1.0f, -1.0f,  1.0f);
+    glVertex3f(1.0f, -1.0f, 1.0f);
 
     // Left face.
     glNormal3f(-1.0f, 0.0f, 1.0f);
     glTexCoord2f(0.0f, 0.0f);
     glVertex3f(-1.0f, -1.0f, -1.0f);
     glTexCoord2f(1.0f, 0.0f);
-    glVertex3f(-1.0f, -1.0f,  1.0f);
+    glVertex3f(-1.0f, -1.0f, 1.0f);
     glTexCoord2f(1.0f, 1.0f);
-    glVertex3f(-1.0f,  1.0f,  1.0f);
+    glVertex3f(-1.0f, 1.0f, 1.0f);
     glTexCoord2f(0.0f, 1.0f);
-    glVertex3f(-1.0f,  1.0f, -1.0f);
+    glVertex3f(-1.0f, 1.0f, -1.0f);
 
     glEnd();
 
@@ -2019,9 +1980,7 @@ BOOL GS_Demo::TextureDemo()
     return TRUE;
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 //==============================================================================================
 // GS_Demo::SpriteDemo():
@@ -2047,10 +2006,10 @@ BOOL GS_Demo::SpriteDemo()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glLoadIdentity();
         m_gsDisplay.BeginRender2D(this->GetWindow());
-        m_gsBackgrnd.SetDestX((INTERNAL_RES_X - (long)m_gsBackgrnd.GetScaledWidth())  / 2);
+        m_gsBackgrnd.SetDestX((INTERNAL_RES_X - (long)m_gsBackgrnd.GetScaledWidth()) / 2);
         m_gsBackgrnd.SetDestY((INTERNAL_RES_Y - (long)m_gsBackgrnd.GetScaledHeight()) / 2);
         m_gsBackgrnd.RenderTiles(m_rcScreen);
-        m_gsSprite.SetDestX((INTERNAL_RES_X - (long)m_gsSprite.GetScaledWidth())  / 2);
+        m_gsSprite.SetDestX((INTERNAL_RES_X - (long)m_gsSprite.GetScaledWidth()) / 2);
         m_gsSprite.SetDestY((INTERNAL_RES_Y - (long)m_gsSprite.GetScaledHeight()) / 2);
         m_gsSprite.Render();
         m_gsDisplay.EndRender2D();
@@ -2071,14 +2030,14 @@ BOOL GS_Demo::SpriteDemo()
     // New Code /////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////
 
-    static GLfloat glfRotSpeed = 0.0f; // Rotation speed.
+    static GLfloat glfRotSpeed = 0.0f;     // Rotation speed.
     static GLfloat glfTransparency = 1.0f; // Sprite transparency.
 
     // Check to see wether a key or button was pressed.
     int nKey = m_gsKeyboard.GetKeyPressed();
     int nButton = m_gsController.GetButtonPressed();
 
-    if( nButton != -1 )
+    if (nButton != -1)
     {
         nKey = nButton;
     }
@@ -2171,7 +2130,7 @@ BOOL GS_Demo::SpriteDemo()
     m_gsSprite.AddRotateZ(glfRotSpeed);
 
     // Position the sprite centered on the screen.
-    m_gsSprite.SetDestX((INTERNAL_RES_X - (long)m_gsSprite.GetScaledWidth())  / 2);
+    m_gsSprite.SetDestX((INTERNAL_RES_X - (long)m_gsSprite.GetScaledWidth()) / 2);
     m_gsSprite.SetDestY((INTERNAL_RES_Y - (long)m_gsSprite.GetScaledHeight()) / 2);
 
     // Draw the sprite.
@@ -2188,9 +2147,7 @@ BOOL GS_Demo::SpriteDemo()
     return TRUE;
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 //==============================================================================================
 // GS_Demo::FontDemo():
@@ -2217,13 +2174,13 @@ BOOL GS_Demo::FontDemo()
         glLoadIdentity();
         m_gsDisplay.BeginRender2D(this->GetWindow());
         m_gsBackgrnd.SetScrollXY(0.0f, 0.0f);
-        m_gsBackgrnd.SetDestX((INTERNAL_RES_X - (long)m_gsBackgrnd.GetScaledWidth())  / 2);
+        m_gsBackgrnd.SetDestX((INTERNAL_RES_X - (long)m_gsBackgrnd.GetScaledWidth()) / 2);
         m_gsBackgrnd.SetDestY((INTERNAL_RES_Y - (long)m_gsBackgrnd.GetScaledHeight()) / 2);
         m_gsBackgrnd.RenderTiles(m_rcScreen);
         m_gsSpriteEx.Render();
         m_gsSmallFont.SetModulateColor(1.0f, 1.0f, 1.0f, 1.0f);
         m_gsSmallFont.SetText("PAUSED");
-        m_gsSmallFont.SetDestXY((INTERNAL_RES_X - m_gsSmallFont.GetTextWidth())  / 2,
+        m_gsSmallFont.SetDestXY((INTERNAL_RES_X - m_gsSmallFont.GetTextWidth()) / 2,
                                 (INTERNAL_RES_Y - m_gsSmallFont.GetTextHeight()) / 2);
         m_gsSmallFont.Render();
         m_gsDisplay.EndRender2D();
@@ -2251,13 +2208,13 @@ BOOL GS_Demo::FontDemo()
     static GLfloat glfTransparency = 1.0f; // Sprite transparency.
 
     static BOOL bMoveRight = TRUE;
-    static BOOL bMoveUp    = TRUE;
+    static BOOL bMoveUp = TRUE;
 
     // Check to see wether a key or button was pressed.
     int nKey = m_gsKeyboard.GetKeyPressed();
     int nButton = m_gsController.GetButtonPressed();
 
-    if( nButton != -1 )
+    if (nButton != -1)
     {
         nKey = nButton;
     }
@@ -2400,9 +2357,8 @@ BOOL GS_Demo::FontDemo()
 
     // Display the frames per second at the top left corner.
     m_gsSmallFont.SetText("%0.2f", this->GetCurrentFrameRate());
-    m_gsSmallFont.SetDestXY(16, INTERNAL_RES_Y - m_gsSmallFont.GetTextHeight() -16);
+    m_gsSmallFont.SetDestXY(16, INTERNAL_RES_Y - m_gsSmallFont.GetTextHeight() - 16);
     m_gsSmallFont.Render();
-
 
     // Display the title of the demo centered at the bottom.
     m_gsLargeFont.SetModulateColor(-1.0f, -1.0f, -1.0f, glfTransparency);
@@ -2421,9 +2377,7 @@ BOOL GS_Demo::FontDemo()
     return TRUE;
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 //==============================================================================================
 // GS_Demo::CollisionDemo():
@@ -2450,7 +2404,7 @@ BOOL GS_Demo::CollisionDemo()
         glLoadIdentity();
         m_gsDisplay.BeginRender2D(this->GetWindow());
         m_gsBackgrnd.SetScrollXY(0.0f, 0.0f);
-        m_gsBackgrnd.SetDestX((INTERNAL_RES_X - (long)m_gsBackgrnd.GetScaledWidth())  / 2);
+        m_gsBackgrnd.SetDestX((INTERNAL_RES_X - (long)m_gsBackgrnd.GetScaledWidth()) / 2);
         m_gsBackgrnd.SetDestY((INTERNAL_RES_Y - (long)m_gsBackgrnd.GetScaledHeight()) / 2);
         m_gsBackgrnd.RenderTiles(m_rcScreen);
         for (int nLoop = 0; nLoop < MAXIMUM_SPRITES; nLoop++)
@@ -2459,7 +2413,7 @@ BOOL GS_Demo::CollisionDemo()
         }
         m_gsSmallFont.SetModulateColor(1.0f, 1.0f, 1.0f, 1.0f);
         m_gsSmallFont.SetText("PAUSED");
-        m_gsSmallFont.SetDestXY((INTERNAL_RES_X - m_gsSmallFont.GetTextWidth())  / 2,
+        m_gsSmallFont.SetDestXY((INTERNAL_RES_X - m_gsSmallFont.GetTextWidth()) / 2,
                                 (INTERNAL_RES_Y - m_gsSmallFont.GetTextHeight()) / 2);
         m_gsSmallFont.Render();
         m_gsDisplay.EndRender2D();
@@ -2487,7 +2441,7 @@ BOOL GS_Demo::CollisionDemo()
     int nKey = m_gsKeyboard.GetKeyPressed();
     int nButton = m_gsController.GetButtonPressed();
 
-    if( nButton != -1 )
+    if (nButton != -1)
     {
         nKey = nButton;
     }
@@ -2532,7 +2486,7 @@ BOOL GS_Demo::CollisionDemo()
     for (int nLoop = 0; nLoop < MAXIMUM_SPRITES; nLoop++)
     {
 
-        static int  nFrameCount[MAXIMUM_SPRITES] = { 0 };
+        static int nFrameCount[MAXIMUM_SPRITES] = {0};
         static BOOL bHasCollided = FALSE;
 
         nFrameCount[nLoop]++;
@@ -2564,7 +2518,7 @@ BOOL GS_Demo::CollisionDemo()
         for (int cLoop = 0; cLoop < MAXIMUM_SPRITES; cLoop++)
         {
             // If the sprite is any sprite except the current one.
-            if (cLoop!=nLoop)
+            if (cLoop != nLoop)
             {
                 // Determine the screen coordinates of the destination sprite.
                 m_gsSprites[cLoop].GetDestRect(&rcDest);
@@ -2575,9 +2529,9 @@ BOOL GS_Demo::CollisionDemo()
                     bHasCollided = TRUE;
                     // Change colliding sprites directions to opposites.
                     m_bMoveRight[nLoop] = !m_bMoveRight[nLoop];
-                    m_bMoveDown[nLoop]  = !m_bMoveDown[nLoop];
+                    m_bMoveDown[nLoop] = !m_bMoveDown[nLoop];
                     m_bMoveRight[cLoop] = !m_bMoveRight[nLoop];
-                    m_bMoveDown[cLoop]  = !m_bMoveDown[nLoop];
+                    m_bMoveDown[cLoop] = !m_bMoveDown[nLoop];
                     // Play appropriate sound.
                     m_gsSound.PlaySample(SAMPLE_COLLIDE);
                     // Set sprite modulate color to show impact.
@@ -2649,7 +2603,7 @@ BOOL GS_Demo::CollisionDemo()
 
     // Display the frames per second at the top left corner.
     m_gsSmallFont.SetText("%0.2f", this->GetCurrentFrameRate());
-    m_gsSmallFont.SetDestXY(16, INTERNAL_RES_Y - m_gsSmallFont.GetTextHeight() -16);
+    m_gsSmallFont.SetDestXY(16, INTERNAL_RES_Y - m_gsSmallFont.GetTextHeight() - 16);
     m_gsSmallFont.Render();
 
     // Display the title of the demo centered at the bottom.
@@ -2669,9 +2623,7 @@ BOOL GS_Demo::CollisionDemo()
     return TRUE;
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 //==============================================================================================
 // GS_Demo::MenuDemo():
@@ -2699,7 +2651,7 @@ BOOL GS_Demo::MenuDemo()
         m_gsDisplay.BeginRender2D(this->GetWindow());
         m_gsSmallFont.SetModulateColor(1.0f, 1.0f, 1.0f, 1.0f);
         m_gsSmallFont.SetText("PAUSED");
-        m_gsSmallFont.SetDestXY((INTERNAL_RES_X - m_gsSmallFont.GetTextWidth())  / 2,
+        m_gsSmallFont.SetDestXY((INTERNAL_RES_X - m_gsSmallFont.GetTextWidth()) / 2,
                                 (INTERNAL_RES_Y - m_gsSmallFont.GetTextHeight()) / 2);
         m_gsSmallFont.Render();
         m_gsDisplay.EndRender2D();
@@ -2720,31 +2672,31 @@ BOOL GS_Demo::MenuDemo()
     // New Code /////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////
 
-    static GLfloat glfRollGrnd  = 0.0f;
-    static GLfloat glfRollClds  = 0.0f;
+    static GLfloat glfRollGrnd = 0.0f;
+    static GLfloat glfRollClds = 0.0f;
     static GLfloat glfRollSpeed = 0.001f;
 
     // Create two layers of scrolling clouds in the top half of the screen.
     glBindTexture(GL_TEXTURE_2D, m_gsCloudsTexture.GetID());
     glBegin(GL_QUADS);
     glNormal3f(0.0f, 0.0f, 1.0f);
-    glTexCoord2f(1.0f,1.0f+glfRollClds/0.5f);
-    glVertex3f( 28.0f,6.0f,0.0f);    // Top right.
-    glTexCoord2f(0.0f,1.0f+glfRollClds/0.5f);
-    glVertex3f(-28.0f,6.0f,0.0f);    // Top left.
-    glTexCoord2f(0.0f,0.0f+glfRollClds/0.5f);
-    glVertex3f(-28.0f,-3.0f,-50.0f); // Bottom left.
-    glTexCoord2f(1.0f,0.0f+glfRollClds/0.5f);
-    glVertex3f( 28.0f,-3.0f,-50.0f); // Bottom right.
+    glTexCoord2f(1.0f, 1.0f + glfRollClds / 0.5f);
+    glVertex3f(28.0f, 6.0f, 0.0f); // Top right.
+    glTexCoord2f(0.0f, 1.0f + glfRollClds / 0.5f);
+    glVertex3f(-28.0f, 6.0f, 0.0f); // Top left.
+    glTexCoord2f(0.0f, 0.0f + glfRollClds / 0.5f);
+    glVertex3f(-28.0f, -3.0f, -50.0f); // Bottom left.
+    glTexCoord2f(1.0f, 0.0f + glfRollClds / 0.5f);
+    glVertex3f(28.0f, -3.0f, -50.0f); // Bottom right.
     glNormal3f(0.0f, 0.0f, 1.0f);
-    glTexCoord2f(0.0f,1.0f+glfRollClds/1.0f);
-    glVertex3f( 28.0f,6.0f,0.0f);    // Top right.
-    glTexCoord2f(1.0f,1.0f+glfRollClds/1.0f);
-    glVertex3f(-28.0f,6.0f,0.0f);    // Top left.
-    glTexCoord2f(1.0f,0.0f+glfRollClds/1.0f);
-    glVertex3f(-28.0f,-3.0f,-50.0f); // Bottom left.
-    glTexCoord2f(0.0f,0.0f+glfRollClds/1.0f);
-    glVertex3f( 28.0f,-3.0f,-50.0f); // Bottom right.
+    glTexCoord2f(0.0f, 1.0f + glfRollClds / 1.0f);
+    glVertex3f(28.0f, 6.0f, 0.0f); // Top right.
+    glTexCoord2f(1.0f, 1.0f + glfRollClds / 1.0f);
+    glVertex3f(-28.0f, 6.0f, 0.0f); // Top left.
+    glTexCoord2f(1.0f, 0.0f + glfRollClds / 1.0f);
+    glVertex3f(-28.0f, -3.0f, -50.0f); // Bottom left.
+    glTexCoord2f(0.0f, 0.0f + glfRollClds / 1.0f);
+    glVertex3f(28.0f, -3.0f, -50.0f); // Bottom right.
     glEnd();
 
     glfRollClds -= glfRollSpeed;
@@ -2763,18 +2715,18 @@ BOOL GS_Demo::MenuDemo()
     glBindTexture(GL_TEXTURE_2D, m_gsGroundTexture.GetID());
     glBegin(GL_QUADS);
     glNormal3f(0.0f, 0.0f, 1.0f);
-    glTexCoord2f(7.0f,4.0f-glfRollGrnd);
-    glVertex3f( 28.0f,-3.0f,-50.0f); // Top right.
-    glTexCoord2f(0.0f,4.0f-glfRollGrnd);
-    glVertex3f(-28.0f,-3.0f,-50.0f); // Top left.
-    glTexCoord2f(0.0f,0.0f-glfRollGrnd);
-    glVertex3f(-28.0f,-3.0f,0.0f);   // Bottom left.
-    glTexCoord2f(7.0f,0.0f-glfRollGrnd);
-    glVertex3f( 28.0f,-3.0f,0.0f);   // Bottom right.
+    glTexCoord2f(7.0f, 4.0f - glfRollGrnd);
+    glVertex3f(28.0f, -3.0f, -50.0f); // Top right.
+    glTexCoord2f(0.0f, 4.0f - glfRollGrnd);
+    glVertex3f(-28.0f, -3.0f, -50.0f); // Top left.
+    glTexCoord2f(0.0f, 0.0f - glfRollGrnd);
+    glVertex3f(-28.0f, -3.0f, 0.0f); // Bottom left.
+    glTexCoord2f(7.0f, 0.0f - glfRollGrnd);
+    glVertex3f(28.0f, -3.0f, 0.0f); // Bottom right.
     glEnd();
     glBindTexture(GL_TEXTURE_2D, 0);
 
-    glfRollGrnd -= (glfRollSpeed*10);
+    glfRollGrnd -= (glfRollSpeed * 10);
 
     // Reset texture once entire length has been scrolled.
     if (glfRollGrnd < -4.0f + glfRollSpeed)
@@ -2798,7 +2750,7 @@ BOOL GS_Demo::MenuDemo()
     m_gsDisplay.BeginRender2D(this->GetWindow());
 
     // Center menu in screen.
-    m_gsMenu.SetDestX((INTERNAL_RES_X -  m_gsMenu.GetWidth()) / 2);
+    m_gsMenu.SetDestX((INTERNAL_RES_X - m_gsMenu.GetWidth()) / 2);
     m_gsMenu.SetDestY((INTERNAL_RES_Y - m_gsMenu.GetHeight()) / 2);
 
     m_gsMenu.SetModulateColor(-1.0f, -1.0f, -1.0f, glfTransparency);
@@ -2806,16 +2758,18 @@ BOOL GS_Demo::MenuDemo()
     // Render the menu to the back surface.
     m_gsMenu.Render();
 
-    static BOOL bWasMouseReleased  = FALSE;
-    static BOOL bWasKeyReleased    = TRUE;
-    static BOOL bWasButtonReleased    = TRUE;
-    static BOOL bMenuHasTitle      = TRUE;
-    static int nOptionSelected     = -1;
+    static BOOL bWasMouseReleased = FALSE;
+    static BOOL bWasKeyReleased = TRUE;
+    static BOOL bWasButtonReleased = TRUE;
+    static BOOL bMenuHasTitle = TRUE;
+    static int nOptionSelected = -1;
 
-    int KeyList[3] = { GSK_ENTER, GSK_UP, GSK_DOWN };
+    int KeyList[3] = {GSK_ENTER, GSK_UP, GSK_DOWN};
+    int ButtonList[3] = {GSC_BUTTON_A, GSC_BUTTON_DPAD_UP, GSC_BUTTON_DPAD_DOWN};
 
     // Were all the keys in the key list released?
-    if (TRUE == m_gsKeyboard.AreKeysUp(3, KeyList))
+    if (TRUE == m_gsKeyboard.AreKeysUp(3, KeyList) &&
+        TRUE == m_gsController.AreButtonsUp(3, ButtonList))
     {
         // Set flag to indicate that all the keys were released.
         bWasKeyReleased = TRUE;
@@ -2825,7 +2779,7 @@ BOOL GS_Demo::MenuDemo()
     int nKey = m_gsKeyboard.GetKeyPressed();
     int nButton = m_gsController.GetButtonPressed();
 
-    if( nButton != -1 )
+    if (nButton != -1)
     {
         nKey = nButton;
     }
@@ -2835,6 +2789,7 @@ BOOL GS_Demo::MenuDemo()
     {
     // Was the up key pressed?
     case GSK_UP:
+    case GSC_BUTTON_DPAD_UP:
         // Was this key released?
         if (bWasKeyReleased)
         {
@@ -2848,6 +2803,7 @@ BOOL GS_Demo::MenuDemo()
         break;
     // Was the down key pressed?
     case GSK_DOWN:
+    case GSC_BUTTON_DPAD_DOWN:
         // Was this key released?
         if (bWasKeyReleased)
         {
@@ -2861,6 +2817,7 @@ BOOL GS_Demo::MenuDemo()
         break;
     // Was the enter key pressed?
     case GSK_ENTER:
+    case GSC_BUTTON_A:
         // Was this key released?
         if (bWasKeyReleased)
         {
@@ -2910,62 +2867,6 @@ BOOL GS_Demo::MenuDemo()
         // Reset all variables.
         glfTransparency = 1.0f;
         glfRollSpeed = 0.001f;
-        break;
-    }
-    
-    int ButtonList[3] = { GSC_BUTTON_A, GSC_BUTTON_DPAD_UP, GSC_BUTTON_DPAD_DOWN };
-
-    // Were all the buttons in the button list released?
-    if (TRUE == m_gsController.AreButtonsUp(3, ButtonList))
-    {
-        // Set flag to indicate that all the buttons were released.
-        bWasButtonReleased = TRUE;
-    }
-
-    // Check to see wether a button was pressed.
-    int nBufferedButton = m_gsController.GetButtonPressed();    
-
-    // Act depending on button pressed.
-    switch (nBufferedButton)
-    {
-    // Was the up key pressed?
-    case GSC_BUTTON_DPAD_UP:
-        // Was this key released?
-        if (bWasButtonReleased)
-        {
-            // Highlight the previous option.
-            m_gsMenu.HighlightPrev();
-            // Play appropriate sound.
-            m_gsSound.PlaySample(SAMPLE_OPTION);
-            // Key is pressed.
-            bWasButtonReleased = FALSE;
-        }
-        break;
-    // Was the down key pressed?
-    case GSC_BUTTON_DPAD_DOWN:
-        // Was this key released?
-        if (bWasButtonReleased)
-        {
-            // Highlight the next option.
-            m_gsMenu.HighlightNext();
-            // Play appropriate sound.
-            m_gsSound.PlaySample(SAMPLE_OPTION);
-            // Key is pressed.
-            bWasButtonReleased = FALSE;
-        }
-        break;
-    // Was the enter key pressed?
-    case GSC_BUTTON_A:
-        // Was this key released?
-        if (bWasButtonReleased)
-        {
-            // Save the highlighted option.
-            nOptionSelected = m_gsMenu.GetHighlight();
-            // Play appropriate sound.
-            m_gsSound.PlaySample(SAMPLE_SELECT);
-            // Key is pressed.
-            bWasButtonReleased = FALSE;
-        }
         break;
     }
 
@@ -3068,19 +2969,19 @@ BOOL GS_Demo::MenuDemo()
 
     // Display the frames per second at the top left corner.
     m_gsSmallFont.SetText("%0.2f", this->GetCurrentFrameRate());
-    m_gsSmallFont.SetDestXY(16, INTERNAL_RES_Y - m_gsSmallFont.GetTextHeight() -16);
+    m_gsSmallFont.SetDestXY(16, INTERNAL_RES_Y - m_gsSmallFont.GetTextHeight() - 16);
     m_gsSmallFont.Render();
 
     // Display the mouse coordinates at the top right corner.
     m_gsSmallFont.SetText("(%ld,%ld)", m_gsMouse.GetX(), m_gsMouse.GetY());
-    m_gsSmallFont.SetDestXY(INTERNAL_RES_X - m_gsSmallFont.GetTextWidth() -16,
-                            INTERNAL_RES_Y - m_gsSmallFont.GetTextHeight() -16);
+    m_gsSmallFont.SetDestXY(INTERNAL_RES_X - m_gsSmallFont.GetTextWidth() - 16,
+                            INTERNAL_RES_Y - m_gsSmallFont.GetTextHeight() - 16);
     m_gsSmallFont.Render();
 
     // Display the mouse cursor at the current mouse position.
     m_gsLargeFont.SetText("#");
     m_gsLargeFont.SetDestXY(m_gsMouse.GetX(), m_gsMouse.GetY() -
-                            (int)m_gsLargeFont.GetTextHeight() + 1);
+                                                  (int)m_gsLargeFont.GetTextHeight() + 1);
     m_gsLargeFont.Render();
     m_gsLargeFont.SetModulateColor(1.0f, 1.0f, 1.0f, 1.0f);
 
@@ -3101,9 +3002,7 @@ BOOL GS_Demo::MenuDemo()
     return TRUE;
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 //==============================================================================================
 // GS_Demo::MapDemo():
@@ -3133,7 +3032,7 @@ BOOL GS_Demo::MapDemo()
         m_gsPlayerSprite.Render();
         m_gsSmallFont.SetModulateColor(1.0f, 1.0f, 1.0f, 1.0f);
         m_gsSmallFont.SetText("PAUSED");
-        m_gsSmallFont.SetDestXY((INTERNAL_RES_X  - m_gsSmallFont.GetTextWidth())  / 2,
+        m_gsSmallFont.SetDestXY((INTERNAL_RES_X - m_gsSmallFont.GetTextWidth()) / 2,
                                 (INTERNAL_RES_Y - m_gsSmallFont.GetTextHeight()) / 2);
         m_gsSmallFont.Render();
         m_gsDisplay.EndRender2D();
@@ -3161,23 +3060,23 @@ BOOL GS_Demo::MapDemo()
     glBindTexture(GL_TEXTURE_2D, m_gsCloudsTexture.GetID());
     glBegin(GL_QUADS);
     glNormal3f(0.0f, 0.0f, 1.0f);
-    glTexCoord2f(1.0f,1.0f-glfRollTex/0.5f);
-    glVertex3f( 8.0f,6.0f,-5.0f);  // Top right.
-    glTexCoord2f(1.0f,0.0f-glfRollTex/0.5f);
-    glVertex3f(-8.0f,6.0f,-5.0f);  // Top left.
-    glTexCoord2f(0.0f,0.0f-glfRollTex/0.5f);
-    glVertex3f(-8.0f,-3.0f,-5.0f); // Bottom left.
-    glTexCoord2f(0.0f,1.0f-glfRollTex/0.5f);
-    glVertex3f( 8.0f,-3.0f,-5.0f); // Bottom right.
+    glTexCoord2f(1.0f, 1.0f - glfRollTex / 0.5f);
+    glVertex3f(8.0f, 6.0f, -5.0f); // Top right.
+    glTexCoord2f(1.0f, 0.0f - glfRollTex / 0.5f);
+    glVertex3f(-8.0f, 6.0f, -5.0f); // Top left.
+    glTexCoord2f(0.0f, 0.0f - glfRollTex / 0.5f);
+    glVertex3f(-8.0f, -3.0f, -5.0f); // Bottom left.
+    glTexCoord2f(0.0f, 1.0f - glfRollTex / 0.5f);
+    glVertex3f(8.0f, -3.0f, -5.0f); // Bottom right.
     glNormal3f(0.0f, 0.0f, 1.0f);
-    glTexCoord2f(0.0f,1.0f-glfRollTex/1.0f);
-    glVertex3f( 8.0f,6.0f,-5.0f);  // Top right.
-    glTexCoord2f(0.0f,0.0f-glfRollTex/1.0f);
-    glVertex3f(-8.0f,6.0f,-5.0f);  // Top left.
-    glTexCoord2f(1.0f,0.0f-glfRollTex/1.0f);
-    glVertex3f(-8.0f,-3.0f,-5.0f); // Bottom left.
-    glTexCoord2f(1.0f,1.0f-glfRollTex/1.0f);
-    glVertex3f( 8.0f,-3.0f,-5.0f); // Bottom right.
+    glTexCoord2f(0.0f, 1.0f - glfRollTex / 1.0f);
+    glVertex3f(8.0f, 6.0f, -5.0f); // Top right.
+    glTexCoord2f(0.0f, 0.0f - glfRollTex / 1.0f);
+    glVertex3f(-8.0f, 6.0f, -5.0f); // Top left.
+    glTexCoord2f(1.0f, 0.0f - glfRollTex / 1.0f);
+    glVertex3f(-8.0f, -3.0f, -5.0f); // Bottom left.
+    glTexCoord2f(1.0f, 1.0f - glfRollTex / 1.0f);
+    glVertex3f(8.0f, -3.0f, -5.0f); // Bottom right.
     glEnd();
 
     // Reset texture when scrolled entire length.
@@ -3189,8 +3088,9 @@ BOOL GS_Demo::MapDemo()
     /////////////////////////////////////////////////////////////////////////////////////////////
 
     static GLfloat glfTransparency = 1.0f;
-    static BOOL bWasKeyReleased    = TRUE;
-    int    KeyList[3] = { GSK_ENTER, GSK_UP, GSK_DOWN };
+    static BOOL bWasKeyReleased = TRUE;
+    int KeyList[3] = {GSK_ENTER, GSK_UP, GSK_DOWN};
+    int ButtonList[3] = {GSC_BUTTON_A, GSC_BUTTON_DPAD_UP, GSC_BUTTON_DPAD_DOWN};
 
     static int nMoveDistance = 4;
     RECT rcPlayer;
@@ -3202,7 +3102,8 @@ BOOL GS_Demo::MapDemo()
     m_gsCollide.SetRectPercentXY(&rcPlayer, 75);
 
     // Were all the keys in the key list released?
-    if (TRUE == m_gsKeyboard.AreKeysUp(3, KeyList))
+    if (TRUE == m_gsKeyboard.AreKeysUp(3, KeyList) &&
+        TRUE == m_gsController.AreButtonsUp(3, ButtonList))
     {
         // Set flag to indicate that all the keys were released.
         bWasKeyReleased = TRUE;
@@ -3212,7 +3113,7 @@ BOOL GS_Demo::MapDemo()
     int nKey = m_gsKeyboard.GetKeyPressed();
     int nButton = m_gsController.GetButtonPressed();
 
-    if( nButton != -1 )
+    if (nButton != -1)
     {
         nKey = nButton;
     }
@@ -3224,12 +3125,12 @@ BOOL GS_Demo::MapDemo()
     case GSK_UP:
     case GSC_BUTTON_DPAD_UP:
         // Has the player not moved half the height of the clip box?
-        if ((m_gsPlayerSprite.GetDestY() + (m_gsPlayerSprite.GetFrameHeight()/2)) <
-                (m_gsMap.GetClipBoxBottom() + (m_gsMap.GetClipBoxHeight()/2)))
+        if ((m_gsPlayerSprite.GetDestY() + (m_gsPlayerSprite.GetFrameHeight() / 2)) <
+            (m_gsMap.GetClipBoxBottom() + (m_gsMap.GetClipBoxHeight() / 2)))
         {
             // Adjust the player rectangle with the planned move.
             rcPlayer.bottom += nMoveDistance;
-            rcPlayer.top    += nMoveDistance;
+            rcPlayer.top += nMoveDistance;
             // Is the player rectangle not on the specified tile?
             if (!m_gsMap.IsOnTile(rcPlayer, 0))
             {
@@ -3240,7 +3141,7 @@ BOOL GS_Demo::MapDemo()
             {
                 // Move did not take place, reset the player rectangle.
                 rcPlayer.bottom -= nMoveDistance;
-                rcPlayer.top    -= nMoveDistance;
+                rcPlayer.top -= nMoveDistance;
             }
         }
         else
@@ -3261,8 +3162,8 @@ BOOL GS_Demo::MapDemo()
     case GSK_DOWN:
     case GSC_BUTTON_DPAD_DOWN:
         // Has the player not moved half the height of the clip box?
-        if ((m_gsPlayerSprite.GetDestY() + (m_gsPlayerSprite.GetFrameHeight()/2)) <
-                (m_gsMap.GetClipBoxBottom() + (m_gsMap.GetClipBoxHeight()/2)))
+        if ((m_gsPlayerSprite.GetDestY() + (m_gsPlayerSprite.GetFrameHeight() / 2)) <
+            (m_gsMap.GetClipBoxBottom() + (m_gsMap.GetClipBoxHeight() / 2)))
         {
             // Scroll the map upwards.
             m_gsMap.ScrollY(+nMoveDistance);
@@ -3277,7 +3178,7 @@ BOOL GS_Demo::MapDemo()
         {
             // Adjust the player rectangle with the planned move.
             rcPlayer.bottom -= nMoveDistance;
-            rcPlayer.top    -= nMoveDistance;
+            rcPlayer.top -= nMoveDistance;
             // Is the player rectangle not on the specified tile?
             if (!m_gsMap.IsOnTile(rcPlayer, 0))
             {
@@ -3288,7 +3189,7 @@ BOOL GS_Demo::MapDemo()
             {
                 // Move did not take place, reset the player rectangle.
                 rcPlayer.bottom += nMoveDistance;
-                rcPlayer.top    += nMoveDistance;
+                rcPlayer.top += nMoveDistance;
             }
         }
         // Select the appropriate frame.
@@ -3298,8 +3199,8 @@ BOOL GS_Demo::MapDemo()
     case GSK_LEFT:
     case GSC_BUTTON_DPAD_LEFT:
         // Has the player not moved half the width of the clip box?
-        if ((m_gsPlayerSprite.GetDestX() + (m_gsPlayerSprite.GetFrameWidth()/2)) <
-                (m_gsMap.GetClipBoxLeft() + (m_gsMap.GetClipBoxWidth()/2)))
+        if ((m_gsPlayerSprite.GetDestX() + (m_gsPlayerSprite.GetFrameWidth() / 2)) <
+            (m_gsMap.GetClipBoxLeft() + (m_gsMap.GetClipBoxWidth() / 2)))
         {
             // Scroll the map to the right.
             m_gsMap.ScrollX(+nMoveDistance);
@@ -3313,7 +3214,7 @@ BOOL GS_Demo::MapDemo()
         else
         {
             // Adjust the player rectangle with the planned move.
-            rcPlayer.left  -= nMoveDistance;
+            rcPlayer.left -= nMoveDistance;
             rcPlayer.right -= nMoveDistance;
             // Is the player rectangle not on the specified tile?
             if (!m_gsMap.IsOnTile(rcPlayer, 0))
@@ -3324,7 +3225,7 @@ BOOL GS_Demo::MapDemo()
             else
             {
                 // Move did not take place, reset the player rectangle.
-                rcPlayer.left  += nMoveDistance;
+                rcPlayer.left += nMoveDistance;
                 rcPlayer.right += nMoveDistance;
             }
         }
@@ -3335,11 +3236,11 @@ BOOL GS_Demo::MapDemo()
     case GSK_RIGHT:
     case GSC_BUTTON_DPAD_RIGHT:
         // Has the player not moved half the width of the clip box?
-        if ((m_gsPlayerSprite.GetDestX() + (m_gsPlayerSprite.GetFrameWidth()/2)) <
-                (m_gsMap.GetClipBoxLeft() + (m_gsMap.GetClipBoxWidth()/2)))
+        if ((m_gsPlayerSprite.GetDestX() + (m_gsPlayerSprite.GetFrameWidth() / 2)) <
+            (m_gsMap.GetClipBoxLeft() + (m_gsMap.GetClipBoxWidth() / 2)))
         {
             // Adjust the player rectangle with the planned move.
-            rcPlayer.left  += nMoveDistance;
+            rcPlayer.left += nMoveDistance;
             rcPlayer.right += nMoveDistance;
             // Is the player rectangle not on the specified tile?
             if (!m_gsMap.IsOnTile(rcPlayer, 0))
@@ -3350,7 +3251,7 @@ BOOL GS_Demo::MapDemo()
             else
             {
                 // Move did not take place, reset the player rectangle.
-                rcPlayer.left  -= nMoveDistance;
+                rcPlayer.left -= nMoveDistance;
                 rcPlayer.right -= nMoveDistance;
             }
         }
@@ -3391,7 +3292,7 @@ BOOL GS_Demo::MapDemo()
         glfTransparency = 1.0f;
         m_gsMap.SetMapX(0);
         m_gsMap.SetMapY(0);
-        m_gsPlayerSprite.SetDestX(m_gsMap.GetClipBoxLeft()   +  m_gsMap.GetTileWidth());
+        m_gsPlayerSprite.SetDestX(m_gsMap.GetClipBoxLeft() + m_gsMap.GetTileWidth());
         m_gsPlayerSprite.SetDestY(m_gsMap.GetClipBoxBottom() + m_gsMap.GetTileHeight());
         break;
     }
@@ -3447,7 +3348,7 @@ BOOL GS_Demo::MapDemo()
         // Reset all variables.
         m_gsMap.SetMapX(0);
         m_gsMap.SetMapY(0);
-        m_gsPlayerSprite.SetDestX(m_gsMap.GetClipBoxLeft()   +  m_gsMap.GetTileWidth());
+        m_gsPlayerSprite.SetDestX(m_gsMap.GetClipBoxLeft() + m_gsMap.GetTileWidth());
         m_gsPlayerSprite.SetDestY(m_gsMap.GetClipBoxBottom() + m_gsMap.GetTileHeight());
         // Play appropriate sound.
         m_gsSound.PlaySample(SAMPLE_RESIZE);
@@ -3457,7 +3358,7 @@ BOOL GS_Demo::MapDemo()
 
     // Display the frames per second at the top left corner.
     m_gsSmallFont.SetText("%0.2f", this->GetCurrentFrameRate());
-    m_gsSmallFont.SetDestXY(16, INTERNAL_RES_Y - m_gsSmallFont.GetTextHeight() -16);
+    m_gsSmallFont.SetDestXY(16, INTERNAL_RES_Y - m_gsSmallFont.GetTextHeight() - 16);
     m_gsSmallFont.Render();
 
     // Display the title of the demo centered at the bottom.
@@ -3480,9 +3381,7 @@ BOOL GS_Demo::MapDemo()
     return TRUE;
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 //==============================================================================================
 // GS_Demo::ParticleDemo():
@@ -3511,7 +3410,7 @@ BOOL GS_Demo::ParticleDemo()
         m_gsParticle.Render();
         m_gsSmallFont.SetModulateColor(1.0f, 1.0f, 1.0f, 1.0f);
         m_gsSmallFont.SetText("PAUSED");
-        m_gsSmallFont.SetDestXY((INTERNAL_RES_X - m_gsSmallFont.GetTextWidth())  / 2,
+        m_gsSmallFont.SetDestXY((INTERNAL_RES_X - m_gsSmallFont.GetTextWidth()) / 2,
                                 (INTERNAL_RES_Y - m_gsSmallFont.GetTextHeight()) / 2);
         m_gsSmallFont.Render();
         m_gsDisplay.EndRender2D();
@@ -3595,7 +3494,7 @@ BOOL GS_Demo::ParticleDemo()
     int nKey = m_gsKeyboard.GetKeyPressed();
     int nButton = m_gsController.GetButtonPressed();
 
-    if( nButton != -1 )
+    if (nButton != -1)
     {
         nKey = nButton;
     }
@@ -3683,12 +3582,12 @@ BOOL GS_Demo::ParticleDemo()
     // New Code /////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////
 
-    static float fAddX[MAX_PARTICLES] = { 0.0f };
-    static float fAddY[MAX_PARTICLES] = { 0.0f };
-    static int   nMovementRateX[MAX_PARTICLES] = { 0 };
-    static int   nMovementRateY[MAX_PARTICLES] = { 0 };
-    static BOOL  bMoveLeft[MAX_PARTICLES] = { 0 };
-    static BOOL  bMoveUp[MAX_PARTICLES]   = { 0 };
+    static float fAddX[MAX_PARTICLES] = {0.0f};
+    static float fAddY[MAX_PARTICLES] = {0.0f};
+    static int nMovementRateX[MAX_PARTICLES] = {0};
+    static int nMovementRateY[MAX_PARTICLES] = {0};
+    static BOOL bMoveLeft[MAX_PARTICLES] = {0};
+    static BOOL bMoveUp[MAX_PARTICLES] = {0};
     // static BOOL  bIsFirstRun = TRUE;
 
     // Setup particles for the first time.
@@ -3701,12 +3600,12 @@ BOOL GS_Demo::ParticleDemo()
             nMovementRateX[nLoop] = 10;
             nMovementRateY[nLoop] = 10;
             // Set horizontal direction randomly.
-            if (rand()%2 == 1)
+            if (rand() % 2 == 1)
             {
                 bMoveLeft[nLoop] = !bMoveLeft[nLoop];
             }
             // Set vertical direction randomly.
-            if (rand()%2 == 1)
+            if (rand() % 2 == 1)
             {
                 bMoveUp[nLoop] = !bMoveUp[nLoop];
             }
@@ -3780,44 +3679,44 @@ BOOL GS_Demo::ParticleDemo()
             m_gsParticle.SetScaleY(nLoop, 1.0f);
         }
         // Has the specified particle left the screen to the right, left, top or bottom?
-        if ((m_gsParticle.GetDestX(nLoop) >= INTERNAL_RES_X)  ||
-                (m_gsParticle.GetDestX(nLoop) <= 0 - m_gsParticle.GetScaledWidth(nLoop)) ||
-                (m_gsParticle.GetDestY(nLoop) >= INTERNAL_RES_Y) ||
-                (m_gsParticle.GetDestY(nLoop) <= 0 - m_gsParticle.GetScaledHeight(nLoop)))
+        if ((m_gsParticle.GetDestX(nLoop) >= INTERNAL_RES_X) ||
+            (m_gsParticle.GetDestX(nLoop) <= 0 - m_gsParticle.GetScaledWidth(nLoop)) ||
+            (m_gsParticle.GetDestY(nLoop) >= INTERNAL_RES_Y) ||
+            (m_gsParticle.GetDestY(nLoop) <= 0 - m_gsParticle.GetScaledHeight(nLoop)))
         {
             // Determine a new random movement speed.
-            nMovementRateX[nLoop] = rand()%9 + 2;
-            nMovementRateY[nLoop] = rand()%9 + 2;
+            nMovementRateX[nLoop] = rand() % 9 + 2;
+            nMovementRateY[nLoop] = rand() % 9 + 2;
             // Set horizontal direction randomly.
-            if (rand()%2 == 1)
+            if (rand() % 2 == 1)
             {
                 bMoveLeft[nLoop] = !bMoveLeft[nLoop];
             }
             // Set vertical direction randomly.
-            if (rand()%2 == 1)
+            if (rand() % 2 == 1)
             {
                 bMoveUp[nLoop] = !bMoveUp[nLoop];
             }
             // Determine random particle scale.
-            float fScale = 0.1f + float(rand()%11) / 5.0f;
+            float fScale = 0.1f + float(rand() % 11) / 5.0f;
             m_gsParticle.SetScaleX(nLoop, fScale);
             m_gsParticle.SetScaleY(nLoop, fScale);
             // Set starting position in the centre of the screen.
             if (bMoveLeft[nLoop])
             {
-                m_gsParticle.SetDestX(nLoop, (INTERNAL_RES_X/2) -
-                                      (100-10*nMovementRateY[nLoop]));
+                m_gsParticle.SetDestX(nLoop, (INTERNAL_RES_X / 2) -
+                                                 (100 - 10 * nMovementRateY[nLoop]));
             }
             else
             {
-                m_gsParticle.SetDestX(nLoop, (INTERNAL_RES_X/2) +
-                                      (100-10*nMovementRateY[nLoop]));
+                m_gsParticle.SetDestX(nLoop, (INTERNAL_RES_X / 2) +
+                                                 (100 - 10 * nMovementRateY[nLoop]));
             }
             m_gsParticle.SetDestY(nLoop, INTERNAL_RES_Y / 2 - 35);
             // Select a random modulate color for the specified particle.
-            m_gsParticle.SetModulateColor(nLoop, float((rand()%100)+1) / 100,
-                                          float((rand()%100)+1) / 100,
-                                          float((rand()%100)+1) / 100,
+            m_gsParticle.SetModulateColor(nLoop, float((rand() % 100) + 1) / 100,
+                                          float((rand() % 100) + 1) / 100,
+                                          float((rand() % 100) + 1) / 100,
                                           glfTransparency);
         }
     }
@@ -3829,13 +3728,13 @@ BOOL GS_Demo::ParticleDemo()
 
     // Display the frames per second at the top left corner.
     m_gsSmallFont.SetText("%0.2f", this->GetCurrentFrameRate());
-    m_gsSmallFont.SetDestXY(16, INTERNAL_RES_Y - m_gsSmallFont.GetTextHeight() -16);
+    m_gsSmallFont.SetDestXY(16, INTERNAL_RES_Y - m_gsSmallFont.GetTextHeight() - 16);
     m_gsSmallFont.Render();
 
     // Display the number of particles in the top right corner.
     m_gsSmallFont.SetText("%04d", nNumParticles);
-    m_gsSmallFont.SetDestX(INTERNAL_RES_X - m_gsSmallFont.GetTextWidth()  -16);
-    m_gsSmallFont.SetDestY(INTERNAL_RES_Y - m_gsSmallFont.GetTextHeight() -16);
+    m_gsSmallFont.SetDestX(INTERNAL_RES_X - m_gsSmallFont.GetTextWidth() - 16);
+    m_gsSmallFont.SetDestY(INTERNAL_RES_Y - m_gsSmallFont.GetTextHeight() - 16);
     m_gsSmallFont.Render();
 
     // Display the title of the demo centered at the bottom.
@@ -3858,11 +3757,9 @@ BOOL GS_Demo::ParticleDemo()
     return TRUE;
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////
 // Helper Methods //////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 //==============================================================================================
 // GS_Demo::SetRenderScaling():
@@ -3875,7 +3772,7 @@ BOOL GS_Demo::ParticleDemo()
 void GS_Demo::SetRenderScaling(int nWidth, int nHeight, bool bKeepAspect)
 {
     // Is no scaling required?
-    if( (nWidth == INTERNAL_RES_X) && (nHeight == INTERNAL_RES_Y) )
+    if ((nWidth == INTERNAL_RES_X) && (nHeight == INTERNAL_RES_Y))
     {
         // Reset the default scaling values
         GS_OGLDisplay::SetScaleFactorX(1.0f);
@@ -3891,29 +3788,29 @@ void GS_Demo::SetRenderScaling(int nWidth, int nHeight, bool bKeepAspect)
     float aspect = (float)INTERNAL_RES_X / (float)INTERNAL_RES_Y;
 
     // Set up default values for upscaling or downscaling
-    float fAspectWidth  = (float)nWidth;
+    float fAspectWidth = (float)nWidth;
     float fAspectHeight = (float)nHeight;
     float fRenderModX = 0;
     float fRenderModY = 0;
 
     // Should we keep the aspect ratio?
-    if( bKeepAspect )
+    if (bKeepAspect)
     {
         // Is the horizontal dimension greater than the vertical?
-        if( INTERNAL_RES_X >= INTERNAL_RES_Y )
+        if (INTERNAL_RES_X >= INTERNAL_RES_Y)
         {
             // Try to scale the rendering to the given width
-            fAspectWidth  = (float)nWidth;
+            fAspectWidth = (float)nWidth;
             fAspectHeight = (float)fAspectWidth / aspect;
             fRenderModX = 0;
             fRenderModY = (nHeight - fAspectHeight) / 2.0f;
 
             // Have we scaled beyond the given height
-            if( fAspectHeight > (float)nHeight )
+            if (fAspectHeight > (float)nHeight)
             {
                 // Scale the rendering to the given height
                 fAspectHeight = (float)nHeight;
-                fAspectWidth  = fAspectHeight * aspect;
+                fAspectWidth = fAspectHeight * aspect;
                 fRenderModX = (nWidth - fAspectWidth) / 2.0f;
                 fRenderModY = 0;
             }
@@ -3922,15 +3819,15 @@ void GS_Demo::SetRenderScaling(int nWidth, int nHeight, bool bKeepAspect)
         {
             // Try to scale the rendering to the given height
             fAspectHeight = (float)nHeight;
-            fAspectWidth  = fAspectHeight * aspect;
+            fAspectWidth = fAspectHeight * aspect;
             fRenderModX = (nWidth - fAspectWidth) / 2.0f;
             fRenderModY = 0;
 
             // Have we scaled beyond the given width
-            if( fAspectWidth > (float)nWidth )
+            if (fAspectWidth > (float)nWidth)
             {
                 // Scale the rendering to the given width
-                fAspectWidth  = (float)nWidth;
+                fAspectWidth = (float)nWidth;
                 fAspectHeight = (float)fAspectWidth / aspect;
                 fRenderModX = 0;
                 fRenderModY = (nHeight - fAspectHeight) / 2.0f;
@@ -3943,13 +3840,11 @@ void GS_Demo::SetRenderScaling(int nWidth, int nHeight, bool bKeepAspect)
     GS_OGLDisplay::SetRenderModY(fRenderModY);
 
     // Set the scale factor to effect upscaling or downscaling depending on the resolution
-    GS_OGLDisplay::SetScaleFactorX((float)fAspectWidth  / (float)INTERNAL_RES_X);
+    GS_OGLDisplay::SetScaleFactorX((float)fAspectWidth / (float)INTERNAL_RES_X);
     GS_OGLDisplay::SetScaleFactorY((float)fAspectHeight / (float)INTERNAL_RES_Y);
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 //==============================================================================================
 // GS_Demo::GetActionInterval():
@@ -3968,7 +3863,6 @@ float GS_Demo::GetActionInterval(float fActionsPerSecond)
     // one second (at the current frame rate).
     return ((this->GetFrameTime() / 1000) * fActionsPerSecond);
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
