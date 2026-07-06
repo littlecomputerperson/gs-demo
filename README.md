@@ -452,7 +452,10 @@ Libraries used:
 
 _The current version number is set by `GAME_VERSION` in [`gs_demo.h`](gs_demo.h)._
 
-**v1.49** (Current - SDL2 Port)
+**v1.50** (Current - SDL2 Port)
+- Fixed ini/hiscore files not loading or saving when launched from a directory other than the executable's own
+
+**v1.49** (SDL2 Port)
 - Cross-platform support via SDL2
 - CMake build system
 - Improved scaling for modern displays
