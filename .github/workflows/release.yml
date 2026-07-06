@@ -156,10 +156,10 @@ jobs:
         uses: actions/cache@v4
         with:
           path: vcpkg/installed
-          key: vcpkg-x64-windows-sdl2-${{ runner.os }}
+          key: vcpkg-x64-windows-sdl2-mixer-mpg123-${{ runner.os }}
 
       - name: Install SDL2
-        run: .\vcpkg\vcpkg.exe install sdl2:x64-windows sdl2-mixer:x64-windows
+        run: .\vcpkg\vcpkg.exe install sdl2:x64-windows sdl2-mixer[mpg123]:x64-windows
 
       - name: Install pkg-config
         shell: pwsh
