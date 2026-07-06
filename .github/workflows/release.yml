@@ -162,7 +162,19 @@ jobs:
         run: .\vcpkg\vcpkg.exe install sdl2:x64-windows sdl2-mixer:x64-windows
 
       - name: Install pkg-config
-        run: choco install pkgconfiglite -y
+        shell: pwsh
+        run: |
+          # choco install pkgconfiglite used to work here, but it downloads
+          # from a SourceForge mirror that's become unreliable (404s /
+          # connection resets). Use vcpkg's own pkgconf port instead, since
+          # we already depend on vcpkg for everything else in this job.
+          .\vcpkg\vcpkg.exe install pkgconf:x64-windows
+          $toolsDir = "$pwd\vcpkg\installed\x64-windows\tools\pkgconf"
+          # CMake's FindPkgConfig looks for "pkg-config" by name on older
+          # CMake versions and "pkgconf" on newer ones -- provide both so
+          # this doesn't depend on exactly which CMake ships on the runner.
+          Copy-Item "$toolsDir\pkgconf.exe" "$toolsDir\pkg-config.exe"
+          echo "$toolsDir" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
       - uses: ilammy/msvc-dev-cmd@v1
 

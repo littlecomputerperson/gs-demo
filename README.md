@@ -245,6 +245,10 @@ This is normal for free/indie-distributed builds and doesn't indicate a problem 
 
 An earlier version of this workflow tried statically linking SDL2/SDL2_mixer via vcpkg's `x64-windows-static` triplet, for a single self-contained `.exe` with no DLLs at all. That failed at link time: SDL2_mixer's static library pulls in a long, version-dependent chain of optional codec libraries (FLAC, mpg123, opus, vorbis, wavpack, ...) that are only exposed via pkg-config's `Libs.private`, which the CMakeLists.txt here doesn't request. Dynamic linking (the current approach) sidesteps this entirely and mirrors the same "bundle whatever the tool produces" strategy already used for Linux and macOS.
 
+### Why `pkg-config` comes from vcpkg, not Chocolatey
+
+The Windows job originally installed `pkg-config` via `choco install pkgconfiglite`, which downloads from a SourceForge mirror -- one that's become unreliable (404s / reset connections), causing intermittent CI failures unrelated to anything in this repo. Since the job already depends on vcpkg for SDL2/SDL2_mixer, it now installs vcpkg's own `pkgconf` port instead, removing that third-party dependency entirely. vcpkg's port only produces `pkgconf.exe` (no `pkg-config` alias), so the workflow copies it to both names, since which one CMake's `FindPkgConfig` looks for has varied across CMake versions.
+
 ### The Windows platform abstraction bridge
 
 Getting a real Windows build working also required finishing `gs_platform.h`/`gs_platform.cpp`'s native Win32 implementations — `GS_Platform::GetTickCount`, `Sleep`, `GetClientRect`, `SetRect`, `PtInRect`, `OutputDebugString`, `MessageBox`, `GetCurrentDirectory`, and `NormalizePath` previously had no Windows-side implementation at all (only the SDL/non-Windows branch was ever finished), so any Windows build — MSVC or MinGW — would have failed to link the moment those functions were actually called. If you add new `GS_Platform` functions, make sure both the `#ifdef GS_PLATFORM_WINDOWS` and non-Windows branches in `gs_platform.cpp` are implemented, not just one.
