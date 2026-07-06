@@ -452,7 +452,10 @@ Libraries used:
 
 _The current version number is set by `GAME_VERSION` in [`gs_demo.h`](gs_demo.h)._
 
-**v1.50** (Current - SDL2 Port)
+**v1.51** (Current - SDL2 Port)
+- Fixed Windows builds failing to play MP3 music ("Unrecognized audio format") by enabling vcpkg's mpg123 codec feature
+
+**v1.50** (SDL2 Port)
 - Fixed ini/hiscore files not loading or saving when launched from a directory other than the executable's own
 
 **v1.49** (SDL2 Port)
