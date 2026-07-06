@@ -20,7 +20,12 @@
 // ---------------------------------------------------------------------------------------------
 #define GS_ENABLE_ACCELERATORS
 #define GS_ENABLE_MODESWITCH
-#define GS_ENABLE_MENU
+// GS_ENABLE_MENU is intentionally disabled: the game has its own in-engine
+// GL-rendered menu, so this legacy native Win32 menu bar is never wanted.
+// Leaving it enabled attaches a real (visually blank) menu bar to the
+// window class (CreateWindowEx's NULL hMenu falls back to the class menu
+// rather than meaning "no menu"), which shows up as a black bar above the
+// game's rendered content -- reproduced and confirmed via Wine testing.
 // ---------------------------------------------------------------------------------------------
 #define GS_DEFAULT_WIDTH  640
 #define GS_DEFAULT_HEIGHT 480
