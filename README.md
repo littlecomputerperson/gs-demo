@@ -206,6 +206,41 @@ open build/Demo.app
 
 Or from Finder, navigate to the `build` directory and double-click `Demo.app`.
 
+## Cross-Compiling for Windows from Linux (Wine Testing)
+
+Some bugs only reproduce on Windows (different `GS_PLATFORM_WINDOWS` code paths in `gs_app.cpp`, `gs_file.cpp`, `gs_platform.cpp`, etc.) but are painful to chase on a real Windows machine or by waiting on CI. `build_windows_cross.sh` cross-compiles a native Windows `.exe` with mingw-w64 directly on Linux, runnable immediately under Wine — no Windows machine, VM, or CI round-trip needed. This is exactly how a Windows-only bug in the shared GS library (`GS_File::Open()` never setting `m_bIsOpened` on the Windows branch, silently breaking every file read on Windows) was found and fixed in the sibling gs-cyber-snake project, and this project had the same latent bug, fixed the same way.
+
+### One-time host setup
+
+1. Install mingw-w64 (the `-posix` threading variant, needed for C++11 `std::mutex`/`std::thread` support) and Wine:
+   ```bash
+   sudo apt install g++-mingw-w64-x86-64-posix wine
+   ```
+
+2. Build a mingw-w64 SDL2 + SDL2_mixer "sysroot" from the official SDL mingw-devel release archives (apt's mingw SDL2 packages are often outdated or awkward to combine with pkg-config for cross-compilation, so this keeps the two libraries' headers/libs/pkg-config files together in one place the toolchain file and build script both know how to find):
+   ```bash
+   mkdir -p ~/mingw-sdl2/sysroot
+   cd ~/mingw-sdl2
+   curl -LO https://github.com/libsdl-org/SDL/releases/download/release-2.30.0/SDL2-devel-2.30.0-mingw.tar.gz
+   curl -LO https://github.com/libsdl-org/SDL_mixer/releases/download/release-2.8.0/SDL2_mixer-devel-2.8.0-mingw.tar.gz
+   tar xf SDL2-devel-2.30.0-mingw.tar.gz
+   tar xf SDL2_mixer-devel-2.8.0-mingw.tar.gz
+   cp -r SDL2-2.30.0/x86_64-w64-mingw32 sysroot/
+   cp -r SDL2_mixer-2.8.0/x86_64-w64-mingw32/* sysroot/x86_64-w64-mingw32/
+   ```
+   If you keep this sysroot somewhere other than `~/mingw-sdl2/sysroot`, point `build_windows_cross.sh` at it via `GS_MINGW_SYSROOT=/path/to/sysroot/x86_64-w64-mingw32`.
+
+   This sysroot is shared across all GS projects on this machine — skip this step if you've already set it up for another project.
+
+### Usage
+
+```bash
+./build_windows_cross.sh          # configure + build build-win/Demo.exe
+./build_windows_cross.sh --run    # ...then immediately launch it under Wine
+```
+
+`build-win/` (gitignored, like `build/`) ends up with `Demo.exe` and every DLL it needs alongside it (`SDL2.dll`, `SDL2_mixer.dll`, `libwinpthread-1.dll`, `libstdc++-6.dll`, `libgcc_s_seh-1.dll`), so `wine build-win/Demo.exe` (or the `--run` flag above) just works without any manual DLL-copying step.
+
 ## Automated Builds & Releases
 
 `.github/workflows/release.yml` builds Linux, macOS, and Windows binaries automatically on every push of a `v*` tag (e.g. `v1.0.0`), or on a manual run from the Actions tab (`workflow_dispatch`). Each platform's build is attached to a GitHub Release as a ready-to-run download — no compiler, SDK, or dev libraries required on the end user's machine.
@@ -452,7 +487,14 @@ Libraries used:
 
 _The current version number is set by `GAME_VERSION` in [`gs_demo.h`](gs_demo.h)._
 
-**v1.51** (Current - SDL2 Port)
+**v1.52** (Current - SDL2 Port)
+- Fixed a Windows-only bug where file reads silently failed after a "successful" open: `GS_File::Open()` never marked itself opened on the Windows branch, breaking level/data loading on Windows
+- Fixed the native Win32 menu bar rendering as a black bar above the game (`GS_ENABLE_MENU`)
+- Hardened the game loop against a stalled frame replaying many simulation ticks synchronously
+- Linked `winmm` explicitly so mingw-w64 builds succeed, not just MSVC
+- Added a mingw-w64 cross-compile + Wine testing workflow for local Windows debugging without a Windows machine
+
+**v1.51** (SDL2 Port)
 - Fixed Windows builds failing to play MP3 music ("Unrecognized audio format") by enabling vcpkg's mpg123 codec feature
 
 **v1.50** (SDL2 Port)
