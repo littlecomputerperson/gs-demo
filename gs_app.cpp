@@ -153,6 +153,20 @@ BOOL GS_Application::Create(int nWidth, int nHeight, int nDepth, BOOL bIsWindowe
         m_hInstance = GetModuleHandle(NULL);
     }
 
+    // Change working directory to the directory containing the executable,
+    // matching the non-Windows platforms' behavior -- otherwise relative
+    // asset/config paths ("data/...", "*.ini") depend on how the process was
+    // launched (e.g. via a shortcut with a different "Start in" folder) and
+    // may not resolve to the packaged data folder that sits next to the exe.
+    {
+        char exeDir[MAX_PATH];
+        GS_Platform::GetCurrentDirectory(MAX_PATH, exeDir);
+        if (exeDir[0] != '\0')
+        {
+            SetCurrentDirectoryA(exeDir);
+        }
+    }
+
     // Were all the required values provided?
     if ((nWidth>0) && (nHeight>0))
     {
@@ -881,9 +895,10 @@ void GS_Application::ShowFrameRate()
 // SDL Implementation
 // ---------------------------------------------------------------------------------------------
 
+#include <unistd.h>
+
 #ifdef __APPLE__
 #include <mach-o/dyld.h>
-#include <unistd.h>
 #include <libgen.h>
 #include <CoreFoundation/CoreFoundation.h>
 #endif
@@ -958,6 +973,22 @@ BOOL GS_Application::Create(int nWidth, int nHeight, int nDepth, BOOL bIsWindowe
             char* dirPath = dirname(exePath);
             chdir(dirPath);
         }
+    }
+#else
+    // On Linux, change working directory to the directory containing the
+    // executable so relative asset/config paths (e.g. "data/...") resolve
+    // consistently regardless of the launching CWD -- notably, AppImages
+    // don't chdir into their AppDir before running the wrapped executable,
+    // so without this the packaged data folder and settings.ini can't be
+    // found unless the AppImage happens to be launched from its own directory.
+    char* basePath = SDL_GetBasePath();
+    if (basePath)
+    {
+        if (chdir(basePath) != 0)
+        {
+            GS_Error::Report("GS_APP.CPP", 986, "Failed to change working directory to executable path!");
+        }
+        SDL_free(basePath);
     }
 #endif
 
