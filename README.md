@@ -450,7 +450,9 @@ Libraries used:
 
 ## Version History
 
-**v1.48b** (Current - SDL2 Port)
+_The current version number is set by `GAME_VERSION` in [`gs_demo.h`](gs_demo.h)._
+
+**v1.49** (Current - SDL2 Port)
 - Cross-platform support via SDL2
 - CMake build system
 - Improved scaling for modern displays
