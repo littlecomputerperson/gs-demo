@@ -25,9 +25,83 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
+#ifndef GS_PLATFORM_WINDOWS
+    #include <unistd.h> // Only the non-Windows implementation below (guarded) needs this.
+#endif
 #include <iostream>
 //==============================================================================================
+
+
+#ifdef GS_PLATFORM_WINDOWS
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+// Platform Utility Functions (native Win32 implementations) /////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace GS_Platform {
+
+unsigned long GetTickCount() {
+    return ::GetTickCount();
+}
+
+void Sleep(unsigned long milliseconds) {
+    ::Sleep(milliseconds);
+}
+
+bool GetClientRect(HWND hwnd, RECT* rect) {
+    return ::GetClientRect(hwnd, rect) != 0;
+}
+
+void SetRect(RECT* rect, int left, int top, int right, int bottom) {
+    ::SetRect(rect, left, top, right, bottom);
+}
+
+bool PtInRect(const RECT* rect, POINT pt) {
+    return ::PtInRect(rect, pt) != 0;
+}
+
+// windows.h #defines this to OutputDebugStringA, so this definition's
+// name is macro-expanded the same way as the header's declaration.
+void OutputDebugString(const char* message) {
+    ::OutputDebugStringA(message);
+}
+
+// windows.h #defines this to MessageBoxA, matching the header's declaration.
+int MessageBox(void* hwnd, const char* text, const char* caption, unsigned int type) {
+    return ::MessageBoxA((HWND)hwnd, text, caption, type);
+}
+
+// windows.h #defines this to GetCurrentDirectoryA, matching the header's
+// declaration. Deliberately NOT the literal Win32 GetCurrentDirectory (the
+// process's cwd, which depends on how the app was launched) -- to match
+// the SDL_GetBasePath()-based behavior used on other platforms, this
+// returns the directory containing the running executable instead, so
+// data/config paths resolve consistently regardless of launch context.
+void GetCurrentDirectory(int buflen, char* buffer) {
+    if (!buffer || buflen <= 0) return;
+
+    char modulePath[MAX_PATH];
+    DWORD len = ::GetModuleFileNameA(NULL, modulePath, MAX_PATH);
+    if (len == 0 || len == MAX_PATH) {
+        buffer[0] = '\0';
+        return;
+    }
+
+    char* lastSlash = strrchr(modulePath, '\\');
+    if (lastSlash) *lastSlash = '\0';
+
+    strncpy(buffer, modulePath, buflen - 1);
+    buffer[buflen - 1] = '\0';
+}
+
+// Paths are already in native Windows format on this platform; nothing to normalize.
+void NormalizePath(char* path) {
+    (void)path;
+}
+
+} // namespace GS_Platform
+
+#endif // GS_PLATFORM_WINDOWS
 
 
 #ifndef GS_PLATFORM_WINDOWS

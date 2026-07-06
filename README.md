@@ -206,6 +206,55 @@ open build/Demo.app
 
 Or from Finder, navigate to the `build` directory and double-click `Demo.app`.
 
+## Automated Builds & Releases
+
+`.github/workflows/release.yml` builds Linux, macOS, and Windows binaries automatically on every push of a `v*` tag (e.g. `v1.0.0`), or on a manual run from the Actions tab (`workflow_dispatch`). Each platform's build is attached to a GitHub Release as a ready-to-run download — no compiler, SDK, or dev libraries required on the end user's machine.
+
+### What each platform produces
+
+| Platform | Artifact | How it's made self-contained |
+|---|---|---|
+| Linux | `Demo-linux-x86_64.AppImage` (single file) | [`linuxdeploy`](https://github.com/linuxdeploy/linuxdeploy) bundles SDL2/SDL2_mixer and their full transitive dependency chain (FLAC, mpg123, opus, vorbis, ~25 libs total) into the AppImage |
+| macOS | `Demo-macOS.zip` (contains `Demo.app`) | [`dylibbundler`](https://github.com/auriamg/macdylibbundler) copies Homebrew's SDL2/SDL2_mixer dylibs into `Demo.app/Contents/Frameworks` and rewrites the executable's load paths, so it doesn't depend on Homebrew being installed |
+| Windows | `Demo-windows-x64.zip` (contains `Demo.exe` + DLLs) | Built via vcpkg's dynamic `x64-windows` triplet; every DLL vcpkg produces is copied next to `Demo.exe` so nothing needs to be installed separately |
+
+Each platform job also runs an automated smoke test (headless via Xvfb on Linux, a real launch-and-check on macOS, `Start-Process` on Windows) before uploading its artifact, to catch a build that compiles but doesn't actually run.
+
+### Why macOS also bundles `libSDL3.dylib`
+
+Homebrew's `sdl2` formula is actually [`sdl2-compat`](https://github.com/libsdl-org/sdl2-compat) — a thin compatibility shim that implements the SDL2 API on top of the real SDL3 library, loaded at runtime via `dlopen()` rather than a normal linked dependency. `dylibbundler` only follows `otool -L` dependencies, so it never bundles SDL3, and the resulting app fails on launch with `Failed loading SDL3 library.` on any machine that does not happen to have Homebrew's SDL3 installed. sdl2-compat's dlopen search (visible in its own binary's embedded strings) includes `@loader_path/libSDL3.dylib` — i.e. right next to `libSDL2`, which is exactly where `dylibbundler` places things — so the workflow copies it there explicitly after the normal bundling step. Confirmed by reproducing the crash locally (installing `sdl2-compat`/`sdl3` via Homebrew and launching the bundled, unfixed app) and then confirming the fix resolves it.
+
+### Cutting a release
+
+```bash
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+This triggers all three builds; once they finish, the release (with all three files attached) appears automatically on the repo's Releases page.
+
+### Unsigned binaries
+
+None of these builds are code-signed (that requires a paid Apple Developer ID / Microsoft certificate), so:
+- **macOS**: Gatekeeper will say the app is from an "unidentified developer" — right-click → Open the first time.
+- **Windows**: SmartScreen will show a warning — click "More info" → "Run anyway".
+
+This is normal for free/indie-distributed builds and doesn't indicate a problem with the download.
+
+### Why Windows uses dynamic linking (not a single static .exe)
+
+An earlier version of this workflow tried statically linking SDL2/SDL2_mixer via vcpkg's `x64-windows-static` triplet, for a single self-contained `.exe` with no DLLs at all. That failed at link time: SDL2_mixer's static library pulls in a long, version-dependent chain of optional codec libraries (FLAC, mpg123, opus, vorbis, wavpack, ...) that are only exposed via pkg-config's `Libs.private`, which the CMakeLists.txt here doesn't request. Dynamic linking (the current approach) sidesteps this entirely and mirrors the same "bundle whatever the tool produces" strategy already used for Linux and macOS.
+
+### The Windows platform abstraction bridge
+
+Getting a real Windows build working also required finishing `gs_platform.h`/`gs_platform.cpp`'s native Win32 implementations — `GS_Platform::GetTickCount`, `Sleep`, `GetClientRect`, `SetRect`, `PtInRect`, `OutputDebugString`, `MessageBox`, `GetCurrentDirectory`, and `NormalizePath` previously had no Windows-side implementation at all (only the SDL/non-Windows branch was ever finished), so any Windows build — MSVC or MinGW — would have failed to link the moment those functions were actually called. If you add new `GS_Platform` functions, make sure both the `#ifdef GS_PLATFORM_WINDOWS` and non-Windows branches in `gs_platform.cpp` are implemented, not just one.
+
+One subtlety worth knowing if you touch this file: `windows.h` `#define`s several of these names to their `A`-suffixed forms (`OutputDebugStringA`, `MessageBoxA`, `GetCurrentDirectoryA`), and since the call sites are namespace-qualified (`GS_Platform::OutputDebugString(...)`), that macro substitution applies to the declaration and definition too — so the Windows implementations are written under the same (post-macro-expansion) names, explicitly calling through to the real global function via `::`.
+
+### Why `add_executable()` needs the `WIN32` keyword
+
+`gs_main.cpp` defines `WinMain` on Windows (a native Win32 GUI entry point) rather than `main`. CMake's `add_executable(Demo ${SOURCES})` defaults to the console subsystem, whose CRT startup expects `main` — without the `WIN32` keyword, MSVC fails to link with `unresolved external symbol main`. `add_executable(Demo WIN32 ${SOURCES})` fixes this by selecting the GUI subsystem instead. This is a documented no-op on non-Windows platforms, so it doesn't affect the Linux/macOS builds. (GCC/mingw doesn't have this problem — its linker auto-selects the console vs. GUI CRT startup stub based on which entry symbol is actually defined, which is why a manual mingw-w64 cross-compile can succeed even without this keyword, while MSVC strictly requires it.)
+
 ## Platform Differences
 
 ### Windows-Specific Features

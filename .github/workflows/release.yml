@@ -1,0 +1,225 @@
+name: Build & Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq cmake build-essential pkg-config \
+            libsdl2-dev libsdl2-mixer-dev libglu1-mesa-dev libgl1-mesa-dev \
+            imagemagick wget
+
+      - name: Configure & build
+        run: |
+          cmake -B build -DCMAKE_BUILD_TYPE=Release
+          cmake --build build -j"$(nproc)"
+
+      - name: Assemble AppDir
+        run: |
+          mkdir -p AppDir/usr/bin
+          cp build/Demo AppDir/usr/bin/
+          cp -r build/data AppDir/usr/bin/
+          cp build/*.ini AppDir/usr/bin/ 2>/dev/null || true
+          convert GameSystem.ico -resize 256x256 demo.png
+
+      - name: Download linuxdeploy
+        run: |
+          wget -q https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage -O linuxdeploy.AppImage
+          chmod +x linuxdeploy.AppImage
+
+      - name: Package AppImage
+        run: |
+          ./linuxdeploy.AppImage --appimage-extract-and-run \
+            --appdir AppDir \
+            --executable AppDir/usr/bin/Demo \
+            --desktop-file packaging/linux/gs-demo.desktop \
+            --icon-file demo.png \
+            --output appimage
+          mv Demo*.AppImage Demo-linux-x86_64.AppImage
+
+      - name: Smoke test (headless)
+        run: |
+          sudo apt-get install -y -qq xvfb
+
+          # GH Actions runs this as `bash -e`, so a non-zero exit from the
+          # command below would abort the step before we get to check it
+          # ourselves. Disable errexit just for this line.
+          set +e
+          xvfb-run -a --server-args='-screen 0 1024x768x24' timeout 6 ./Demo-linux-x86_64.AppImage --appimage-extract-and-run > run.log 2>&1
+          code=$?
+          set -e
+
+          cat run.log
+          # 124 = still running when the timeout killed it, i.e. it launched fine
+          if [ "$code" -ne 124 ] && [ "$code" -ne 0 ]; then
+            echo "AppImage exited unexpectedly with code $code"
+            exit 1
+          fi
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-appimage
+          path: Demo-linux-x86_64.AppImage
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: brew install sdl2 sdl2_mixer pkg-config dylibbundler
+
+      - name: Configure & build
+        run: |
+          cmake -B build -DCMAKE_BUILD_TYPE=Release
+          cmake --build build --config Release -j"$(sysctl -n hw.ncpu)"
+
+      - name: Bundle dependencies into the .app
+        run: |
+          BIN=build/Demo.app/Contents/MacOS/Demo
+          dylibbundler -od -b -x "$BIN" -d build/Demo.app/Contents/Frameworks/ -p @executable_path/../Frameworks/
+
+          # Homebrew's "sdl2" is actually sdl2-compat, a thin shim that loads
+          # the real SDL3 library at runtime via dlopen rather than a normal
+          # linked dependency -- dylibbundler only follows otool -L
+          # dependencies, so it never bundles SDL3, and the app fails at
+          # launch with "Failed loading SDL3 library." sdl2-compat's dlopen
+          # search (per its own embedded strings) includes
+          # @loader_path/libSDL3.dylib, i.e. right next to libSDL2, which is
+          # exactly where dylibbundler puts things -- so just copy it there.
+          cp "$(brew --prefix sdl3)/lib/libSDL3.0.dylib" build/Demo.app/Contents/Frameworks/libSDL3.dylib
+          codesign --force --sign - build/Demo.app/Contents/Frameworks/libSDL3.dylib
+
+          # dylibbundler leaves one duplicate LC_RPATH per original Homebrew
+          # lib dir it rewrote (all pointing at the same new path), which
+          # makes dyld refuse to load the binary ("duplicate LC_RPATH").
+          # Strip them all and add back exactly one.
+          chmod +w "$BIN"
+          while otool -l "$BIN" | grep -q '@executable_path/../Frameworks/'; do
+            install_name_tool -delete_rpath "@executable_path/../Frameworks/" "$BIN" || break
+          done
+          install_name_tool -add_rpath "@executable_path/../Frameworks/" "$BIN"
+          codesign --force --deep --sign - "$BIN"
+
+      - name: Verify no Homebrew paths remain
+        run: |
+          if find build/Demo.app -type f -perm -u+x -exec sh -c 'otool -L "$1" 2>/dev/null | grep -q "/opt/homebrew" && echo "$1"' _ {} \; | grep -q .; then
+            echo "Bundle still references Homebrew paths:"
+            find build/Demo.app -type f -perm -u+x -exec sh -c 'otool -L "$1" 2>/dev/null | grep -q "/opt/homebrew" && echo "$1"' _ {} \;
+            exit 1
+          fi
+
+      - name: Smoke test
+        run: |
+          open build/Demo.app --stdout /tmp/demo_out.log --stderr /tmp/demo_err.log
+          sleep 4
+          if ! pgrep -f "Demo.app/Contents/MacOS/Demo" > /dev/null; then
+            echo "App did not stay running:"
+            cat /tmp/demo_err.log 2>/dev/null
+            exit 1
+          fi
+          pkill -f "Demo.app/Contents/MacOS/Demo" || true
+          cat /tmp/demo_err.log 2>/dev/null
+
+      - name: Zip the app bundle
+        run: ditto -c -k --sequesterRsrc --keepParent build/Demo.app Demo-macOS.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macos-app
+          path: Demo-macOS.zip
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Clone & bootstrap vcpkg
+        run: |
+          git clone --depth 1 https://github.com/microsoft/vcpkg.git
+          .\vcpkg\bootstrap-vcpkg.bat
+
+      - name: Cache vcpkg packages
+        uses: actions/cache@v4
+        with:
+          path: vcpkg/installed
+          key: vcpkg-x64-windows-sdl2-${{ runner.os }}
+
+      - name: Install SDL2
+        run: .\vcpkg\vcpkg.exe install sdl2:x64-windows sdl2-mixer:x64-windows
+
+      - name: Install pkg-config
+        run: choco install pkgconfiglite -y
+
+      - uses: ilammy/msvc-dev-cmd@v1
+
+      - uses: seanmiddleditch/gha-setup-ninja@v4
+
+      - name: Configure & build
+        shell: pwsh
+        run: |
+          $env:PKG_CONFIG_PATH = "$pwd\vcpkg\installed\x64-windows\lib\pkgconfig"
+          cmake -B build -G Ninja `
+            -DCMAKE_BUILD_TYPE=Release `
+            -DCMAKE_TOOLCHAIN_FILE="$pwd\vcpkg\scripts\buildsystems\vcpkg.cmake" `
+            -DVCPKG_TARGET_TRIPLET=x64-windows
+          cmake --build build
+
+      - name: Copy runtime DLLs next to the executable
+        shell: pwsh
+        run: |
+          # SDL2_mixer's static .lib pulls in a long, version-dependent chain
+          # of optional codec libs (FLAC, mpg123, opus, vorbis, wavpack, ...)
+          # that pkg-config only exposes via Libs.private, which the shared
+          # CMakeLists.txt doesn't request. Dynamic linking sidesteps that
+          # entirely: copy every DLL vcpkg produced and let the loader
+          # resolve what's actually needed, same as the AppImage/dylibbundler
+          # approach on Linux/macOS.
+          Copy-Item vcpkg\installed\x64-windows\bin\*.dll build\
+
+      - name: Smoke test
+        shell: pwsh
+        run: |
+          $p = Start-Process -FilePath "build\Demo.exe" -PassThru
+          Start-Sleep -Seconds 4
+          if ($p.HasExited) {
+            Write-Error "Demo.exe exited immediately (exit code $($p.ExitCode))"
+            exit 1
+          }
+          Stop-Process -Id $p.Id -Force
+
+      - name: Zip the build output
+        shell: pwsh
+        run: Compress-Archive -Path build\Demo.exe, build\*.dll, build\data, build\*.ini -DestinationPath Demo-windows-x64.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-zip
+          path: Demo-windows-x64.zip
+
+  release:
+    needs: [build-linux, build-macos, build-windows]
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*/*
+          generate_release_notes: true

@@ -29,6 +29,15 @@
 #ifdef GS_PLATFORM_WINDOWS
     #define WIN32_LEAN_AND_MEAN
     #include <windows.h>
+    #include <SDL2/SDL.h>
+    #include <string.h>
+
+    // MSVC's CRT only provides the underscore-prefixed form; POSIX
+    // strcasecmp is used directly by some GS_ headers (e.g. SDL2_mixer
+    // sound), so map it here rather than in every call site.
+    #ifndef strcasecmp
+        #define strcasecmp _stricmp
+    #endif
 #else
     #include <SDL2/SDL.h>
     #include <stdint.h>

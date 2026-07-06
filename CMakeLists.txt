@@ -127,7 +127,12 @@ if(APPLE)
     
     message(STATUS "Build complete! Application bundle: ${CMAKE_BINARY_DIR}/Demo.app")
 else()
-    add_executable(Demo ${SOURCES})
+    # WIN32 selects the GUI (WinMain-based) subsystem/CRT startup on Windows,
+    # matching gs_main.cpp's WinMain entry point there -- without it, MSVC
+    # defaults to the console subsystem, which expects main() and fails to
+    # link ("unresolved external symbol main"). This keyword has no effect
+    # on non-Windows platforms (Linux still uses main(), unaffected).
+    add_executable(Demo WIN32 ${SOURCES})
     
     # Copy data directory to build directory
     if(EXISTS ${CMAKE_SOURCE_DIR}/data)
