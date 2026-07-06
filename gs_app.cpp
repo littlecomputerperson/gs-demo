@@ -25,6 +25,16 @@
 GS_Application* g_pGSApp = NULL;
 //==============================================================================================
 
+//==============================================================================================
+// Upper bound (in milliseconds) on the frame time fed to the game loop. Without this, a single
+// delayed frame (e.g. the native Win32 message queue being flooded with WM_MOUSEMOVE/WM_SETCURSOR/
+// key-repeat traffic and starving the idle branch that calls GameLoop()) produces a huge elapsed
+// time on the next call, and downstream game code that scales frame time directly into simulation
+// ticks can replay dozens of ticks synchronously in a single call.
+// ---------------------------------------------------------------------------------------------
+#define GS_MAX_FRAME_TIME 250.0f
+//==============================================================================================
+
 #ifdef GS_PLATFORM_WINDOWS
 
 //==============================================================================================
@@ -651,7 +661,12 @@ INT GS_Application::Run()
             if (m_bIsActive && m_bIsReady)
             {
                 // Wait for the minimum time required by frame-rate.
-                if ((m_fFrameTime = m_gsFrameTimer.GetFrameTime()) >= m_fWaitTime)
+                m_fFrameTime = m_gsFrameTimer.GetFrameTime();
+                if (m_fFrameTime > GS_MAX_FRAME_TIME)
+                {
+                    m_fFrameTime = GS_MAX_FRAME_TIME;
+                }
+                if (m_fFrameTime >= m_fWaitTime)
                 {
                     // Mark the next frame to be measured.
                     m_gsFrameTimer.MarkFrame();
@@ -1341,7 +1356,12 @@ INT GS_Application::Run()
 
         if (m_bIsActive && m_bIsReady)
         {
-            if ((m_fFrameTime = m_gsFrameTimer.GetFrameTime()) >= m_fWaitTime)
+            m_fFrameTime = m_gsFrameTimer.GetFrameTime();
+            if (m_fFrameTime > GS_MAX_FRAME_TIME)
+            {
+                m_fFrameTime = GS_MAX_FRAME_TIME;
+            }
+            if (m_fFrameTime >= m_fWaitTime)
             {
                 m_gsFrameTimer.MarkFrame();
                 if (TRUE != GameLoop())

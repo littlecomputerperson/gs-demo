@@ -172,7 +172,14 @@ else()
             ${SDL2_MIXER_LIBRARIES}
         )
     endif()
-    
+
+    if(WIN32)
+        # gs_timer.h pulls in winmm.lib via "#pragma comment(lib, ...)", which
+        # MSVC honors automatically but GNU ld (mingw-w64) does not -- link it
+        # explicitly so mingw-w64 cross/native builds succeed too, not just MSVC.
+        target_link_libraries(Demo winmm)
+    endif()
+
     message(STATUS "Build complete! Executable: ${CMAKE_BINARY_DIR}/Demo")
 endif()
 

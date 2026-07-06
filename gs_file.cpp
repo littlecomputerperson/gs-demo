@@ -176,6 +176,9 @@ BOOL GS_File::Open(const char* pszFilename, FILE_MODE_FLAGS FileMode)
     {
         return FALSE;
     }
+
+    m_FileMode = FileMode;
+    m_bIsOpened = TRUE;
 #else
     // Normalize the path
     GS_Platform::NormalizePath(szFullname);
