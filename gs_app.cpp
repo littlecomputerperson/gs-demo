@@ -68,6 +68,25 @@ GS_Application::GS_Application()
 
     g_pGSApp = this;
 
+    // Change working directory to the directory containing the executable.
+    // This must happen here, in the base-class constructor, rather than in
+    // Create() -- subclasses like GS_Blocks load settings/hiscores from
+    // their own constructor body (which runs after this base constructor
+    // but typically before Create() is ever called), so if the chdir lived
+    // in Create() those reads would still see whatever directory the
+    // process happened to launch from. Relative asset/config paths
+    // ("data/...", "*.ini") otherwise depend on how the process was
+    // launched (e.g. via a shortcut with a different "Start in" folder) and
+    // may not resolve to the packaged data folder that sits next to the exe.
+    {
+        char exeDir[MAX_PATH];
+        GS_Platform::GetCurrentDirectory(MAX_PATH, exeDir);
+        if (exeDir[0] != '\0')
+        {
+            SetCurrentDirectoryA(exeDir);
+        }
+    }
+
     m_hInstance = NULL;
     m_hWnd      = NULL;
     m_hDC       = NULL;
@@ -151,20 +170,6 @@ BOOL GS_Application::Create(int nWidth, int nHeight, int nDepth, BOOL bIsWindowe
     if (!m_hInstance)
     {
         m_hInstance = GetModuleHandle(NULL);
-    }
-
-    // Change working directory to the directory containing the executable,
-    // matching the non-Windows platforms' behavior -- otherwise relative
-    // asset/config paths ("data/...", "*.ini") depend on how the process was
-    // launched (e.g. via a shortcut with a different "Start in" folder) and
-    // may not resolve to the packaged data folder that sits next to the exe.
-    {
-        char exeDir[MAX_PATH];
-        GS_Platform::GetCurrentDirectory(MAX_PATH, exeDir);
-        if (exeDir[0] != '\0')
-        {
-            SetCurrentDirectoryA(exeDir);
-        }
     }
 
     // Were all the required values provided?
@@ -907,48 +912,16 @@ GS_Application::GS_Application()
 {
     g_pGSApp = this;
 
-    m_pWindow = NULL;
-    m_glContext = NULL;
-
-    m_bIsActive   = FALSE;
-    m_bIsReady    = FALSE;
-    m_bIsPaused   = FALSE;
-    m_bIsWindowed = TRUE;
-
-    m_nDisplayWidth  = 0;
-    m_nDisplayHeight = 0;
-    m_nColorDepth    = 0;
-
-    m_dwWindowStyle   = 0;
-    m_dwWindowStyleEx = 0;
-
-    memset(&m_rcWindowBounds, 0, sizeof(RECT));
-    memset(&m_rcWindowClient, 0, sizeof(RECT));
-
-    m_fFrameRate = GS_DEFAULT_FPS;
-    m_fFrameTime = 0.0f;
-    m_fWaitTime  = 0.0f;
-}
-
-GS_Application::~GS_Application()
-{
-
-    if (m_bIsReady)
-    {
-        Destroy();
-    }
-}
-
-BOOL GS_Application::Create(int nWidth, int nHeight, int nDepth, BOOL bIsWindowed)
-{
-    if (m_bIsReady)
-    {
-        return FALSE;
-    }
-
+    // Change working directory to the directory containing the executable.
+    // This must happen here, in the base-class constructor, rather than in
+    // Create() -- subclasses like GS_Blocks load settings/hiscores from
+    // their own constructor body (which runs after this base constructor
+    // but before Create() is ever called), so if the chdir lived in
+    // Create() those reads would still see whatever directory the process
+    // happened to launch from.
 #ifdef __APPLE__
-    // On macOS, change working directory to the Resources folder in the bundle
-    // This fixes asset loading when launched from Finder
+    // On macOS, change working directory to the Resources folder in the
+    // bundle. This fixes asset loading when launched from Finder.
     CFBundleRef mainBundle = CFBundleGetMainBundle();
     if (mainBundle)
     {
@@ -991,6 +964,45 @@ BOOL GS_Application::Create(int nWidth, int nHeight, int nDepth, BOOL bIsWindowe
         SDL_free(basePath);
     }
 #endif
+
+    m_pWindow = NULL;
+    m_glContext = NULL;
+
+    m_bIsActive   = FALSE;
+    m_bIsReady    = FALSE;
+    m_bIsPaused   = FALSE;
+    m_bIsWindowed = TRUE;
+
+    m_nDisplayWidth  = 0;
+    m_nDisplayHeight = 0;
+    m_nColorDepth    = 0;
+
+    m_dwWindowStyle   = 0;
+    m_dwWindowStyleEx = 0;
+
+    memset(&m_rcWindowBounds, 0, sizeof(RECT));
+    memset(&m_rcWindowClient, 0, sizeof(RECT));
+
+    m_fFrameRate = GS_DEFAULT_FPS;
+    m_fFrameTime = 0.0f;
+    m_fWaitTime  = 0.0f;
+}
+
+GS_Application::~GS_Application()
+{
+
+    if (m_bIsReady)
+    {
+        Destroy();
+    }
+}
+
+BOOL GS_Application::Create(int nWidth, int nHeight, int nDepth, BOOL bIsWindowed)
+{
+    if (m_bIsReady)
+    {
+        return FALSE;
+    }
 
     // Initialize SDL
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) < 0)
