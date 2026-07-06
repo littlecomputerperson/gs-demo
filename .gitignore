@@ -1,6 +1,7 @@
 
 # Build folder
 build/
+build-win/
 
 # VS Code
 *.code-workspace
@@ -12,6 +13,7 @@ CMakeFiles/
 cmake_install.cmake
 Makefile
 *.cmake
+!mingw-w64-x86_64.toolchain.cmake
 
 # IDE files
 .idea/
